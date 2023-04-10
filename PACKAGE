@@ -1,0 +1,10 @@
+PKG_NAME=afmachine
+PKG_SUMMARY=afmachine-summary
+PKG_DESCRIPTION=afmachine-description
+PKG_KEYWORDS=afmachine-keywords
+PKG_VERSION=0.0.1
+PKG_DISTNAME=afmachine-0.0.1
+PKG_REPO=https://github.com/pnoulis/afmachine
+PKG_HOMEPAGE=https://github.com/pnoulis/afmachine#readme
+PKG_BUGREPORT=https://github.com/pnoulis/afmachine/issues
+PKG_DOCS=https://github.com/pnoulis/afmachine#readme
