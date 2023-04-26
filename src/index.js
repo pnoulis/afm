@@ -1,1 +1,5 @@
-export * from "./afm.js";
+import { CONFIG } from "../configure.js";
+
+const { Afmachine } = CONFIG;
+
+export { Afmachine };

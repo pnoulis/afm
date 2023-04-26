@@ -1,32 +1,28 @@
 import { teamsFactory } from "./team.js";
 import { playersFactory } from "./player.js";
 import { AFMError, LOGGER } from "./shared.js";
+import { Log } from "./log.js";
 
-let log;
 class AgentFactoryMachine {
   constructor(userConf = {}) {
     const conf = AgentFactoryMachine.parseConf(userConf);
-    log = conf.services.logger;
-    this.state = conf.state;
-    this.backend = conf.services.backend;
+    this.backend = conf.backend;
+    this.store = conf.store;
+    this.log = new Log(conf.logger);
     this.teams = teamsFactory(this);
     this.players = playersFactory(this);
   }
 
-  static parseConf(userConf) {
-    const conf = {
-      services: {
-        backend: userConf?.services?.backend || null,
-        logger: LOGGER(userConf?.services?.logger),
-      },
-      state: userConf.state || {},
-    };
-
-    if (!conf.services.backend) {
-      throw new AFMError("Missing backend service");
+  static parseConf({ logger, backend, store }) {
+    if (!(logger && backend && store)) {
+      throw new Error("Incomplete configuration");
     }
 
-    return conf;
+    return {
+      logger,
+      backend,
+      store,
+    };
   }
 }
 

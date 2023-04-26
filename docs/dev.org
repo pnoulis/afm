@@ -1,0 +1,28 @@
+* System overview
+The afmachine or agent factory machine is a wrapper to all business logic
+associated with the agent_factory product and at the moment serves as the
+controller to the MVC pattern within the afadmin_client.
+
+afmachine as of now is responsible for:
+
+- Responding to user initiated events
+- Validating input
+- Communicating with the backend server
+- Handling backend server responses
+- Logging
+- Persisting state
+- Providing state
+
+* System architecture
+client event -> logEvent -> backend request -> parse backend request -> log backend
+request -> hand in data
+
+state_event -> logEvent -> hydrate state -> state permits change -> backend
+request -> parse backend request -> log backend request -> persist state -> hand
+in data.
+
+state_event -> logEvent -> hydrate state -> state does not permit change ->
+logEvent -> hand in data
+
+* System configuration
+** Parameters

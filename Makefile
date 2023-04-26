@@ -3,6 +3,7 @@
 # Make and Shell behavior
 SHELL = /usr/bin/bash
 .DELETE_ON_ERROR:
+.EXPORT_ALL_VARIABLES:
 .DEFAULT_GOAL := all
 
 # Critical Paths
@@ -115,7 +116,7 @@ distclean: clean
 # ------------------------------ VARIOUS ------------------------------ #
 .PHONY: env
 env:
-	$(MAKE_ENV) $(params)
+	$(MAKE_ENV) --mode=$(params)
 
 dirs:
 	$(MKDIRP) $(LOGDIR)
