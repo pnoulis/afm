@@ -29,13 +29,14 @@
     "npm": ">=9.5.1"
   },
   "dependencies": {
-    "js_utils": "../../lib/js_utils",
+    "js_utils": "file:../../lib/js_utils",
     "mqtt": "^4.3.7",
     "mqtt_proxy": "file:../../lib/mqtt_proxy",
     "precompiled-mqtt": "^4.3.14-beta"
   },
   "devDependencies": {
     "@types/react": "^18.0.34",
+    "dotenv": "^16.0.3",
     "eslint": "^8.38.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.8.0",

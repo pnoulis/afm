@@ -50,11 +50,21 @@ const CONFIG = {
 // get mode independent env
 CONFIG.env.RUNTIME = detectRuntime();
 CONFIG.env.MODE = detectMode();
-CONFIG.env.BACKEND_HOST = getEnvar("BACKEND_HOST", true);
-CONFIG.env.BACKEND_PORT = getEnvar("BACKEND_PORT", true);
-CONFIG.env.BACKEND_URL = getEnvar("BACKEND_URL", true);
-CONFIG.env.BACKEND_AUTH_USERNAME = getEnvar("BACKEND_AUTH_USERNAME", true);
-CONFIG.env.BACKEND_AUTH_PASSWORD = getEnvar("BACKEND_AUTH_PASSWORD", true);
+CONFIG.env.BACKEND_URL = getEnvar(
+  "BACKEND_URL",
+  true,
+  CONFIG.env.RUNTIME === "browser" && import.meta.env.BACKEND_URL
+);
+CONFIG.env.BACKEND_AUTH_USERNAME = getEnvar(
+  "BACKEND_AUTH_USERNAME",
+  true,
+  CONFIG.env.RUNTIME === "browser" && import.meta.env.BACKEND_AUTH_USERNAME
+);
+CONFIG.env.BACKEND_AUTH_PASSWORD = getEnvar(
+  "BACKEND_AUTH_PASSWORD",
+  true,
+  CONFIG.env.RUNTIME === "browser" && import.meta.env.BACKEND_AUTH_PASSWORD
+);
 
 // load dynamic libraries
 var mqttLibrary;
@@ -98,8 +108,7 @@ switch (CONFIG.env.MODE) {
 /* ------------------------------ POST CONFIGURE ------------------------------ */
 
 // log configuration
-console.log(CONFIG.env);
-console.log(CONFIG.Afmachine);
+console.log(CONFIG);
 
 /* ------------------------------ MODE INDEPENDENT ------------------------------ */
 
@@ -125,7 +134,7 @@ function dev() {
       mode: CONFIG.env.MODE,
       runtime: CONFIG.env.RUNTIME,
     },
-    browser: CONFIG.env.RUNTIME === "browser" ? { asObject: true } : undefined,
+    browser: { asObject: true },
   });
 
   // configure backendMqttClient
@@ -171,17 +180,17 @@ function prod() {
 
   // configure logger
   CONFIG.logger = new Pino({
-    level: LOGLEVEL,
+    level: CONFIG.env.LOGLEVEL,
     name: "afmachine",
     timestamp: Pino.stdTimeFunctions.isoTime,
     formatters: {
       level: (label) => ({ level: label }),
     },
     base: {
-      mode: MODE,
-      runtime: RUNTIME,
+      mode: CONFIG.env.MODE,
+      runtime: CONFIG.env.RUNTIME,
     },
-    browser: RUNTIME === "browser" ? { asObject: true } : undefined,
+    browser: CONFIG.env.RUNTIME === "browser" ? { asObject: true } : undefined,
   });
   // configure backendMqttClient
   // configure backendMqttClientProxy

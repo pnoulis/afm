@@ -1,16 +1,18 @@
 /// <reference types="vitest" />
 import { defineConfig } from "vite";
 import { configDefaults } from "vitest/config";
-import { getEnvar } from "js_utils";
-
-// https:vitejs.dev/config/
-const conf = {};
-const MODE = getEnvar("MODE", true, "production");
-const HOST = getEnvar("HOST", true, "production");
 
 // https:vitejs.dev/config/
 export default defineConfig({
-  ...conf,
+  define: {
+    "import.meta.env.BACKEND_URL": JSON.stringify(process.env.BACKEND_URL),
+    "import.meta.env.BACKEND_AUTH_USERNAME": JSON.stringify(
+      process.env.BACKEND_AUTH_USERNAME
+    ),
+    "import.meta.env.BACKEND_AUTH_PASSWORD": JSON.stringify(
+      process.env.BACKEND_AUTH_PASSWORD
+    ),
+  },
   build: {
     outDir: "dist",
     target: "esnext",
@@ -24,7 +26,6 @@ export default defineConfig({
       name: "afmachine",
       formats: ["es"],
     },
-    ...conf.build,
   },
   test: {
     // ...

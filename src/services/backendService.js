@@ -16,7 +16,7 @@ function backendService(backend, logger) {
     backend,
   };
 
-  service.start = function start() {
+  service.init = function init() {
     return new Promise((resolve, reject) => {
       backend
         .publish("/boot", {
