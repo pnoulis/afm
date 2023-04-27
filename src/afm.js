@@ -26,4 +26,8 @@ class AgentFactoryMachine {
   }
 }
 
+AgentFactoryMachine.prototype.init = function init() {
+  this.backend.init();
+};
+
 export { AgentFactoryMachine };

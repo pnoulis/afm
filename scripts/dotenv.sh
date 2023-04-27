@@ -174,8 +174,8 @@ main() {
 
     load_static_env
     load_local_env
-    load_proc_env
     load_clienv
+    load_proc_env
     expand_envars
     switch_prefixes
     write_env
@@ -186,21 +186,21 @@ load_clienv() {
         ENV["${key%%=*}"]="${key##*=}"
     done <<<"${CLIENV}"
 
-    if [[ -n "${MODE:-}" ]]; then
-        ENV['MODE']=${MODE}
-    fi
+    # if [[ -n "${MODE:-}" ]]; then
+    #     ENV['MODE']=${MODE}
+    # fi
 
-    if [[ -n "${BUILD:-}" ]]; then
-        ENV['BUILD']=${BUILD}
-    fi
+    # if [[ -n "${BUILD:-}" ]]; then
+    #     ENV['BUILD']=${BUILD}
+    # fi
 
-    if [[ -n "${HOST:-}" ]]; then
-        ENV['HOST']=${HOST}
-    fi
+    # if [[ -n "${HOST:-}" ]]; then
+    #     ENV['HOST']=${HOST}
+    # fi
 
-    if [[ -n "${TARGET:-}" ]]; then
-        ENV['TARGET']=${TARGET}
-    fi
+    # if [[ -n "${TARGET:-}" ]]; then
+    #     ENV['TARGET']=${TARGET}
+    # fi
 
 }
 
