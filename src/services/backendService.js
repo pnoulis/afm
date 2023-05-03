@@ -20,7 +20,6 @@ function backendService(backend, logger) {
   });
 
   service.init = function init() {
-    service.initialized = true;
     return new Promise((resolve, reject) => {
       backend
         .publish("/boot", {
