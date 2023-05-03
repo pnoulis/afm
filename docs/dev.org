@@ -15,14 +15,14 @@ afmachine as of now is responsible for:
 
 * System architecture
 client event -> logEvent -> backend request -> parse backend request -> log backend
-request -> hand in data
+request -> hand in data -> afadmin_client
 
 state_event -> logEvent -> hydrate state -> state permits change -> backend
 request -> parse backend request -> log backend request -> persist state -> hand
-in data.
+in data -> afadmin_client
 
 state_event -> logEvent -> hydrate state -> state does not permit change ->
-logEvent -> hand in data
+logEvent -> afadmin_client
 
 * System configuration
 ** Parameters

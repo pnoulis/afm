@@ -49,7 +49,8 @@ class Player {
       Player.afm.backend
         .publish("/player/login", player)
         .then((res) => resolve(res))
-        .catch((err) => mixinErr("Failed player login", err, reject));
+        .catch((err) => reject(err));
+      // .catch((err) => mixinErr("Failed player login", err, reject));
     });
   }
 
@@ -61,6 +62,7 @@ class Player {
    * @param {string} player.username
    * @param {string} player.name
    * @param {string} player.surname
+   * @param {string} player.email
    * @param {string} [player.password]
    * @returns {object} player - Registered player
    * @returns {string} player.username
@@ -80,6 +82,26 @@ class Player {
         .publish("/player/register", player)
         .then((res) => resolve(res))
         .catch((err) => mixinErr("Failed player registration", err, reject));
+    });
+  }
+
+  /**
+   * List all registered players
+   *
+   * @async
+   * @returns {array<object>} players
+   * @returns {string} player.username
+   **/
+  static async list() {
+    return new Promise((resolve, reject) => {
+      this.afm.backend
+        .publish("/players/list")
+        .then((res) => resolve(res))
+        .catch((err) => reject(err));
+      // this.afm.backend
+      //   .publish("/players/list")
+      //   .then((res) => resolve(res))
+      //   .catch((err) => mixinErr("Failed to list players", err, reject));
     });
   }
 }

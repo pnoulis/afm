@@ -16,7 +16,7 @@ Log.prototype.levels = {
   silent: -1,
 };
 
-log.prototype.trace = function trace(...args) {
+Log.prototype.trace = function trace(...args) {
   this.logger.trace(...args);
 };
 
