@@ -104,6 +104,54 @@ class Player {
       //   .catch((err) => mixinErr("Failed to list players", err, reject));
     });
   }
+
+  /**
+   * Search a player
+   *
+   * @async
+   * @param {string} searchTerm
+   * @returns {array<object>} payload
+   **/
+  static async search(player) {
+    return new Promise((resolve, reject) => {
+      this.afm.backend
+        .publish("/player/search", {
+          searchTerm: player,
+        })
+        .then((res) => resolve(res))
+        .catch((err) => reject(err));
+    });
+  }
+
+  /**
+   * Register wristband to player
+   *
+   * @async
+   * @param {object} payload
+   * @param {string} payload.username
+   * @param {integer} payload.wristbandNumber
+   * @returns {object} payload
+   **/
+  static async registerWristband(payload) {
+    return new Promise((resolve, reject) => {
+      this.afm.backend
+        .publish("/wristband/register", payload)
+        .then((res) => resolve(res))
+        .catch((err) => reject(err));
+    });
+  }
+
+  /**
+   * Unregister wristband
+   **/
+  static async unRegisterWristband(payload) {
+    return new Promise((resolve, reject) => {
+      this.afm.backend
+        .publish("/wristband/unregister", payload)
+        .then((res) => resolve(res))
+        .catch((err) => reject(err));
+    });
+  }
 }
 
 export { playersFactory };
