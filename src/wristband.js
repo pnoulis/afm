@@ -20,6 +20,16 @@ class Wristband {
     conf.id = userConf.id || Math.random().toString(16).slice(2, 8);
     conf.colorCode = userConf.colorCode || null;
   }
+
+  static async pair() {
+    return new Promise((resolve, reject) => {
+      this.afm.backend.subscribe(
+        "/wristband/scan",
+        { mode: "response" },
+        (err, res) => (err ? reject(err) : resolve(res))
+      );
+    });
+  }
 }
 
 Wristband.prototype.setState = function setState(state, cb) {

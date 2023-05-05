@@ -118,7 +118,18 @@ class Player {
         .publish("/player/search", {
           searchTerm: player,
         })
-        .then((res) => resolve(res))
+        .then((res) =>
+          resolve({
+            ...res,
+            players: res.players.map((p) => ({
+              ...p,
+              wristband: {
+                ...p.wristband,
+                pairing: false,
+              },
+            })),
+          })
+        )
         .catch((err) => reject(err));
     });
   }
@@ -150,6 +161,16 @@ class Player {
         .publish("/wristband/unregister", payload)
         .then((res) => resolve(res))
         .catch((err) => reject(err));
+    });
+  }
+
+  static async listenWristbandScan() {
+    return new Promise((resolve, reject) => {
+      this.afm.backend.subscribe(
+        "/wristband/scan",
+        { mode: "persistent" },
+        (err, res) => (err ? reject(err) : resolve(res))
+      );
     });
   }
 }

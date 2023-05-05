@@ -19,6 +19,9 @@
   "exports": {
     ".": {
       "import": "./dist/index.js"
+    },
+    "./config": {
+      "import": "./configure.js"
     }
   },
   "type": "module",

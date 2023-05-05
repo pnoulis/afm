@@ -32,8 +32,8 @@ function backendService(backend, logger) {
             logger.info("Backend service boot success");
             service.publish = (route, payload, options) =>
               backend.publish(route, payload, options);
-            service.subscribe = (route, payload, options) =>
-              backend.subscribe(route, payload, options);
+            service.subscribe = (route, options, cb) =>
+              backend.subscribe(route, options, cb);
             // const publish = backend.publish.bind(backend);
             // const subscribe = backend.publish.bind(backend);
             // backend.publish = (route, payload, options) =>
