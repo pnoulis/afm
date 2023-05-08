@@ -21,6 +21,7 @@ function backendService(backend, logger) {
 
   service.init = function init() {
     return new Promise((resolve, reject) => {
+      console.log("PUBLISHING BACKEND BOOTED");
       backend
         .publish("/boot", {
           deviceId: backend.id,
@@ -28,6 +29,7 @@ function backendService(backend, logger) {
           deviceType: "REGISTRATION_SCREEN",
         })
         .then((res) => {
+          console.log("BACKNED BOOTED RESPONSE");
           if (res.result === "OK") {
             logger.info("Backend service boot success");
             service.publish = (route, payload, options) =>
@@ -46,10 +48,13 @@ function backendService(backend, logger) {
             service.isBooted = true;
             resolve();
           } else {
+            console.log("BACKEND BOOTED NOK");
             throw new Error("Backend service boot failed", { cause: res });
           }
         })
         .catch((err) => {
+          console.log("BACKEND BOOTED ERROR");
+          console.log(err);
           logger.error("Backend service boot failed", err);
           reject(err);
         });

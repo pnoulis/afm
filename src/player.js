@@ -155,7 +155,7 @@ class Player {
   /**
    * Unregister wristband
    **/
-  static async unRegisterWristband(payload) {
+  static async unregisterWristband(payload) {
     return new Promise((resolve, reject) => {
       this.afm.backend
         .publish("/wristband/unregister", payload)
