@@ -173,6 +173,20 @@ class Player {
       );
     });
   }
+
+  /**
+   * List available players
+   * Returns players which are not part of a team and have a registered
+   * wristband
+   **/
+  static async listAvailable() {
+    return new Promise((resolve, reject) => {
+      this.afm.backend
+        .publish("/players/list/available")
+        .then(resolve)
+        .catch(reject);
+    });
+  }
 }
 
 export { playersFactory };
