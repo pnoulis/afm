@@ -187,6 +187,19 @@ class Player {
         .catch(reject);
     });
   }
+
+  /**
+   * Create team
+   **/
+
+  static async createTeam(payload) {
+    return new Promise((resolve, reject) => {
+      this.afm.backend
+        .publish("/team/merge", payload)
+        .then(resolve)
+        .catch(reject);
+    });
+  }
 }
 
 export { playersFactory };
