@@ -1,9 +1,18 @@
-import { validatePlayer } from "./validate.js";
-import { LOGGER, AFMError, mixinErr } from "./shared.js";
-import { Wristband } from "./wristband.js";
+import {
+  validatePlayer
+} from "./validate.js";
+import {
+  LOGGER,
+  AFMError,
+  mixinErr
+} from "./shared.js";
+import {
+  Wristband
+} from "./wristband.js";
 import * as Errors from "./errors.js";
 
 let log;
+
 function playersFactory(afm) {
   Player.afm ||= afm;
   Player.players ||= new Map();
@@ -81,7 +90,8 @@ class Player {
       this.afm.backend
         .publish("/player/register", player)
         .then((res) => resolve(res))
-        .catch((err) => mixinErr("Failed player registration", err, reject));
+        .catch((err) => mixinErr("Failed player registration", err,
+          reject));
     });
   }
 
@@ -167,8 +177,9 @@ class Player {
   static async listenWristbandScan() {
     return new Promise((resolve, reject) => {
       this.afm.backend.subscribe(
-        "/wristband/scan",
-        { mode: "persistent" },
+        "/wristband/scan", {
+          mode: "persistent"
+        },
         (err, res) => (err ? reject(err) : resolve(res))
       );
     });
@@ -200,6 +211,21 @@ class Player {
         .catch(reject);
     });
   }
+
+  /**
+   * Team statistics
+   **/
+
+  static async listTeams() {
+    return new Promise((resolve, reject) => {
+      this.afm.backend.publish("/teams/all")
+        .then(resolve)
+        .catch(reject);
+    });
+  }
+
 }
 
-export { playersFactory };
+export {
+  playersFactory
+};
