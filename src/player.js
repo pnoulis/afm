@@ -234,7 +234,7 @@ class Player {
   static async createGroupTeam(groupTeam) {
     return new Promise((resolve, reject) => {
       this.afm.backend
-        .publish("/groupteam/merge", groupteam)
+        .publish("/groupteam/merge", groupTeam)
         .then(resolve)
         .catch(reject);
     });
