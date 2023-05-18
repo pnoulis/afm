@@ -239,6 +239,15 @@ class Player {
         .catch(reject);
     });
   }
+
+  /**
+   * List Available packages
+   **/
+  static async listPackages() {
+    return new Promise((resolve, reject) => {
+      this.afm.backend.publish("/packages/list").then(resolve).catch(reject);
+    });
+  }
 }
 
 export { playersFactory };
