@@ -160,8 +160,8 @@ class Player {
     return new Promise((resolve, reject) => {
       this.afm.backend
         .publish("/wristband/unregister", payload)
-        .then((res) => resolve(res))
-        .catch((err) => reject(err));
+        .then(resolve)
+        .catch(reject);
     });
   }
 
@@ -246,6 +246,56 @@ class Player {
   static async listPackages() {
     return new Promise((resolve, reject) => {
       this.afm.backend.publish("/packages/list").then(resolve).catch(reject);
+    });
+  }
+
+  /**
+   * Add package
+   **/
+  static async addPackage(payload) {
+    return new Promise((resolve, reject) => {
+      this.afm.backend
+        .publish("/team/package/add", payload)
+        .then(resolve)
+        .catch(reject);
+    });
+  }
+
+  /**
+   * Remove package
+   **/
+  static async removePackage(payload) {
+    return new Promise((resolve, reject) => {
+      this.afm.backend
+        .publish("/team/package/delete", payload)
+        .then(resolve)
+        .catch(reject);
+    });
+  }
+
+  /**
+   * Start playing
+   **/
+
+  static async startPlay(payload) {
+    return new Promise((resolve, reject) => {
+      this.afm.backend
+        .publish("/team/activate", payload)
+        .then(resolve)
+        .catch(reject);
+    });
+  }
+
+  /**
+   * Stop play
+   **/
+
+  static async stopPlay(payload) {
+    return new Promise((resolve, reject) => {
+      this.afm.backend
+        .publish("/team/deactivate", payload)
+        .then(resolve)
+        .catch(reject);
     });
   }
 }
