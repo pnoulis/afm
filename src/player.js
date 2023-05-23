@@ -165,15 +165,17 @@ class Player {
     });
   }
 
-  static async listenWristbandScan() {
+  static async subscribeWristbandScan(listener, { mode = "persistent" } = {}) {
     return new Promise((resolve, reject) => {
-      this.afm.backend.subscribe(
-        "/wristband/scan",
-        {
-          mode: "persistent",
-        },
-        (err, res) => (err ? reject(err) : resolve(res))
-      );
+      this.afm.backend
+        .subscribe("/wristband/scan", { mode }, listener)
+        .then(resolve)
+        .catch((err) => {
+          reject({
+            result: "NOK",
+            message: "Failed to subscribe to wristband scan, SERVER ERROR",
+          });
+        });
     });
   }
 
