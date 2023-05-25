@@ -116,22 +116,9 @@ class Player {
   static async search(player) {
     return new Promise((resolve, reject) => {
       this.afm.backend
-        .publish("/player/search", {
-          searchTerm: player,
-        })
-        .then((res) =>
-          resolve({
-            ...res,
-            players: res.players.map((p) => ({
-              ...p,
-              wristband: {
-                ...p.wristband,
-                pairing: false,
-              },
-            })),
-          })
-        )
-        .catch((err) => reject(err));
+        .publish("/player/search", { searchTerm: player })
+        .then(resolve)
+        .catch(reject);
     });
   }
 
