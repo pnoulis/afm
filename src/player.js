@@ -189,6 +189,27 @@ class Player {
   }
 
   /**
+   * Subscribe wristband unregistration
+   **/
+  static async subscribeWristbandUnregistration(
+    listener,
+    { mode = "persistent" } = {}
+  ) {
+    return new Promise((resolve, reject) => {
+      this.afm.backend
+        .subscribe("/wristband/unregister", { mode }, listener)
+        .then(resolve)
+        .catch((err) =>
+          reject({
+            result: "NOK",
+            message:
+              "Failed to subscribe to wristband unregistration, SERVER ERROR",
+          })
+        );
+    });
+  }
+
+  /**
    * List available players
    * Returns players which are not part of a team and have a registered
    * wristband
