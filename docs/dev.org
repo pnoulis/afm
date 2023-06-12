@@ -26,3 +26,7 @@ logEvent -> afadmin_client
 
 * System configuration
 ** Parameters
+* Log 12/06/23
+config.js file  environment variables
+
+Basically i need to treat afmachine as a library.

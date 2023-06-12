@@ -10,7 +10,6 @@
     "url": "https://github.com/pnoulis/afmachine.git"
   },
   "scripts": {
-    "prepare": "make build-prod",
     "dev": "make run",
     "build": "make build",
     "test": "make test"
