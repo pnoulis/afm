@@ -30,3 +30,14 @@ logEvent -> afadmin_client
 config.js file  environment variables
 
 Basically i need to treat afmachine as a library.
+
+** Registering a player
+** stateful changes
+Stateful should anticipate a stateful duplicate somewhere along the prototype
+chain. It should then proceed to merge the two stateful objects instead of
+attaching its payload to the object provided.
+
+Stateful should extend an object's prototype, not attach functionality directly
+on the object.
+
+Statefull creates a new object. The new object has as its prototype the stateful object.

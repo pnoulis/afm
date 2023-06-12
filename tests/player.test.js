@@ -70,9 +70,9 @@ describe("player", () => {
   });
 
   it("Should not allow registering a player in any state other than the Unregistered", () => {
-    const unregisteredPlayer = new Player();
-    const registeredPlayer = new Player(registeredPlayer);
-    const inTeamPlayer = new Player(inTeamPlayer);
-    const inGamePlayer = new Player(inGamePlayer);
+    const playerUnregistered = new Player();
+    const playerRegistered = new Player(registeredPlayer);
+    const playerInTeam = new Player(inTeamPlayer);
+    const playerInGame = new Player(inGamePlayer);
   });
 });

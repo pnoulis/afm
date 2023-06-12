@@ -79,15 +79,15 @@ test: test-dev
 
 test-dev:
 	$(MAKE_ENV) --mode=dev --host=dev
-	set -a; source ./.env && $(TESTER) run --reporter verbose --mode=dev
+	set -a; source ./.env && $(TESTER) run --reporter verbose --mode=dev $(params)
 
 test-staging:
 	$(MAKE_ENV) --mode=staging --host=dev
-	set -a; source ./.env && $(TESTER) run --reporter verbose --mode=staging
+	set -a; source ./.env && $(TESTER) run --reporter verbose --mode=staging $(params)
 
 test-prod:
 	$(MAKE_ENV) --mode=prod --host=dev
-	set -a; source ./.env && $(TESTER) run --reporter verbose --mode=prod
+	set -a; source ./.env && $(TESTER) run --reporter verbose --mode=prod $(params)
 
 # ------------------------------ LINT ------------------------------ #
 .PHONY: lint
