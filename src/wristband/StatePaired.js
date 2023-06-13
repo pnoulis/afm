@@ -5,9 +5,13 @@ class Paired extends State {
     super(wristband);
   }
 
-  togglePairing() {
-    console.log(`${this.name} toggle pairing `);
+  scan(cb) {
+    // throw error, wristband is scanned already, first need to unpair();
   }
+  verify() {}
+  register(player) {}
+  unregister(player) {}
+  unpair(player) {}
 }
 
 export { Paired };

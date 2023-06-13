@@ -5,7 +5,6 @@ import { Registered } from "./StateRegistered.js";
 import { InTeam } from "./StateInTeam.js";
 import { InGame } from "./StateInGame.js";
 import { Wristband } from "../wristband/Wristband.js";
-import { register, login } from "../actions.js";
 
 class Player {
   static initialize(player, config) {
@@ -49,8 +48,6 @@ class Player {
       })
     );
     Player.initialize(this, player);
-    this.registration = register();
-    this.logination = login();
   }
   changeState(state, cb) {
     const currentState = this.state.name;
@@ -60,14 +57,6 @@ class Player {
     });
   }
 
-  _register() {}
-
-  register(form) {
-    return Promise.resolve().then(this.state.register(form));
-  }
-  unregister() {
-    this.state.unregister();
-  }
   pairWristband(cb) {
     this.state.pairWristband(cb);
   }

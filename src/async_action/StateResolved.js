@@ -19,7 +19,6 @@ class Resolved extends State {
       this.action.changeState(this.action.getIdleState);
     });
   }
-  reject() {};
 }
 
 export { Resolved };

@@ -6,6 +6,10 @@ class State {
   scan() {
     console.log(`${this.name} scan wristband`);
   }
+  verify() {}
+  register(player) {}
+  unregister(player) {}
+  unpair(player) {}
 }
 
 export { State };

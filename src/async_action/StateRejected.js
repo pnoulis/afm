@@ -13,13 +13,12 @@ class Rejected extends State {
     return undefined;
   }
 
-  resolve(err) {
+  reject(err) {
     this.action.startCountdown(this.action.options.minTimeRejecting, () => {
       this.action.reject(err);
       this.action.changeState(this.action.getIdleState);
     });
   }
-  reject() {};
 }
 
 export { Rejected };

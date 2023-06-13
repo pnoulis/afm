@@ -41,3 +41,6 @@ Stateful should extend an object's prototype, not attach functionality directly
 on the object.
 
 Statefull creates a new object. The new object has as its prototype the stateful object.
+
+* Log 13/06/23
+** create the user registration process

@@ -9,18 +9,23 @@ class Pairing extends State {
     if (err) {
       this.wristband.emit("error", err);
     } else {
-      this.wristband.unregisterScanListener();
       this.wristband.number = wristband.wristbandNumber;
       this.wristband.color = wristband.wristbandColor;
+      this.wristband.emit("scanned", wristband);
+      this.wristband.unregisterScanListener();
       this.wristband.changeState(this.wristband.getScannedState);
+      this.wristband.constructor.wristbandScanHandler(err, wristband);
     }
   }
 
-  togglePairing(cb) {
+  scan() {
     this.wristband.unregisterScanListener();
-    this.wristband.flush('scanned', "player_scan");
     this.wristband.changeState(this.wristband.getEmptyState, cb);
   }
+  verify() {}
+  register(player) {}
+  unregister(player) {}
+  unpair(player) {}
 }
 
 export { Pairing };

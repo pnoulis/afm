@@ -19,7 +19,12 @@ class Pending extends State {
       this.action.state.resolve(response);
     });
   }
-  reject() {}
+  reject(err) {
+    this.action.startCountdown(this.action.options.minTimePending, () => {
+      this.action.changeState(this.action.getRejectedState);
+      this.action.state.reject(err);
+    });
+  }
 }
 
 export { Pending };

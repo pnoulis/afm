@@ -16,4 +16,38 @@ function logBackendError(topic = "", req = {}, consumeError = false) {
   };
 }
 
-export { logBackendResponse, logBackendError };
+function logStateChange(currentState, previousState) {
+  LOGGER.debug(`[TRANSITION] ${previousState} -> ${currentState}`);
+}
+function logSubscriptionDisconnected(subscription) {
+  LOGGER.debug(`[SUBSCRIPTION] ${subscription.topic} DISCONNECTED`);
+}
+function logSubscriptionConnected(subscription) {
+  LOGGER.debug(`[SUBSCRIPTION] ${subscription.topic} CONNECTED`);
+}
+function logSubscriptionMessage(err, msg, subscription) {
+  LOGGER.debug(`[SUBSCRIPTION] ${subscription.topic} MESSAGE`);
+}
+function logSubscriptionError(err, subscription) {
+  LOGGER.error(err, `[SUBSCRIPTION] ${subscription.topic} ERROR`);
+}
+
+function attachLogsSubscription(subscription) {
+  subscription.on("stateChange", logStateChange);
+  subscription.on("disconnected", logSubscriptionDisconnected);
+  subscription.on("connected", logSubscriptionConnected);
+  subscription.on("message", logSubscriptionMessage);
+  subscription.on("error", logSubscriptionError);
+  return subscription;
+}
+
+export {
+  logStateChange,
+  logSubscriptionConnected,
+  logSubscriptionDisconnected,
+  logSubscriptionError,
+  logSubscriptionMessage,
+  attachLogsSubscription,
+  logBackendResponse,
+  logBackendError,
+};

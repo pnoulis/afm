@@ -42,6 +42,7 @@ const tr = new TaskRunner({
 // backend service
 const backend = {
   init() {
+    if (BACKEND_BOOTED) return;
     const bootInfo = {
       deviceId: ENVIRONMENT.BACKEND_CLIENT_ID,
       roomName: ENVIRONMENT.BACKEND_ROOM_NAME,
@@ -67,7 +68,7 @@ const backend = {
       .run(() => backendProxy.subscribe(topic, options, listener))
       .then(parseResponse)
       .then(logBackendResponse(topic))
-      .catch(logBackendError(topic, payload));
+      .catch(logBackendError(topic, listener));
   },
 };
 

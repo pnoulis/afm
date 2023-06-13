@@ -1,9 +1,17 @@
 import Pino from "pino";
 import { detectRuntime, detectMode, getEnvar } from "js_utils/environment";
 
-// // CONFIGURE ENVIRONMENT
+// CONFIGURE ENVIRONMENT
+const RUNTIME = detectRuntime();
+if (RUNTIME === "node") {
+  Object.defineProperty(import.meta, "env", {
+    enumerable: true,
+    value: {},
+  });
+}
+
 const ENVIRONMENT = {
-  RUNTIME: detectRuntime(),
+  RUNTIME,
   MODE: detectMode(),
   LOGLEVEL: getEnvar("LOGLEVEL", true, import.meta.env.LOGLEVEL),
   BACKEND_CLIENT_ID: getEnvar("BACKEND_CLIENT_ID", true, "dev001"),

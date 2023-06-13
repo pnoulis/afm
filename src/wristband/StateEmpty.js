@@ -5,11 +5,14 @@ class Empty extends State {
     super(wristband);
   }
 
-  togglePairing(cb) {
+  scan() {
     this.wristband.registerScanListener();
-    this.wristband.once("scanned", cb, { id: "player_scan" });
     this.wristband.changeState(this.wristband.getPairingState);
   }
+  verify() {}
+  register(player) {}
+  unregister(player) {}
+  unpair(player) {}
 }
 
 export { Empty };

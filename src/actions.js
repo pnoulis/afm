@@ -1,17 +1,13 @@
 import backend from "./backend/backend.js";
 import { AsyncAction } from "./async_action/index.js";
 
-function login(options = {}) {
-  return new AsyncAction(function (player) {
-    return backend.publish("/player/login", player);
-  }, options);
-}
+const loginPlayer = new AsyncAction(function (player) {
+  return backend.publish("/player/login", player);
+});
 
-function register(options = {}) {
-  return new AsyncAction(function (player) {
-    return backend.publish("/player/register", player);
-  }, options);
-}
+const registerPlayer = new AsyncAction(function (player) {
+  return backend.publish("/player/register", player);
+});
 
 function listAvaibalePlayers(options = {}) {
   return new AsyncAction(function () {
@@ -31,4 +27,10 @@ function listPackages(options = {}) {
   }, options);
 }
 
-export { listAvaibalePlayers, listAllTeams, listPackages, login, register };
+export {
+  listAvaibalePlayers,
+  listAllTeams,
+  listPackages,
+  loginPlayer,
+  registerPlayer,
+};

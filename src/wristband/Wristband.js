@@ -4,8 +4,11 @@ import { Empty } from "./StateEmpty.js";
 import { Pairing } from "./StatePairing.js";
 import { Scanned } from "./StateScanned.js";
 import { Paired } from "./StatePaired.js";
+import { subscribeWristbandScan } from "../subscriptions.js";
 
 class Wristband {
+  static wristbandScanSubscription = subscribeWristbandScan();
+  static wristbandScanHandler = null;
   static colors = [
     "black",
     "red",
@@ -15,16 +18,6 @@ class Wristband {
     "blue",
     "orange",
   ];
-
-  static subscription = null;
-  static hydrate(backendWristband) {
-    const wristband = {
-      number: backendWristband.wristbandNumber,
-      color: backendWristband.wristbandColor,
-      active: backendWristband.active ?? false,
-    };
-  }
-
   static initialize(wristband, config) {
     wristband.number = config.wristbandNumber || null;
     wristband.color = config.wristbandColor || null;
@@ -63,21 +56,27 @@ class Wristband {
   }
 
   changeState(state, cb) {
-    const currentState = this.state.name;
+    const previousState = this.state.name;
     this.setState(state, () => {
-      this.emit("stateChange", this.state.name, currentState);
+      this.emit("stateChange", this.state.name, previousState);
       cb && cb();
     });
   }
 
   registerScanListener() {
-    Wristband.subscription.register(this.handleWristbandScan.bind(this), {
-      id: "singleton",
-    });
+    this.constructor.wristbandScanSubscription.register(
+      this.handleWristbandScan.bind(this),
+      {
+        id: "oneWristbandListenerPerSession",
+      }
+    );
   }
 
   unregisterScanListener() {
-    Wristband.subscription.flush("message", "singleton");
+    this.constructor.wristbandScanSubscription.flush(
+      "message",
+      "oneWristbandListenerPerSession"
+    );
   }
 
   handleWristbandScan(err, wristband) {
@@ -88,14 +87,15 @@ class Wristband {
     return code ? this.color : Wristband.colors[this.color];
   }
 
-  pair() {}
-  unpair() {}
-  verify() {}
-
   /* INTERFACE */
-  togglePairing(cb) {
-    this.state.togglePairing(cb);
+  scan(cb) {
+    this.constructor.wristbandScanHandler = cb;
+    this.state.scan(cb);
   }
+  verify() {}
+  register(player) {}
+  unregister(player) {}
+  unpair(player) {}
 }
 
 export { Wristband };
