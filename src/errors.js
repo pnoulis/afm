@@ -1,3 +1,13 @@
+/*
+  code: 1 -> Player cannot pair a wristband in <state>
+ */
+class WristbandError extends Error {
+  constructor({ message = "wristbandError", code = 0, ...cause } = {}) {
+    super(message, { cause });
+    this.code = code;
+  }
+}
+
 class AfadminClientError extends Error {
   constructor({ message = "AfadminClientError", ...cause }) {
     super(message, { cause });
@@ -44,4 +54,5 @@ export {
   ModelError,
   ValidationError,
   BackendError,
+  WristbandError,
 };

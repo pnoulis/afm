@@ -57,8 +57,10 @@ class Player {
     });
   }
 
-  pairWristband(cb) {
-    this.state.pairWristband(cb);
+  pairWristband() {
+    return new Promise((resolve, reject) => {
+      this.state.pairWristband(resolve, reject);
+    });
   }
 }
 

@@ -5,12 +5,14 @@ class Unregistered extends State {
     super(player);
   }
 
-  pairWristband(cb) {
-    console.log(`${this.name} pair wristband`);
-    this.player.wristband.togglePairing(cb);
-  }
-  register(form) {
-    return this.player.registration.fire(form);
+  pairWristband(resolve, reject) {
+    this.player.wristband.scan((err, wristband) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(wristband);
+      }
+    });
   }
 }
 

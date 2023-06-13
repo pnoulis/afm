@@ -43,4 +43,9 @@ on the object.
 Statefull creates a new object. The new object has as its prototype the stateful object.
 
 * Log 13/06/23
-** create the user registration process
+** DONE create the user registration process
+CLOSED: [2023-06-13 Tue 19:10]
+
+** Create mock server
+** TODO register a wristband to a player
+*** scan the wristband

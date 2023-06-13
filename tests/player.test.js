@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
-import { Player } from "../src/player/index.js";
+import { Player, Wristband } from "../src/index.js";
+import * as Errors from "../src/errors.js";
+import { randomWristband } from '../scripts/randomWristband.js';
 
 const unregisterdPlayer = {};
 
@@ -44,6 +46,11 @@ const inGamePlayer = {
   },
 };
 
+const playerUnregistered = new Player();
+const playerRegistered = new Player(registeredPlayer);
+const playerInTeam = new Player(inTeamPlayer);
+const playerInGame = new Player(inGamePlayer);
+
 describe("player", () => {
   it("Given an empty instantiation configuration go to state unregistered", () => {
     const p = new Player();
@@ -69,10 +76,20 @@ describe("player", () => {
     expect(p.inState("inGame")).toBe(true);
   });
 
-  it("Should not allow registering a player in any state other than the Unregistered", () => {
-    const playerUnregistered = new Player();
-    const playerRegistered = new Player(registeredPlayer);
-    const playerInTeam = new Player(inTeamPlayer);
-    const playerInGame = new Player(inGamePlayer);
-  });
+  it(
+    "Should pairWristband() only when wristband is Empty and player NOT InGame", async () => {
+
+      let player;
+      let wristband;
+
+      // unregistered player
+      player = new Player();
+      // empty wristband
+      wristband = new Wristband();
+      player.wristband = wristband;
+      expect(player.getState()).toBe('unregistered');
+      expect(wristband.getState()).toBe('empty');
+      await expect(player.pairWristband()).resolves.toContain()
+    }
+  );
 });
