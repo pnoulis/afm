@@ -25,6 +25,7 @@ let BACKEND_CONNECTED = false;
 let BACKEND_BOOTED = false;
 
 backendClient.once("connect", () => {
+  console.log("Backend client connected");
   BACKEND_CONNECTED = true;
 });
 

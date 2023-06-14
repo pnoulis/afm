@@ -73,5 +73,7 @@ import * as Types from './types.js';
  * @typedef {import("path/ClassName").<name>} ClassName
  */
 
-** Create a mock backend server so that routes can be tested.
-*** add test mode to dotenv.sh
+** TODO Create a mock backend server so that routes can be tested.
+subscribing too fast to all the routes in the mock backend server does not work.
+*** DONE add test mode to dotenv.sh
+CLOSED: [2023-06-14 Wed 19:25]

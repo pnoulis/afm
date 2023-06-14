@@ -5,6 +5,10 @@ import { MqttProxy } from "mqtt_proxy";
 // mock backend server
 const backendServer = new LIB_MQTT.connect(ENVIRONMENT.BACKEND_URL);
 
+backendServer.on("connect", () => {
+  console.log("Mock backend server connected!");
+});
+
 // mock backend server proxy
 const backendProxy = new MqttProxy({
   id: ENVIRONMENT.BACKEND_CLIENT_ID,
@@ -16,36 +20,51 @@ const backendProxy = new MqttProxy({
   },
 });
 
-let NEXT_RESPONSE = (publish) =>
-  publish({
-    result: "OK",
-    message: "MOCK_SERVER_UP",
-  });
+const NEXT_RESPONSE = [
+  function (publish) {
+    publish({
+      result: "YOLOISH",
+      message: "MOCK_SERVER_UP",
+    });
+  },
+];
 
 const mockBackendServer = {
   fail(withPayload) {
-    NEXT_RESPONSE = (publish) =>
+    NEXT_RESPONSE[0] = function (publish) {
       publish(
         withPayload || {
           result: "NOK",
           timestamp: 12345456789,
         }
       );
+    };
   },
   succeed(withPayload) {
-    NEXT_RESPONSE = (publish) =>
+    NEXT_RESPONSE[0] = function (publish) {
       publish(
         withPayload || {
           result: "OK",
-          timestamp: 123456789,
+          timestamp: 12345456789,
         }
       );
+    };
   },
   timeout(at) {
-    NEXT_RESPONSE = (publish) =>
+    NEXT_RESPONSE[0] = function (publish) {
       setTimeout(() => publish("timeout"), at || 5000);
+    };
   },
 };
+
+function handleRequest(requestTopic, responseTopic) {
+  return function (err, message) {
+    console.log(`backend mock server intercepted request for:${requestTopic}`);
+    NEXT_RESPONSE[0]((payload) => {
+      backendProxy.publish(responseTopic, payload);
+    });
+  };
+}
 
 // listen for all backend requests
 toServer.forEach(
@@ -53,8 +72,8 @@ toServer.forEach(
     sub &&
     backendProxy
       .subscribe(alias, (err, message) => {
-        console.log(`backend mock server intercepted request for:${sub}`);
-        NEXT_RESPONSE((payload) => backendProxy.publish(pub, payload));
+        console.log("yes so?");
+        handleRequest(sub, pub)(null, message);
       })
       .then((subed) => {
         console.log(`listening to:${sub}`);
