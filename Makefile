@@ -17,6 +17,7 @@ CHMOD = /usr/bin/chmod
 BUILDER = npx vite
 TESTER = npx vitest
 LINTER = npx eslint
+DOCGEN = npx jsdoc
 FORMATER = npx prettier
 PRETTY_OUTPUT = npx pino-pretty
 MAKE_ENV = ./scripts/dotenv.sh --pkgdir=. --envdir=./config/env
@@ -26,24 +27,29 @@ all: build
 
 # ------------------------------ RUN ------------------------------ #
 .PHONY: run scratch run-build
+run: mode ?= dev
 run:
 	@if test -z "$$params"; then echo \
 	"make run missing params: -> params=./file make run"; \
 	exit 1; \
 	fi
-	$(MAKE_ENV) --mode=dev --host=dev
+	$(MAKE_ENV) --mode=$(mode) --host=dev
 	@set -a; source ./.env && node "$${params}" | $(PRETTY_OUTPUT)
 
 run-scratch:
-	$(MAKE_ENV) --mode=dev --host=dev
+	$(MAKE_ENV) --mode=testing --host=dev
 	set -a; source ./.env && node ./tmp/scratch.js | $(PRETTY_OUTPUT)
 
 run-build:
 	set -a; source ./.env && node ./dist/index.js | $(PRETTY_OUTPUT)
 
 # ------------------------------ DEV ------------------------------ #
-.PHONY: dev dev-dev dev-staging dev-prod
+.PHONY: dev dev-testing dev-dev dev-staging dev-prod
 dev: dev-dev
+
+dev-testing:
+	$(MAKE_ENV) --mode=testing --host=dev
+	set -a; source ./.env && $(BUILDER) serve --mode=dev
 
 dev-dev:
 	$(MAKE_ENV) --mode=dev --host=dev
@@ -74,8 +80,12 @@ build-prod:
 	set -a; source ./.env && $(BUILDER) build --mode=prod $(params)
 
 # ------------------------------ TEST ------------------------------ #
-.PHONY: test test-dev test-staging test-prod
+.PHONY: test test-testing test-dev test-staging test-prod
 test: test-dev
+
+test-testing:
+	$(MAKE_ENV) --mode=testing --host=dev
+	set -a; source ./.env && $(TESTER) run --reporter verbose --mode=testing $(params)
 
 test-dev:
 	$(MAKE_ENV) --mode=dev --host=dev
@@ -119,6 +129,13 @@ distclean: clean
 dirs:
 	$(MKDIRP) $(LOGDIR)
 
+.PHONY: docs
+docs:
+	$(DOCGEN) src -r --destination docs/jsdoc \
+	--readme ./README.md \
+	--package ./package.json
+
 .PHONY: env
+env: mode ?= dev
 env:
-	$(MAKE_ENV) --mode=$(params)
+	$(MAKE_ENV) --mode=$(mode)

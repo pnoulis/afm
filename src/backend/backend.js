@@ -7,10 +7,7 @@ import { parseResponse } from "./parseResponse.js";
 import { logBackendResponse, logBackendError } from "../log.js";
 
 // backend client
-const backendClient = new LIB_MQTT.connect(ENVIRONMENT.BACKEND_URL, {
-  username: ENVIRONMENT.BACKEND_AUTH_USERNAME,
-  password: ENVIRONMENT.BACKEND_AUTH_PASSWORD,
-});
+const backendClient = new LIB_MQTT.connect(ENVIRONMENT.BACKEND_URL);
 
 // backend proxy
 const backendProxy = new MqttProxy({
@@ -42,7 +39,6 @@ const tr = new TaskRunner({
 // backend service
 const backend = {
   init() {
-    if (BACKEND_BOOTED) return;
     const bootInfo = {
       deviceId: ENVIRONMENT.BACKEND_CLIENT_ID,
       roomName: ENVIRONMENT.BACKEND_ROOM_NAME,

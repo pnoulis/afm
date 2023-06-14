@@ -49,3 +49,29 @@ CLOSED: [2023-06-13 Tue 19:10]
 ** Create mock server
 ** TODO register a wristband to a player
 *** scan the wristband
+
+* Log 14/06/23
+** Build and Test backend routes
+Each backend route is required to log and *translate* its traffic.
+
+** Create a routing system.
+before each route
+after each route
+** importing typedefs
+/** @type {import('./some.js')} */
+
+/* @typedef MyType
+/* @prop {string} name
+/* @prop {string} description
+
+export const Types = {}
+
+import * as Types from './types.js';
+{Types.MyType}
+
+/**
+ * @typedef {import("path/ClassName").<name>} ClassName
+ */
+
+** Create a mock backend server so that routes can be tested.
+*** add test mode to dotenv.sh

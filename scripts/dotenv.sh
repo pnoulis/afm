@@ -316,6 +316,17 @@ load_local_env() {
                 done < "./.env.prod.local"
             fi
             ;;
+        testing)
+          if [[ -f './.env.testing.local' ]]; then
+            while IFS== read -r key value; do
+              ENV[$key]=$value
+            done < "./.env.testing.local"
+          elif [[ -f './.env.testing.local' ]]; then
+            while IFS== read -r key value; do
+              ENV[$key]=$value
+            done < "./.env.testing.local"
+          fi
+          ;;
         *)
             die "Unrecognized mode:${MODE:-}"
             ;;
@@ -362,6 +373,18 @@ load_static_env() {
                 done < "./env.prod"
             fi
             ;;
+        testing)
+          if [[ -f './env.testing' ]]; then
+            while IFS== read -r key value; do
+              ENV[$key]=$value
+            done < "./env.testing"
+          elif [[ -f "./env.testing" ]]; then
+            while IFS== read -r key value; do
+              ENV[$key]=$value
+            done < "./env.testing"
+          fi
+
+          ;;
         *)
             die "Unrecognized mode:${MODE:-}"
             ;;
