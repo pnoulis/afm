@@ -36,8 +36,9 @@ run:
 	$(MAKE_ENV) --mode=$(mode) --host=dev
 	@set -a; source ./.env && node "$${params}" | $(PRETTY_OUTPUT)
 
+run-scratch: mode ?= dev
 run-scratch:
-	$(MAKE_ENV) --mode=testing --host=dev
+	$(MAKE_ENV) --mode=$(mode) --host=dev
 	set -a; source ./.env && node ./tmp/scratch.js | $(PRETTY_OUTPUT)
 
 run-build:

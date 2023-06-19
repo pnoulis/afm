@@ -82,8 +82,6 @@ CLOSED: [2023-06-14 Wed 19:25]
 * LOG 19/06/23
 middleware functions such as logging, handling of the request, transformations etc
 should be well defined and attached at a later stage.
-
-
 ** bare actions
 All available topics and the resources they represent are accessed through
 the backend/actions.
@@ -99,3 +97,7 @@ These are defined at:
 
 If some route requires extra middleware than the rest, then it is placed
 in a subdirectory of its own.
+
+** DONE Created emulateScan wrapper script
+CLOSED: [2023-06-19 Mon 20:46]
+** TODO Test wristband/scan

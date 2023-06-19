@@ -70,4 +70,5 @@ const backend = {
   },
 };
 
+export { backendClient };
 export default backend;

@@ -1,8 +1,15 @@
 import { describe, it, expect, vi } from "vitest";
 import backendClientService from "../src/backend/backend.js";
-import { loginPlayer, registerPlayer } from "../src/backend/actions/index.js";
+import { randomWristband } from "../scripts/randomWristband.js";
 import { randomPlayer } from "../scripts/randomPlayer.js";
+import { emulateScan } from "../scripts/emulateScan.js";
 import * as Errors from "../src/errors.js";
+import {
+  loginPlayer,
+  registerPlayer,
+  registerWristband,
+} from "../src/backend/actions/index.js";
+import { subscribeWristbandScan } from "../src/backend/subscriptions/index.js";
 
 describe("actions", () => {
   it("should successfully boot", async () => {
@@ -137,5 +144,120 @@ describe("actions", () => {
         result: "NOK",
       },
     });
+  });
+  it("Should subscribe to wristband/scan", async () => {
+    backendClientService.init();
+
+    const listener = vi.fn((err, wristband) => {
+      return {
+        wristbandNumber: wristband.wristbandNumber,
+        wristbandColor: wristband.wristbandColor,
+      };
+    });
+    let subscription;
+    try {
+      subscription = await subscribeWristbandScan(listener);
+      expect(subscription).toBeTypeOf("function");
+      await emulateScan(666, 6);
+      expect(listener).toHaveReturnedWith({
+        wristbandNumber: 666,
+        wristbandColor: 6,
+      });
+    } catch (err) {
+      subscription = err;
+    }
+  });
+
+  it("Should unsubscribe from wristband scan", async () => {
+    backendClientService.init();
+    const listener = vi.fn((err, wristband) => {
+      return {
+        wristbandNumber: wristband.wristbandNumber,
+        wristbandColor: wristband.wristbandColor,
+      };
+    });
+    let subscription;
+    try {
+      // successful subscription returns unsubscription function
+      subscription = await subscribeWristbandScan(listener);
+      await emulateScan();
+      await emulateScan();
+      await emulateScan();
+      await emulateScan();
+      expect(listener).toHaveBeenCalledTimes(2);
+    } catch (err) {
+      subscription = err;
+    }
+  });
+  it("Should register a wristband to a player", async () => {
+    const rwristband = randomWristband();
+    const rplayer = randomPlayer();
+    backendClientService.init();
+
+    await registerPlayer(rplayer);
+    await expect(
+      registerWristband({
+        username: rplayer.username,
+        wristbandNumber: rwristband.number,
+      })
+    ).resolves.toMatchObject({
+      result: "OK",
+    });
+  });
+
+  it("Should not register a wristband to an unregistered player", async () => {
+    const rwristband = randomWristband();
+    const rplayer = randomPlayer();
+    backendClientService.init();
+    await expect(
+      registerWristband({
+        username: rplayer.username,
+        wristbandNumber: rwristband.number,
+      })
+    ).rejects.toThrowError(Errors.ModelError);
+  });
+
+  it("Should not allow registering a wristband twice to the same player", async () => {
+    const rwristband = randomWristband();
+    const rplayer = randomPlayer();
+    backendClientService.init();
+
+    await registerPlayer(rplayer);
+    await expect(
+      registerWristband({
+        username: rplayer.username,
+        wristbandNumber: rwristband.number,
+      })
+    ).resolves.toMatchObject({
+      result: "OK",
+    });
+    await expect(
+      registerWristband({
+        username: rplayer.username,
+        wristbandNumber: rwristband.number,
+      })
+    ).rejects.toThrowError(Errors.ModelError);
+  });
+
+  it("Should not register a wristband that has already been registered to another player", async () => {
+    const rwristband = randomWristband();
+    const rplayer = randomPlayer();
+    const rplayer_2 = randomPlayer();
+    backendClientService.init();
+    await registerPlayer(rplayer);
+    await registerPlayer(rplayer_2);
+    await expect(
+      registerWristband({
+        username: rplayer.username,
+        wristbandNumber: rwristband.number,
+      })
+    ).resolves.toMatchObject({ result: "OK" });
+
+    await expect(
+      registerWristband({
+        username: rplayer_2.username,
+        wristbandNumber: rwristband.number,
+      })
+    ).rejects.toThrowError(Errors.ModelError);
   });
 });
