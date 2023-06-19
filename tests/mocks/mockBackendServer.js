@@ -23,7 +23,7 @@ const backendProxy = new MqttProxy({
 const NEXT_RESPONSE = [
   function (publish) {
     publish({
-      result: "YOLOISH",
+      result: "OK",
       message: "MOCK_SERVER_UP",
     });
   },
@@ -72,7 +72,6 @@ toServer.forEach(
     sub &&
     backendProxy
       .subscribe(alias, (err, message) => {
-        console.log("yes so?");
         handleRequest(sub, pub)(null, message);
       })
       .then((subed) => {

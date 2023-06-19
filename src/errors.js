@@ -24,7 +24,6 @@ class BackendError extends Error {
 class ValidationError extends Error {
   constructor({ message = "ValidationError", ...cause }) {
     super(message, { cause });
-    this.name = "ValidationError";
     this.statusCode = 400;
     this.statusLabel = "Bad request";
   }
@@ -33,7 +32,6 @@ class ValidationError extends Error {
 class ModelError extends Error {
   constructor({ message = "ModelError", ...cause }) {
     super(message, { cause });
-    this.name = "ModelError";
     this.statusCode = 409;
     this.statusLabel = "Conflict";
   }
@@ -42,7 +40,6 @@ class ModelError extends Error {
 class TimeoutError extends Error {
   constructor({ message = "TimeoutError", ...cause }) {
     super(message, { cause });
-    this.name = "TimeoutError";
     this.statusCode = 408;
     this.statusLabel = "Request Timeout";
   }

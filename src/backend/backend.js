@@ -2,9 +2,9 @@ import { LIB_MQTT, ENVIRONMENT } from "../config.js";
 import { toClient as BACKEND_TOPICS } from "agent_factory.shared/backend_topics.js";
 import { MqttProxy } from "mqtt_proxy";
 import { TaskRunner } from "js_utils/task_runner";
-import { boot } from "./boot.js";
+import { boot } from "./actions/index.js";
 import { parseResponse } from "./parseResponse.js";
-import { logBackendResponse, logBackendError } from "../log.js";
+import { logBackendError, logBackendResponse } from "../log.js";
 
 // backend client
 const backendClient = new LIB_MQTT.connect(ENVIRONMENT.BACKEND_URL);
@@ -25,7 +25,6 @@ let BACKEND_CONNECTED = false;
 let BACKEND_BOOTED = false;
 
 backendClient.once("connect", () => {
-  console.log("Backend client connected");
   BACKEND_CONNECTED = true;
 });
 
@@ -40,18 +39,20 @@ const tr = new TaskRunner({
 // backend service
 const backend = {
   init() {
-    const bootInfo = {
+    if (BACKEND_CONNECTED) return Promise.resolve();
+    const clientInfo = {
       deviceId: ENVIRONMENT.BACKEND_CLIENT_ID,
       roomName: ENVIRONMENT.BACKEND_ROOM_NAME,
       deviceType: ENVIRONMENT.BACKEND_DEVICE_TYPE,
     };
-    boot(backendProxy)(bootInfo)
+    return boot(backendProxy)(clientInfo)
       .then(parseResponse)
-      .then(logBackendResponse("/boot", bootInfo))
+      .then(logBackendResponse("/boot", clientInfo))
       .then((res) => {
         BACKEND_BOOTED = true;
+        return res;
       })
-      .catch(logBackendError("/boot", bootInfo, true));
+      .catch(logBackendError("/boot", clientInfo));
   },
   publish(topic, payload, options) {
     return tr
@@ -63,9 +64,9 @@ const backend = {
   subscribe(topic, options, listener) {
     return tr
       .run(() => backendProxy.subscribe(topic, options, listener))
+      .then(logBackendResponse)
       .then(parseResponse)
-      .then(logBackendResponse(topic))
-      .catch(logBackendError(topic, listener));
+      .catch(logBackendError);
   },
 };
 

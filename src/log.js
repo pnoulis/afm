@@ -9,7 +9,7 @@ function logBackendResponse(topic = "", req = {}) {
 
 function logBackendError(topic = "", req = {}, consumeError = false) {
   return (err) => {
-    LOGGER.error({ req, err }, topic);
+    LOGGER.error({ req, res: err.cause, err }, topic);
     if (!consumeError) {
       throw err;
     }

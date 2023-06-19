@@ -1,11 +1,24 @@
 import backend from "../backend.js";
 
 /**
+ * Successful player registration payload.
+
+ * @typedef {Object} SuccessFulPlayerRegistrationPayload
+ * @property {string} result - OK
+ * @property {Object} player
+ * @property {string} player.name
+ * @property {string} player.surname
+ * @property {string} player.username
+ * @property {string} player.email
+ */
+
+/**
  * Failed player registration payload.
  *
- * @typedef {Object} FailedPlayerRegistration
+ * @typedef {Object} FailedPlayerRegistrationPayload
+ * @property {string} result - NOK
  * @property {string} [message] - The cause of failure in case of a NOT validation error.
- * @property {Object.<string,*>} validationErrors
+ * @property {Object.<string,*>} validationErrors - In case of validation errors.
  */
 
 /**
@@ -17,13 +30,12 @@ import backend from "../backend.js";
  * @param {string} player.email
  * @param {string} [player.password]
  *
- * @returns {Promise<RouteTransaction>} - In case of {@link FailedPlayerRegistration}
- * rejects with a {@link BackendError}.
- * Otherwise it resolves with a {@link @BackendPlayer}.
+ * @returns {Promise<SuccessFulPlayerRegistrationPayload>}
+ * @throws {ModelError || ValidationError}
  */
 
-function routeRegisterPlayer(player) {
+function registerPlayer(player) {
   return backend.publish("/player/register", player);
 }
 
-export default routeRegisterPlayer;
+export { registerPlayer };

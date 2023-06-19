@@ -46,7 +46,6 @@ if (ENVIRONMENT.RUNTIME === "node") {
 const LOGGER = new Pino({
   level: ENVIRONMENT.LOGLEVEL,
   name: "Afmachine",
-
   timestamp: Pino.stdTimeFunctions.isoTime,
   formatters: {
     level: (label) => ({ level: label }),

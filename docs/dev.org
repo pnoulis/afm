@@ -77,3 +77,25 @@ import * as Types from './types.js';
 subscribing too fast to all the routes in the mock backend server does not work.
 *** DONE add test mode to dotenv.sh
 CLOSED: [2023-06-14 Wed 19:25]
+** Create a mock backend server so that routes can be tested.
+*** add test mode to dotenv.sh
+* LOG 19/06/23
+middleware functions such as logging, handling of the request, transformations etc
+should be well defined and attached at a later stage.
+
+
+** bare actions
+All available topics and the resources they represent are accessed through
+the backend/actions.
+These actions do not have any middleware attached.
+
+** middlewared actions
+actions that include middleware such as logging are named routes, to
+differentiate them from bare actions.
+
+These are defined at:
+
+/src/routes/
+
+If some route requires extra middleware than the rest, then it is placed
+in a subdirectory of its own.

@@ -5,7 +5,8 @@ import backend from "../backend.js";
  *
  * @typedef {Object} FailedPlayerLogin
  * @property {string} [message] - The cause of failure in case of a NOT validation error.
- * @property {Object.<string,*>} validationErrors
+ * @property {Object.<string,*>} validationErrors - In case of a validation error the
+ * object shall be populated with
  *
  */
 
@@ -18,11 +19,11 @@ import backend from "../backend.js";
  *
  * @returns {Promise<RouteTransaction>} - In case of a {@link FailedPlayerLogin}
  * the promise shall reject with a {@link BackendError}. If successful
- * the promise shall resolve with a {@link @BackendPlayer }.
+ * the promise shall resolve with a {@link BackendPlayer }.
  *
  **/
-function routeLoginPlayer(player) {
+function loginPlayer(player) {
   return backend.publish("/player/login", player);
 }
 
-export default routeLoginPlayer;
+export { loginPlayer };
