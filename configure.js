@@ -175,22 +175,23 @@ function dev() {
 
 function prod() {
   // configure environment
-  CONFIG.env.LOGLEVEL = getEnvar("LOGLEVEL", false, "warn");
+  dev();
+  // CONFIG.env.LOGLEVEL = getEnvar("LOGLEVEL", false, "warn");
 
-  // configure logger
-  CONFIG.logger = new Pino({
-    level: CONFIG.env.LOGLEVEL,
-    name: "afmachine",
-    timestamp: Pino.stdTimeFunctions.isoTime,
-    formatters: {
-      level: (label) => ({ level: label }),
-    },
-    base: {
-      mode: CONFIG.env.MODE,
-      runtime: CONFIG.env.RUNTIME,
-    },
-    browser: CONFIG.env.RUNTIME === "browser" ? { asObject: true } : undefined,
-  });
+  // // configure logger
+  // CONFIG.logger = new Pino({
+  //   level: CONFIG.env.LOGLEVEL,
+  //   name: "afmachine",
+  //   timestamp: Pino.stdTimeFunctions.isoTime,
+  //   formatters: {
+  //     level: (label) => ({ level: label }),
+  //   },
+  //   base: {
+  //     mode: CONFIG.env.MODE,
+  //     runtime: CONFIG.env.RUNTIME,
+  //   },
+  //   browser: CONFIG.env.RUNTIME === "browser" ? { asObject: true } : undefined,
+  // });
   // configure backendMqttClient
   // configure backendMqttClientProxy
   // configure localStorage
