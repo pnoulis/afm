@@ -8,6 +8,11 @@ import backend from "../backend.js";
  * @property {Object.<string,*>} validationErrors - In case of a validation error the
  * object shall be populated with
  *
+ * @example <caption>Example of a payload received at failed player login </caption>
+ *
+ * result: "NOK"
+ * message: 'Unrecognized field email'
+ *
  */
 
 /**

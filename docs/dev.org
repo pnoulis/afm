@@ -1,3 +1,5 @@
+#+TODO: TODO BUG | DONE
+
 * System overview
 The afmachine or agent factory machine is a wrapper to all business logic
 associated with the agent_factory product and at the moment serves as the
@@ -101,3 +103,25 @@ in a subdirectory of its own.
 ** DONE Created emulateScan wrapper script
 CLOSED: [2023-06-19 Mon 20:46]
 ** TODO Test wristband/scan
+* LOG 20/06/23
+** DONE define the unregister wristband action
+CLOSED: [2023-06-20 Tue 09:10]
+
+** DONE Test the unregister wristband action
+CLOSED: [2023-06-20 Tue 09:23]
+** TODO malformed payloads to unergisterWristband action do not elicit a response
+Should they? is it a bug?
+potential bug
+
+** DONE define the merge team action
+CLOSED: [2023-06-20 Tue 12:51]
+** DONE test registerWristband
+CLOSED: [2023-06-20 Tue 14:53]
+** DONE test unregisterWristband
+CLOSED: [2023-06-20 Tue 15:18]
+** DONE test mergeTeam
+CLOSED: [2023-06-20 Tue 16:29]
+* Constraints discrepancies between backend and software requirements
+** limit roster size to 6
+Currently the backend allows for registration of a team with rosters greater in
+size than 6.

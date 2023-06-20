@@ -39,7 +39,7 @@ const tr = new TaskRunner({
 // backend service
 const backend = {
   init() {
-    if (BACKEND_CONNECTED) return Promise.resolve();
+    if (BACKEND_CONNECTED) return Promise.resolve({ result: "OK" });
     const clientInfo = {
       deviceId: ENVIRONMENT.BACKEND_CLIENT_ID,
       roomName: ENVIRONMENT.BACKEND_ROOM_NAME,

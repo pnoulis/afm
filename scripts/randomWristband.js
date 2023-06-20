@@ -5,7 +5,7 @@ const ids = [];
 let colors = [...WRISTBAND_COLORS];
 
 function randomId() {
-  const id = randomInteger(1, 1000);
+  const id = randomInteger(1, 900);
   if (ids.some((previousId) => previousId === id)) {
     randomId();
   } else {
