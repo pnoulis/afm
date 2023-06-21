@@ -6,3 +6,4 @@ export * from "./unregisterWristband.js";
 export * from "./mergeTeam.js";
 export * from "./addPackage.js";
 export * from "./removePackage.js";
+export * from "./listRegisteredPlayers.js";

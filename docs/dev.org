@@ -121,6 +121,8 @@ CLOSED: [2023-06-20 Tue 14:53]
 CLOSED: [2023-06-20 Tue 15:18]
 ** DONE test mergeTeam
 CLOSED: [2023-06-20 Tue 16:29]
+* LOG 21/07/23
+** TODO Implement the middleware pattern
 * Constraints discrepancies between backend and software requirements
 ** limit roster size to 6
 Currently the backend allows for registration of a team with rosters greater in
