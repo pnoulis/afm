@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeAll } from "vitest";
 import {
+  registerGlobalErrorHandler,
   beforeEachMiddleware,
   afterAllMiddleware,
   afterEachMiddleware,
@@ -119,7 +120,7 @@ describe("router", () => {
     expect(afterCalling).toHaveBeenCalledTimes(1);
     expect(beforeCalling).toHaveBeenCalledTimes(1);
   });
-  it("Should provide a global error handler", async () => {
+  it("Should gracefully handle errors", async () => {
     const introduceRoute = vi.fn(async (context, next) => {
       await next();
     });
@@ -147,14 +148,20 @@ describe("router", () => {
       }
     );
 
-    await route({ name: "yolo" });
+    let response;
+    try {
+      response = await route({ name: "yolo" });
+    } catch (err) {
+      response = err;
+    }
+    expect(response).toBe(undefined);
     expect(introduceRoute).toHaveBeenCalledTimes(1);
     expect(concludeRoute).toHaveBeenCalledTimes(0);
     expect(afterCalling).toHaveBeenCalledTimes(0);
     expect(beforeCalling).toHaveBeenCalledTimes(1);
   });
 
-  it("Should allow custom error handlers", async () => {
+  it("Should allow registering a global error handler", async () => {
     const introduceRoute = vi.fn(async (context, next) => {
       await next();
     });
@@ -165,10 +172,16 @@ describe("router", () => {
       await next();
     });
     // err handler
-    const afterCalling = vi.fn(async (context, next, err) => {
-      console.log("CUSTOM ERROR HANDLER");
+    const afterCalling = vi.fn(async (context, next) => {
+      await next();
     });
 
+    const globalErrHandler = vi.fn((context, err) => {
+      // do nothing;
+      return;
+    });
+
+    registerGlobalErrorHandler(globalErrHandler);
     beforeAllMiddleware(introduceRoute);
     afterAllMiddleware(concludeRoute);
     afterEachMiddleware(afterCalling);
@@ -186,10 +199,11 @@ describe("router", () => {
     await route({ name: "yolo" });
     expect(introduceRoute).toHaveBeenCalledTimes(1);
     expect(concludeRoute).toHaveBeenCalledTimes(0);
-    expect(afterCalling).toHaveBeenCalledTimes(1);
+    expect(afterCalling).toHaveBeenCalledTimes(0);
     expect(beforeCalling).toHaveBeenCalledTimes(1);
+    expect(globalErrHandler).toHaveBeenCalledOnce();
   });
-  it("Should allow error chainining", async () => {
+  it("Should allow error chaining", async () => {
     const introduceRoute = vi.fn(async (context, next) => {
       await next();
     });
@@ -203,6 +217,24 @@ describe("router", () => {
       await next();
     });
 
+    const customErrHandler = vi.fn(async (context, next, err) => {
+      console.log("CUSTOM ERR HANDLER #1");
+      // pass error to the next handler in the chain
+      await next(err);
+    });
+
+    const customErrHandler2 = vi.fn(async (context, next, err) => {
+      console.log("CUSTOM ERR HANDLER #2");
+      // pass error to the next handler in the chain
+      await next(err);
+    });
+
+    const globalErrHandler = vi.fn(async (context, err) => {
+      // do nothing
+      return;
+    });
+
+    registerGlobalErrorHandler(globalErrHandler);
     beforeAllMiddleware(introduceRoute);
     afterAllMiddleware(concludeRoute);
     afterEachMiddleware(afterCalling);
@@ -212,10 +244,8 @@ describe("router", () => {
         await listRegisteredPlayers();
         throw new Error("some error");
       },
-      async (context, next, err) => {
-        console.log("CUSTOM ERROR HANDLER");
-        await next(err);
-      }
+      customErrHandler,
+      customErrHandler2
     );
 
     await route({ name: "yolo" });
@@ -223,8 +253,11 @@ describe("router", () => {
     expect(concludeRoute).toHaveBeenCalledTimes(0);
     expect(afterCalling).toHaveBeenCalledTimes(0);
     expect(beforeCalling).toHaveBeenCalledTimes(1);
+    expect(customErrHandler).toHaveBeenCalledOnce();
+    expect(customErrHandler2).toHaveBeenCalledOnce();
+    expect(globalErrHandler).toHaveBeenCalledOnce();
   });
-  it.only("Should expect errors within error handlers", async () => {
+  it("Should expect errors within error handlers", async () => {
     const introduceRoute = vi.fn(async (context, next) => {
       await next();
     });
@@ -238,26 +271,79 @@ describe("router", () => {
       await next();
     });
 
+    const customErrHandler = vi.fn(async (context, next, err) => {
+      console.log("CUSTOM ERR HANDLER #1");
+      // throw error within the custom error handler
+      throw new Error("error handler error");
+    });
+
+    const globalErrHandler = vi.fn(async (context, err) => {
+      // return the err
+      return err;
+    });
+
+    registerGlobalErrorHandler(globalErrHandler);
     beforeAllMiddleware(introduceRoute);
     afterAllMiddleware(concludeRoute);
     afterEachMiddleware(afterCalling);
     beforeEachMiddleware(beforeCalling);
-    const route = new Router(
-      async function (context, next) {
-        await listRegisteredPlayers();
-        throw new Error("some error");
-      },
-      async (err, context, next) => {
-        console.log("CUSTOM ERROR HANDLER");
-        throw new Error("yololooll");
-        // await next(err);
-      }
-    );
+    const route = new Router(async function (context, next) {
+      await listRegisteredPlayers();
+      throw new Error("some error");
+    }, customErrHandler);
 
     await route({ name: "yolo" });
     expect(introduceRoute).toHaveBeenCalledTimes(1);
     expect(concludeRoute).toHaveBeenCalledTimes(0);
     expect(afterCalling).toHaveBeenCalledTimes(0);
     expect(beforeCalling).toHaveBeenCalledTimes(1);
+    expect(customErrHandler).toHaveBeenCalledOnce();
+    expect(globalErrHandler.mock.results[0].value.message).toMatch(
+      "error handler error"
+    );
+  });
+  it.only("Should handle large pipelines", async () => {
+    const beforeAll = new Array(30).fill(
+      vi.fn(async (context, next) => {
+        await next();
+      })
+    );
+    const afterAll = new Array(30).fill(
+      vi.fn(async (context, next) => {
+        await next();
+      })
+    );
+    const beforeEach = new Array(30).fill(
+      vi.fn(async (context, next) => {
+        await next();
+      })
+    );
+    const afterEach = new Array(30).fill(
+      vi.fn(async (context, next) => {
+        await next();
+      })
+    );
+
+    const route = new Router(
+      async function (context, next) {
+        const response = await listRegisteredPlayers();
+        context.res = { ...context, ...response };
+        await next();
+      },
+      async function (context, next) {
+        await next();
+      }
+    );
+
+    beforeAllMiddleware(...beforeAll);
+    afterAllMiddleware(...afterAll);
+    afterEachMiddleware(...afterEach);
+    beforeEachMiddleware(...beforeEach);
+    const response = await route({});
+    expect(beforeAll[0]).toHaveBeenCalledTimes(30);
+    expect(afterAll[0]).toHaveBeenCalledTimes(30);
+    expect(beforeEach[0]).toHaveBeenCalledTimes(60);
+    expect(afterEach[0]).toHaveBeenCalledTimes(60);
+    expect(response.res.result).toMatch("OK");
   });
 });
