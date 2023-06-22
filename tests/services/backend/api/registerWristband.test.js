@@ -71,8 +71,8 @@ describe("registerWristband", () => {
     } catch (err) {
       response = err;
     }
-    expect(response).toBeInstanceOf(Errors.ModelError);
     expect(response).toMatchObject({
+      result: "NOK",
       message: "player with this username doesn't exist",
     });
 
@@ -84,9 +84,9 @@ describe("registerWristband", () => {
     } catch (err) {
       response = err;
     }
-    expect(response).toBeInstanceOf(Errors.ModelError);
     expect(response).toMatchObject({
-      message: expect.any(String),
+      result: "NOK",
+      message: expect.stringContaining("Cannot invoke"),
     });
   });
   it("Should require the player to be registered", async () => {
@@ -101,8 +101,8 @@ describe("registerWristband", () => {
     } catch (err) {
       response = err;
     }
-    expect(response).toBeInstanceOf(Errors.ModelError);
     expect(response).toMatchObject({
+      result: "NOK",
       message: "player with this username doesn't exist",
     });
   });
@@ -128,12 +128,12 @@ describe("registerWristband", () => {
     } catch (err) {
       response = err;
     }
-    expect(response).toBeInstanceOf(Errors.ModelError);
     expect(response).toMatchObject({
+      result: "NOK",
       message: expect.stringMatching(
         /wristband with number.*is already registered/
       ),
     });
   });
-  it.skip("Should require the player's team is not inGame", async () => {});
+  it.todo("Should require the player's team is not inGame", async () => {});
 });

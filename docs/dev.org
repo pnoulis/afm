@@ -155,15 +155,10 @@ misc/errors.js
 config.js
 typedefs.js
 index.js
-** TODO restructure backend into services/backend
-*** DONE unregisterWristband.test.js
-CLOSED: [2023-06-22 Thu 15:43]
+** DONE test loginPlayer
+CLOSED: [2023-06-22 Thu 16:39]
 
-*** TODO removePakcage.test.js
-** TODO restructure src/routes
-tests/middleware.test.js:10:} from "../src/routes/Router.js";
-
-* Constraints discrepancies between backend and software requirements
-** limit roster size to 6
-Currently the backend allows for registration of a team with rosters greater in
-size than 6.
+** DONE register player
+CLOSED: [2023-06-22 Thu 16:43]
+** DONE registerWristband
+CLOSED: [2023-06-22 Thu 16:49]

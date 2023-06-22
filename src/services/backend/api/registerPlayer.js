@@ -3,7 +3,7 @@ import { backendClientService } from "../client.js";
 /**
  * Successful player registration payload.
 
- * @typedef {Object} SuccessFulPlayerRegistrationPayload
+ * @typedef {Object} SuccessPayload
  * @property {string} result - OK
  * @property {Object} player
  * @property {string} player.name
@@ -15,7 +15,7 @@ import { backendClientService } from "../client.js";
 /**
  * Failed player registration payload.
  *
- * @typedef {Object} FailedPlayerRegistrationPayload
+ * @typedef {Object} FailurePayload
  * @property {string} result - NOK
  * @property {string} [message] - The cause of failure in case of a NOT validation error.
  * @property {Object.<string,*>} validationErrors - In case of validation errors.
@@ -30,8 +30,8 @@ import { backendClientService } from "../client.js";
  * @param {string} player.email
  * @param {string} [player.password]
  *
- * @returns {Promise<SuccessFulPlayerRegistrationPayload>}
- * @throws {ModelError || ValidationError}
+ * @returns {Promise} - SuccessPayload or FailurePayload
+ * @throws {TimeoutError}
  */
 
 function registerPlayer(player) {

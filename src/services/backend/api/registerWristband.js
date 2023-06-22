@@ -23,8 +23,8 @@ import { backendClientService } from "../client.js";
  * @param {string} payload.username
  * @param {string} payload.wristbandNumber
  *
- * @returns {Promise<SuccessPayload || FailurePayload>}
- * @throws {ModelError}
+ * @returns {Promise} - SuccessPayload or FailurePayload
+ * @throws {TimeoutError}
  */
 function registerWristband(payload) {
   return backendClientService.publish("/wristband/register", payload);

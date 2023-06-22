@@ -91,7 +91,13 @@ describe("unregisterWristband", () => {
     } catch (err) {
       response = err;
     }
-    expect(response).toBeInstanceOf(Errors.ModelError);
+    expect(response).toMatchObject({
+      result: "NOK",
+      validationErrors: {
+        username: "empty",
+        wristbandNumber: "empty",
+      },
+    });
 
     // Payload missing wristbandNumber
     try {
@@ -101,7 +107,12 @@ describe("unregisterWristband", () => {
     } catch (err) {
       response = err;
     }
-    expect(response).toBeInstanceOf(Errors.ModelError);
+    expect(response).toMatchObject({
+      result: "NOK",
+      validationErrors: {
+        wristbandNumber: "empty",
+      },
+    });
 
     // Payload missing username
     try {
@@ -111,8 +122,8 @@ describe("unregisterWristband", () => {
     } catch (err) {
       response = err;
     }
-    expect(response).toBeInstanceOf(Errors.ModelError);
     expect(response).toMatchObject({
+      result: "NOK",
       message: "player with this username doesn't exist",
     });
   });
@@ -132,11 +143,10 @@ describe("unregisterWristband", () => {
     } catch (err) {
       response = err;
     }
-
-    expect(response).toBeInstanceOf(Errors.ModelError);
     expect(response).toMatchObject({
-      message: expect.any(String),
+      result: "NOK",
+      message: expect.stringContaining("Cannot invoke"),
     });
   });
-  it.skip("Should require the player's team is not inGame", async () => {});
+  it.todo("Should require the player's team is not inGame", async () => {});
 });

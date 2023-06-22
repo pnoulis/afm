@@ -53,14 +53,14 @@ describe("registerPlayer", () => {
       response = err;
     }
 
-    expect(response).toBeInstanceOf(Errors.ValidationError);
     expect(response).toMatchObject({
-      cause: expect.objectContaining({
-        surname: expect.any(String),
-        username: expect.any(String),
-        name: expect.any(String),
-        email: expect.any(String),
-      }),
+      result: "NOK",
+      validationErrors: {
+        surname: "empty",
+        username: "empty",
+        name: "empty",
+        email: "empty",
+      },
     });
   });
   it("Should require unique player usernames", async () => {
@@ -78,9 +78,8 @@ describe("registerPlayer", () => {
     } catch (err) {
       response = err;
     }
-
-    expect(response).toBeInstanceOf(Errors.ModelError);
     expect(response).toMatchObject({
+      result: "NOK",
       message: "This username already exists",
     });
   });
@@ -99,6 +98,9 @@ describe("registerPlayer", () => {
     } catch (err) {
       response = err;
     }
-    expect(response).toBeInstanceOf(Errors.ModelError);
+    expect(response).toMatchObject({
+      result: "NOK",
+      message: expect.any(String),
+    });
   });
 });

@@ -1,12 +1,20 @@
 import { backendClientService } from "../client.js";
 
 /**
+ * Successful player login payload.
+ *
+ * @typedef {Object} SuccessPayload
+ * @property {string} result - OK
+ * BackendPlayer
+ */
+
+/**
  * Failed player login payload.
  *
- * @typedef {Object} FailedPlayerLogin
+ * @typedef {Object} FailurePayload
+ * @property {string} result - NOK
  * @property {string} [message] - The cause of failure in case of a NOT validation error.
- * @property {Object.<string,*>} validationErrors - In case of a validation error the
- * object shall be populated with
+ * @property {Object.<string,*>} validationErrors
  *
  * @example <caption>Example of a payload received at failed player login </caption>
  *
@@ -22,9 +30,8 @@ import { backendClientService } from "../client.js";
  * @param {string} player.username
  * @param {string} [player.password=""]
  *
- * @returns {Promise<RouteTransaction>} - In case of a {@link FailedPlayerLogin}
- * the promise shall reject with a {@link BackendError}. If successful
- * the promise shall resolve with a {@link BackendPlayer }.
+ * @returns {Promise} - SuccessPayload or FailurePayload
+ * @throws {TimeoutError}
  *
  **/
 function loginPlayer(player) {

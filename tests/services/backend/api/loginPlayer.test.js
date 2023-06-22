@@ -58,22 +58,13 @@ describe("loginPlayer", () => {
     });
   });
   it("Should validate the input", async () => {
-    let response;
-    try {
-      response = await loginPlayer({});
-    } catch (err) {
-      response = err;
-    }
-    expect(response).toBeInstanceOf(Errors.ValidationError);
-    expect(response).toMatchObject({
-      cause: expect.objectContaining({
-        username: expect.any(String),
-        password: expect.any(String),
-      }),
+    await expect(loginPlayer({})).resolves.toMatchObject({
+      result: "NOK",
+      validationErrors: {
+        username: "empty",
+        password: "empty",
+      },
     });
-
-    const player = randomPlayer();
-    await expect(loginPlayer(player)).rejects.toThrowError(Errors.ModelError);
   });
   it("Should require the player to be registered", async () => {
     // just in case that random player was previously registered
@@ -82,10 +73,13 @@ describe("loginPlayer", () => {
     for (const player of players) {
       await expect(
         loginPlayer({
-          username: player.username,
-          password: player.password,
+          username: players[0].username,
+          password: players[0].password,
         })
-      ).rejects.toThrowError(Errors.ModelError);
+      ).resolves.toMatchObject({
+        result: "NOK",
+        message: "Wrong username and/or password",
+      });
     }
   });
 });
