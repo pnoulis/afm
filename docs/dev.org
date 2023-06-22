@@ -155,8 +155,13 @@ misc/errors.js
 config.js
 typedefs.js
 index.js
+** TODO restructure backend into services/backend
+*** DONE unregisterWristband.test.js
+CLOSED: [2023-06-22 Thu 15:43]
 
-
+*** TODO removePakcage.test.js
+** TODO restructure src/routes
+tests/middleware.test.js:10:} from "../src/routes/Router.js";
 
 * Constraints discrepancies between backend and software requirements
 ** limit roster size to 6

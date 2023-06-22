@@ -1,5 +1,5 @@
 import { exec, spawn } from "node:child_process";
-import { backendClient } from "../src/backend/backend.js";
+import { backendClient } from "../src/services/backend/client.js";
 import process from "node:process";
 import path from "node:path";
 import fs from "node:fs";
