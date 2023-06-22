@@ -122,7 +122,42 @@ CLOSED: [2023-06-20 Tue 15:18]
 ** DONE test mergeTeam
 CLOSED: [2023-06-20 Tue 16:29]
 * LOG 21/07/23
-** TODO Implement the middleware pattern
+** DONE Implement the middleware pattern
+CLOSED: [2023-06-22 Thu 11:12]
+* LOG 22/07?23
+Restructure the /src subdirectory hierarchy to better resemble the current architecture.
+
+services/logger/client.js
+services/backend/api/
+services/backend/client.js
+
+middleware/
+middleware/parseBackendResponsejs
+middleware/logRoute.js
+middleware/logRouteError.js
+
+routes/
+routes/afterAll.js
+routes/afterEach.js
+routes/
+
+afmachine/player/
+afmachine/roster/
+afmachine/wristband/
+afmachine/team/
+afmachine/cashier/
+afmachine/action/
+
+misc/stateful.js
+misc/eventful.js
+misc/errors.js
+
+config.js
+typedefs.js
+index.js
+
+
+
 * Constraints discrepancies between backend and software requirements
 ** limit roster size to 6
 Currently the backend allows for registration of a team with rosters greater in

@@ -25,16 +25,19 @@ const pipelines = {
 function lastMiddleware(context, next, err) {
   if (err) {
     if (pipelines.globalErrHandler == null) {
-      console.log(err);
+      throw err;
     } else {
-      console.log("GLOBAL ERROR HANDLER WAS DEFINED");
       pipelines.globalErrHandler(context, err);
     }
   }
 }
 
-function globalErrHandler(context, next, err) {
-  console.log("GLOBAL ERR HANDLER");
+function clearAll() {
+  pipelines.beforeAll = [];
+  pipelines.afterAll = [];
+  pipelines.beforeEach = [];
+  pipelines.afterEach = [];
+  pipelines.globalErrHandler = null;
 }
 function registerGlobalErrorHandler(handler) {
   pipelines.globalErrHandler = handler;
@@ -55,23 +58,22 @@ function afterEachMiddleware(...middleware) {
   pipelines.afterEach.push(...middleware);
 }
 
-function Router(handler) {
-  this.stack = [];
-  this.after = [];
-  this.before = [];
+function Route(route, ...middleware) {
+  this.route = route;
+  this.queue = middleware; // FIFO
   this.prevIndex = undefined;
   this.context = undefined;
 
   this.nextErrHandler = function nextErrHandler() {
-    for (let i = this.prevIndex + 1; i < this.stack.length; i++) {
-      if (this.stack.at(i).length > 2) return i;
+    for (let i = this.prevIndex + 1; i < this.queue.length; i++) {
+      if (this.queue.at(i).length > 2) return i;
     }
     return -1;
   };
 
   this.runner = async function runner(index, err) {
     this.prevIndex = err ? this.nextErrHandler() : index;
-    const middleware = this.stack.at(this.prevIndex /* current index*/);
+    const middleware = this.queue.at(this.prevIndex /* current index*/);
     if (middleware) {
       await middleware(
         this.context,
@@ -85,27 +87,25 @@ function Router(handler) {
     try {
       await this.runner(index, err);
     } catch (err) {
-      console.log("before calling error wrapper");
-      await this.errorWrapper(index, err);
+      if (this.prevIndex === -1) {
+        // if all error handling middleware have been called including
+        // the last default one, return it to the caller
+        throw err;
+      } else {
+        await this.errorWrapper(index, err);
+      }
     }
   };
 
-  const exec = async function exec(pipeline, context) {
-    this.stack = pipeline.flat();
-    // this.stack = [
-    //   ...pipelines.beforeAll,
-    //   ...handlers
-    //     .map((handler) => [
-    //       ...pipelines.beforeEach,
-    //       handler,
-    //       ...pipelines.afterEach,
-    //     ])
-    //     .flat(),
-    //   ...pipelines.afterAll,
-    //   lastMiddleware,
-    // ];
+  const exec = async function exec(pipeline, context = {}) {
+    this.queue = pipeline.flat(3);
     this.context = {
-      req: context,
+      req: {
+        route: this.route,
+        payload: {
+          ...context,
+        },
+      },
       res: {},
     };
     this.prevIndex = -1;
@@ -116,7 +116,7 @@ function Router(handler) {
 
   const skipNone = exec.bind(this, [
     pipelines.beforeAll,
-    [this.before, handler, this.after].map((handler) => [
+    this.queue.map((handler) => [
       pipelines.beforeEach,
       handler,
       pipelines.afterEach,
@@ -124,24 +124,18 @@ function Router(handler) {
     pipelines.afterAll,
     lastMiddleware,
   ]);
-  skipNone.skipGlobals = exec.bind(this, [
-    this.before,
-    handler,
-    this.after,
-    () => {},
+  skipNone.skipAll = exec.bind(this, [
+    this.queue,
+    function (context, next, err) {
+      if (err) throw err;
+    },
   ]);
-  skipNone.skipAll = exec.bind(this, [handler, () => {}]);
-  skipNone.after = function after(middleware) {
-    this.after.push(middleware);
-  };
-  skipNone.before = function before(middleware) {
-    this.before.push(middleware);
-  };
   return skipNone;
 }
 
 export {
-  Router,
+  Route,
+  clearAll,
   registerGlobalErrorHandler,
   beforeAllMiddleware,
   beforeEachMiddleware,
