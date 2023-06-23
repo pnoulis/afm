@@ -3,7 +3,7 @@ import { backendProxy } from "../client.js";
 /**
  * Successful client boot payload
  *
- * @typedef {Object} SuccessfulClientBoot
+ * @typedef {Object} SuccessPayload
  * @property {string} result - OK
  * @property {string} deviceType
  * @property {string} roomName
@@ -20,8 +20,8 @@ import { backendProxy } from "../client.js";
  * @param {string} clientInfo.roomName
  * @param {string} clientInfo.deviceType
  *
- * @returns {Promise<SuccessfulClientBoot>}
- * @throws {ModelError}
+ * @returns {Promise} - SuccessPayload
+ * @throws {TimeoutError}
  */
 
 function boot(clientInfo) {

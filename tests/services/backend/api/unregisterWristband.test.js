@@ -124,7 +124,9 @@ describe("unregisterWristband", () => {
     }
     expect(response).toMatchObject({
       result: "NOK",
-      message: "player with this username doesn't exist",
+      validationErrors: {
+        username: "empty",
+      },
     });
   });
   it("Should require the wristband is NOT free", async () => {

@@ -39,7 +39,7 @@ import { backendClientService } from "../client.js";
  * @param {Object} payload
  * @param {string} payload.teamName
  * @param {Array<string>} payload.usernames
- * @returns {Promise<SuccessPayload || FailurePayload>}
+ * @returns {Promise} - SuccessPayload or FailurePayload
  * @throws {ModelError}
  */
 
