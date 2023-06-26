@@ -20,8 +20,8 @@ import { backendClientService } from "../client.js";
  * @param {string} payload.teamName
  * @param {string} payload.name - The name of a registered package
  *
- * @returns {Promise<BackendTeam>}
- * @throws {ModelError}
+ * @returns {Promise} - SuccessPayload or FailurePayload
+ * @throws {TimeoutError}
  */
 function addPackage(payload) {
   return backendClientService.publish("/team/package/add", payload);

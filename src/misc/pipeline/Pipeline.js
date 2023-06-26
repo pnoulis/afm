@@ -27,7 +27,7 @@ class Pipeline {
  */
 Pipeline.prototype.last = function last(callGlobalLast, context, next, err) {
   if (callGlobalLast && this.globalLast) {
-    this.globalLast(context, err);
+    return this.globalLast(context, err);
   } else {
     if (err) throw err;
   }

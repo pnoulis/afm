@@ -19,8 +19,8 @@ import { backendClientService } from "../client.js";
  * @param {string} payload.teamName
  * @param {number || string} payload.packageId
  *
- * @returns {Promise<BackendTeam>}
- * @throws {ModelError}
+ * @returns {Promise} - SuccessPayload or FailurePayload
+ * @throws {TimeoutError}
  */
 function removePackage(payload) {
   return backendClientService.publish("/team/package/delete", payload);

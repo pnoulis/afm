@@ -40,7 +40,7 @@ import { backendClientService } from "../client.js";
  * @param {string} payload.teamName
  * @param {Array<string>} payload.usernames
  * @returns {Promise} - SuccessPayload or FailurePayload
- * @throws {ModelError}
+ * @throws {TimeoutError}
  */
 
 function mergeTeam(payload) {

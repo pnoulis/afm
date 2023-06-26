@@ -58,3 +58,16 @@
  * @property {string } email
  *
  */
+
+/**
+ * Backend Team
+ *
+ * @typedef {Object} BackendTeam
+ * @property {string} name - Name of the team
+ * @property {number} totalPoints
+ * @property {string} teamState
+ * @property {Object} currentRoster
+ * @property {number} currentRoster.version
+ * @property {Array<Object>} players
+ * @property {Object} players.player
+ **/

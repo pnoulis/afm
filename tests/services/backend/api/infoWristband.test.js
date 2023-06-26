@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeAll } from "vitest";
 /*
   TESTING COMPONENTS
 */
-import { addPackage } from "../../../../src/services/backend/api/addPackage.js";
+import { infoWristband } from "../../../../src/services/backend/api/infoWristband.js";
 
 /*
   DEPENDENCIES
@@ -17,7 +17,18 @@ import * as Errors from "../../../../src/misc/errors.js";
 import {
   registerPlayer,
   registerWristband,
-  mergeTeam,
 } from "../../../../src/services/backend/api/index.js";
 
-describe("addPackage", () => {});
+beforeAll(async () => {
+  await backendClientService.init();
+});
+
+describe("infoWristband", () => {
+  it("Should request information on a wristband", async () => {
+    await expect(
+      infoWristband({
+        wristbandNumber: 200,
+      })
+    ).resolves.toMatchObject({ result: "OK" });
+  });
+});
