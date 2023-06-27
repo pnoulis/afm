@@ -1,5 +1,5 @@
-import { eventful } from "../eventful.js";
-import { stateful } from "../stateful.js";
+import { eventful } from "../../misc/eventful.js";
+import { stateful } from "../../misc/stateful.js";
 import { Idle } from "./StateIdle.js";
 import { Pending } from "./StatePending.js";
 import { Resolved } from "./StateResolved.js";
@@ -45,6 +45,8 @@ class AsyncAction {
 
     this.timeoutId = undefined;
     this.action = action;
+    this.resolve = [];
+    this.reject = [];
     this.setState(this.getIdleState);
   }
 
@@ -66,7 +68,11 @@ class AsyncAction {
 
   startCountdown(event, cb) {
     clearTimeout(this.timeoutId);
-    this.timeoutId = setTimeout(() => this.isT0() && cb(), event);
+    if (event === 0) {
+      cb();
+    } else {
+      this.timeoutId = setTimeout(() => this.isT0() && cb(), event);
+    }
   }
 
   _fire(...args) {
@@ -76,8 +82,8 @@ class AsyncAction {
   }
   fire(...args) {
     return new Promise((resolve, reject) => {
-      this.resolve = resolve;
-      this.reject = reject;
+      this.resolve.push(resolve);
+      this.reject.push(reject);
       this.state.fire(...args);
     });
   }

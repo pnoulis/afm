@@ -1,6 +1,15 @@
 /*
-  code: 1 -> Player cannot pair a wristband in <state>
- */
+  States: Empty Pairing Paired Registered
+
+  code: 1 -> Trying to pair() a Registered Wristband
+  code: 2 -> Trying to unpair() an Empty wristband
+  code: 3 -> Trying to unpair() a Registered wristband
+  code: 4 -> Trying to register() an Empty wristband
+  code: 5 -> Trying to register() a Pairing wristband
+  code: 6 -> Trying to unregister() an Empty wristband
+  code: 7 -> Trying to unregister() a Pairing wristband
+  code: 8 -> Trying to unregister() a Paired Wristband
+*/
 class WristbandError extends Error {
   constructor({ message = "wristbandError", code = 0, ...cause } = {}) {
     super(message, { cause });

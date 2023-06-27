@@ -1,4 +1,4 @@
-import { WristbandError } from "../errors.js";
+import { WristbandError } from "../../misc/errors.js";
 
 class State {
   constructor(player) {

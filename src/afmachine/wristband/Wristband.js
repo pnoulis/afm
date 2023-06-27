@@ -1,14 +1,23 @@
-import { eventful } from "../eventful.js";
-import { stateful } from "../stateful.js";
+import { eventful } from "../../misc/eventful.js";
+import { stateful } from "../../misc/stateful.js";
 import { Empty } from "./StateEmpty.js";
 import { Pairing } from "./StatePairing.js";
 import { Scanned } from "./StateScanned.js";
 import { Paired } from "./StatePaired.js";
-import { subscribeWristbandScan } from "../subscriptions.js";
+import { subscribeWristbandScan } from "../../routes/backend/routesBackend.js";
+
+subscribeWristbandScan({
+  listener: function (err, wristband) {
+    console.log(Wristband);
+    if (typeof Wristband.__listener === "function") {
+      Wristband.__listener(err, wristband);
+    }
+  },
+});
 
 class Wristband {
-  static wristbandScanSubscription = subscribeWristbandScan();
-  static wristbandScanHandler = null;
+  static __listener = null;
+  static scanHandler = null;
   static colors = [
     "black",
     "red",
@@ -63,20 +72,10 @@ class Wristband {
     });
   }
 
-  registerScanListener() {
-    this.constructor.wristbandScanSubscription.register(
-      this.handleWristbandScan.bind(this),
-      {
-        id: "oneWristbandListenerPerSession",
-      }
-    );
-  }
-
   unregisterScanListener() {
-    this.constructor.wristbandScanSubscription.flush(
-      "message",
-      "oneWristbandListenerPerSession"
-    );
+    this.constructor.__listener = null;
+    this.constructor.scanHandler = null;
+    return this;
   }
 
   handleWristbandScan(err, wristband) {
@@ -86,16 +85,23 @@ class Wristband {
   getColor(code) {
     return code ? this.color : Wristband.colors[this.color];
   }
+  verify() {}
 
   /* INTERFACE */
   scan(cb) {
-    this.constructor.wristbandScanHandler = cb;
-    this.state.scan(cb);
+    this.constructor.__listener = this.handleWristbandScan.bind(this);
+    this.constructor.scanHandler = cb;
+    this.state.scan();
   }
-  verify() {}
-  register(player) {}
-  unregister(player) {}
-  unpair(player) {}
+  pair() {}
+  unpair() {}
+  register() {}
+  unregister() {}
+  // register(player) {
+  //   return this.state.register(player);
+  // }
+  // unregister(player) {}
+  // unpair(player) {}
 }
 
 export { Wristband };

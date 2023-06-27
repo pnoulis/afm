@@ -1,4 +1,5 @@
 import { State } from "./State.js";
+import { WristbandError } from "../../misc/errors.js";
 
 class Paired extends State {
   constructor(wristband) {
@@ -6,10 +7,23 @@ class Paired extends State {
   }
 
   scan(cb) {
-    // throw error, wristband is scanned already, first need to unpair();
+    this.wristband.constructor.scanHandler(
+      new WristbandError({
+        message: "wristband.paired.scan(): trying to scan a Scanned wristband",
+        code: 1,
+      })
+    );
   }
   verify() {}
-  register(player) {}
+  register(player) {
+    return Promise.reject(
+      new WristbandError({
+        message:
+          "wristband.paired.register(): trying to register a Paired wristband",
+        code: 3,
+      })
+    );
+  }
   unregister(player) {}
   unpair(player) {}
 }

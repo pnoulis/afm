@@ -1,23 +1,29 @@
 import { State } from "./State.js";
+import { WristbandError } from "../../misc/errors.js";
+import { registerWristband } from "../../routes/backend/routesBackend.js";
 
 class Scanned extends State {
   constructor(wristband) {
     super(wristband);
   }
 
-  init() {
-    this.wristband.emit("scanned", {
-      number: this.wristband.number,
-      color: this.wristband.color,
-      active: this.wristband.active,
-    });
-  }
-
-  scan(cb) {
-    // throw error, wristband is scanned already, first need to unpair();
+  scan() {
+    this.wristband.constructor.scanHandler(
+      new WristbandError({
+        message: "wristband.scanned.scan(): wristband is already scanned",
+        code: 1,
+      })
+    );
   }
   verify() {}
-  register(player) {}
+  register(player) {
+    return registerWristband({
+      player,
+      wristband: this.wristband,
+    }).then((res) => {
+      this.wristband.changeState(this.wristband.getPairedState);
+    });
+  }
   unregister(player) {}
   unpair(player) {}
 }

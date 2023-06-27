@@ -41,7 +41,7 @@ function runPythonScript(tries) {
 function emulateScan(number = "r", color = "r") {
   return runPythonScript(0)
     .then(() => {
-      return backendClient.publish(
+      backendClient.publish(
         `/themaze/registration5/emulateScan/${number}/${color}`
       );
     })

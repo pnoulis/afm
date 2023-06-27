@@ -20,8 +20,11 @@ import { backendClientService } from "../client.js";
  * @throws {FailedSubscription}
  */
 
-function subscribeWristbandScan(listener, options = { mode: "persistent" }) {
-  return backendClientService.subscribe("/wristband/scan", options, listener);
+function subscribeWristbandScan(payload) {
+  return backendClientService.subscribe(
+    "/wristband/scan",
+    payload.options || { mode: "persistent" },
+    payload.listener
+  );
 }
-
 export { subscribeWristbandScan };

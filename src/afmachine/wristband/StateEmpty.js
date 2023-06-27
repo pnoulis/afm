@@ -1,4 +1,5 @@
 import { State } from "./State.js";
+import { WristbandError } from "../../misc/errors.js";
 
 class Empty extends State {
   constructor(wristband) {
@@ -6,11 +7,18 @@ class Empty extends State {
   }
 
   scan() {
-    this.wristband.registerScanListener();
     this.wristband.changeState(this.wristband.getPairingState);
   }
   verify() {}
-  register(player) {}
+  register(player) {
+    return Promise.reject(
+      new WristbandError({
+        message:
+          "wristband.empty.register(): trying to register an empty wristband",
+        code: 2,
+      })
+    );
+  }
   unregister(player) {}
   unpair(player) {}
 }

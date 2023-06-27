@@ -15,7 +15,11 @@ class Resolved extends State {
 
   resolve(response) {
     this.action.startCountdown(this.action.options.minTimeResolving, () => {
-      this.action.resolve(response);
+      for (let i = 0; i < this.action.resolve.length; i++) {
+        this.action.resolve[i](response);
+      }
+      this.action.resolve = [];
+      this.action.reject = [];
       this.action.changeState(this.action.getIdleState);
     });
   }

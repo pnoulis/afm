@@ -1,10 +1,10 @@
-import { eventful } from "../eventful.js";
-import { stateful } from "../stateful.js";
+import { eventful } from "../../misc/eventful.js";
+import { stateful } from "../../misc/stateful.js";
 import { Unregistered } from "./StateUnregistered.js";
 import { Registered } from "./StateRegistered.js";
 import { InTeam } from "./StateInTeam.js";
 import { InGame } from "./StateInGame.js";
-import { Wristband } from "../wristband/Wristband.js";
+// import { Wristband } from "../wristband/Wristband.js";
 
 class Player {
   static initialize(player, config) {
@@ -13,7 +13,7 @@ class Player {
     player.email = config.email || "";
     player.password = config.password || "";
     player.wristbandMerged = config.wristbandMerged ?? false;
-    player.wristband = new Wristband(config.wristband);
+    // player.wristband = new Wristband(config.wristband);
 
     if (config.inGame) {
       player.setState(player.getInGameState);

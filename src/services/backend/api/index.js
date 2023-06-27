@@ -13,3 +13,4 @@ export * from "./mergeGroupTeam.js";
 export * from "./listTeams.js";
 export * from "./searchPlayer.js";
 export * from "./infoWristband.js";
+export * from "./subscribeWristbandScan.js";

@@ -15,7 +15,11 @@ class Rejected extends State {
 
   reject(err) {
     this.action.startCountdown(this.action.options.minTimeRejecting, () => {
-      this.action.reject(err);
+      for (let i = 0; i < this.action.reject.length; i++) {
+        this.action.reject[i].call(null, err);
+      }
+      this.action.reject = [];
+      this.action.resolve = [];
       this.action.changeState(this.action.getIdleState);
     });
   }

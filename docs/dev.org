@@ -1,4 +1,4 @@
-#+TODO: TODO BUG | DONE
+#+TODO: TODO BUG DOING | DONE
 
 * System overview
 The afmachine or agent factory machine is a wrapper to all business logic
@@ -177,3 +177,41 @@ CLOSED: [2023-06-22 Thu 19:45]
 CLOSED: [2023-06-26 Mon 13:15]
 ** test addPackage
 ** test removePackage
+* LOG 27/06/2023
+** DONE test backend route pipeline
+CLOSED: [2023-06-27 Tue 10:29]
+
+** DONE implement unregisterWristband route
+CLOSED: [2023-06-27 Tue 10:41]
+** implement subscribeWristbandScan route
+** DONE implement startTeam route
+CLOSED: [2023-06-27 Tue 10:48]
+** DONE implement searchPlayer route
+CLOSED: [2023-06-27 Tue 10:36]
+** DONE implement removePackage route
+CLOSED: [2023-06-27 Tue 10:51]
+** DONE implement registerWristband route
+CLOSED: [2023-06-27 Tue 10:39]
+** DONE implement registerPlayer route
+CLOSED: [2023-06-27 Tue 10:35]
+** DONE implement mergeTeam route
+CLOSED: [2023-06-27 Tue 10:43]
+** DONE implement mergeGroupTeam route
+CLOSED: [2023-06-27 Tue 10:43]
+** DONE implement loginPlayer route
+CLOSED: [2023-06-27 Tue 10:33]
+** DONE implement listTeams route
+CLOSED: [2023-06-27 Tue 10:46]
+** DONE implement listRegisteredPlayers route
+CLOSED: [2023-06-27 Tue 10:38]
+** DONE implement listPackages route
+CLOSED: [2023-06-27 Tue 10:51]
+** DONE implement infoWristband route
+CLOSED: [2023-06-27 Tue 10:44]
+** DONE implement boot route
+CLOSED: [2023-06-27 Tue 10:31]
+** DONE implement addPackage route
+CLOSED: [2023-06-27 Tue 10:51]
+
+** hydrations
+*** loginPlayer
