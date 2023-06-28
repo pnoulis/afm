@@ -38,7 +38,9 @@ function Route(pipeline, route, ...middleware) {
     this.queue = pipeline.flat(3);
     this.context = {
       route: this.route,
-      req: context,
+      req: {
+        ...context,
+      },
       res: {},
     };
     this.prevIndex = -1;

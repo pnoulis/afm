@@ -16,7 +16,7 @@ function globalLastMiddleware(context, err) {
   LOGGER.info({
     route: context.route,
     req: context.req,
-    res: context.res.result,
+    res: context.res,
   });
 
   // case error

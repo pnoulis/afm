@@ -253,3 +253,28 @@ However that promise is not tied to the actual sequence of events that the
 wristband
 must undertake to either unpair() or pair() itself. The promise is provided the
 result of the last iteration the sequence of events were  fired.
+
+
+a sequence of asynchronous actions. The first one to enter is the first one to
+leave.
+When it completes the wristband must decide if it has been superceded by more
+recent iterations of AA. If it has, then it must check if the most recent AA
+addition has the same target as it has.
+
+*** Added Scanned state
+A scanned wristband is mostly utilized by the Wristband base class.
+The wristband base class togglePair() action requests a wristband from the
+backend. When it gets one, it switches state from Empty to Scanned.
+and vice versa.
+** DONE loginPlayer route payload translations
+CLOSED: [2023-06-28 Wed 20:02]
+** DONE registerPlayer route payload translations
+CLOSED: [2023-06-28 Wed 20:02]
+** DONE getWristbandScan route payload translations
+CLOSED: [2023-06-28 Wed 20:02]
+** DONE infoWristband route payload translations
+CLOSED: [2023-06-28 Wed 19:27]
+** DONE registerWristband route payload translations
+CLOSED: [2023-06-28 Wed 19:27]
+** DONE unregisterWristband route payload translations
+CLOSED: [2023-06-28 Wed 19:27]
