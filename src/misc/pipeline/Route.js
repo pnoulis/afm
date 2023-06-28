@@ -24,17 +24,13 @@ function Route(pipeline, route, ...middleware) {
   };
 
   this.errorWrapper = async function errorWrapper(index, err) {
-    if (
-      index >= this.queue.length - 1 ||
-      this.prevIndex >= this.queue.length - 1
-    ) {
-      await this.runner(index - 1, err);
-    } else {
-      try {
-        await this.runner(index, err);
-      } catch (err) {
-        await this.errorWrapper(index + 1, err);
+    try {
+      await this.runner(index, err);
+    } catch (err) {
+      if (this.prevIndex >= this.queue.length - 2) {
+        return this.runner(index, err);
       }
+      await this.errorWrapper(index, err);
     }
   };
 
@@ -42,17 +38,13 @@ function Route(pipeline, route, ...middleware) {
     this.queue = pipeline.flat(3);
     this.context = {
       route: this.route,
-      req: {
-        payload: {
-          ...context,
-        },
-      },
+      req: context,
       res: {},
     };
     this.prevIndex = -1;
 
     await this.errorWrapper(0);
-    return this.context;
+    return this.context.res;
   };
 
   const skipNone = exec.bind(this, [

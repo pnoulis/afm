@@ -27,4 +27,16 @@ function subscribeWristbandScan(payload) {
     payload.listener
   );
 }
-export { subscribeWristbandScan };
+
+function getWristbandScan() {
+  return new Promise((resolve, reject) => {
+    subscribeWristbandScan({
+      listener: (err, wristband) => (err ? reject(err) : resolve(wristband)),
+      options: {
+        mode: "response",
+      },
+    }).catch(reject);
+  });
+}
+
+export { subscribeWristbandScan, getWristbandScan };

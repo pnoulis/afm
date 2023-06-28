@@ -25,10 +25,6 @@ class Subscription {
       this,
       eventful.call(this, {
         stateChange: [],
-        disconnected: [],
-        connected: [],
-        message: [],
-        error: [],
       })
     );
     this.client = client;

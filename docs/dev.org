@@ -217,3 +217,39 @@ CLOSED: [2023-06-27 Tue 10:51]
 *** loginPlayer
 ** Wristband
 Scan() -> changes state to pairing
+
+* LOG 28/06/2023
+** AsyncActions
+** Wristband
+Wristband's interface is limited to pair() and unpair().
+
+pair() changes the state to Pairing.
+Pairing changes to Paired only when the Wristband has:
+
+1. scanned wristband
+2. verified that is free
+3. registration
+
+When these asynchronous actions have all completed Wristband moves from Pairing to Paired.
+
+At any point in time the user may initiate another pair() sequence.
+If pair() intercepts the pairing process at the 'scanning' stage, Wristband
+shall drop the pairing process and return to its Empty state.
+
+If however pair() intercepts the pairing process at a level above the 'scanning'
+stage it shall not willfully
+
+*** togglePair()
+
+1. push a new promise to the togglePair event.
+   this.on('togglePair', promise(err, wristband);
+2. hand over the action to the states
+   this.state.togglePair();
+
+*** strategy
+The wristband states must be independent from the asynchronous actions.
+To achieve that, each time togglePair() is initiated a new promise is returned.
+However that promise is not tied to the actual sequence of events that the
+wristband
+must undertake to either unpair() or pair() itself. The promise is provided the
+result of the last iteration the sequence of events were  fired.

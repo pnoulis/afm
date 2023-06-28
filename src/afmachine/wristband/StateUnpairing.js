@@ -1,6 +1,6 @@
 import { State } from "./State.js";
 
-class Empty extends State {
+class Unpairing extends State {
   constructor(wristband) {
     super(wristband);
   }
@@ -10,4 +10,4 @@ class Empty extends State {
   }
 }
 
-export { Empty };
+export { Unpairing };

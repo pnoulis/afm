@@ -43,7 +43,7 @@ describe("pipelineBackend", () => {
     );
   });
 
-  it("Should log an error if there is one and then throw it back", async () => {
+  it.only("Should log an error if there is one and then throw it back", async () => {
     const pipelineBackend = new Pipeline();
     const handleError = vi.fn(globalLastMiddleware);
     pipelineBackend.setGlobalLast(handleError);
@@ -58,7 +58,7 @@ describe("pipelineBackend", () => {
     );
 
     await expect(route()).rejects.toThrowError("some error");
-    expect(handleError).toHaveBeenCalledOnce();
+    expect(handleError).toHaveBeenCalledTimes(1);
     expect(handleError).toHaveBeenCalledWith(
       {
         route: "/some/route",

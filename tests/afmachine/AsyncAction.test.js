@@ -39,7 +39,7 @@ describe("AsyncActions", () => {
     );
     await expect(aa.fire()).resolves.toBe("OK");
   });
-  it("Should not matter how many times the asyncAction is fired()", async () => {
+  it("fire() while pending or idle should not actually invoke the async action multiple times, but instead buffer them", async () => {
     const spyAction = vi.fn((count) => {
       return new Promise((resolve, reject) => {
         setTimeout(() => resolve(count), 0);

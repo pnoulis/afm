@@ -2,25 +2,21 @@ import { eventful } from "../../misc/eventful.js";
 import { stateful } from "../../misc/stateful.js";
 import { Empty } from "./StateEmpty.js";
 import { Pairing } from "./StatePairing.js";
+import { Unpairing } from "./StateUnpairing.js";
 import { Paired } from "./StatePaired.js";
-import { subscribeWristbandScan } from "../../routes/backend/routesBackend.js";
+import {
+  getWristbandScan,
+  registerWristband,
+  unregisterWristband,
+  infoWristband,
+} from "../../routes/backend/routesBackend.js";
+import { AsyncAction, errs as aaerrs } from "../async_action/index.js";
 
 /*
   Wristband
  */
 
-subscribeWristbandScan({
-  listener: function (err, wristband) {
-    console.log(Wristband);
-    if (typeof Wristband.__listener === "function") {
-      Wristband.__listener(err, wristband);
-    }
-  },
-});
-
 class Wristband {
-  static __listener = null;
-  static scanHandler = null;
   static colors = [
     "black",
     "red",
@@ -45,24 +41,28 @@ class Wristband {
   }
 
   constructor(wristband = {}) {
+    // stateful
     Object.assign(
       this,
       stateful.call(this, {
         empty: new Empty(this),
         pairing: new Pairing(this),
+        unpairing: new Unpairing(this),
         paired: new Paired(this),
       })
     );
 
+    // eventful
     Object.assign(
       this,
       eventful.call(this, {
         stateChange: [],
-        scanned: [],
-        error: [],
       })
     );
 
+    // targets
+    const targets = [];
+    // Initialize wristband state
     Wristband.initialize(this, wristband);
   }
 
@@ -74,33 +74,39 @@ class Wristband {
     });
   }
 
-  unregisterScanListener() {
-    this.constructor.__listener = null;
-    this.constructor.scanHandler = null;
-    return this;
-  }
-
-  handleWristbandScan(err, wristband) {
-    this.state.handleWristbandScan(err, wristband);
-  }
-
   getColor(code) {
     return code ? this.color : Wristband.colors[this.color];
   }
-  scan() {}
-  unscan() {}
-  verify() {}
-  register() {}
-  unregister() {}
+
+  pair() {
+    switch (this.state.name) {
+      case "empty":
+        this.targets.push(
+          new AsyncAction(
+            function () {
+              return getWristbandScan()
+                .then(infoWristband)
+                .then(registerWristband);
+            }.bind(this)
+          )
+        );
+      case "unpairing":
+      default:
+        this.emit("togglePair");
+    }
+  }
 
   /* INTERFACE */
-  scan(cb) {
-    this.constructor.__listener = this.handleWristbandScan.bind(this);
-    this.constructor.scanHandler = cb;
-    this.state.scan();
+  togglePair(player) {
+    this.player = player;
+    return new Promise((resolve, reject) => {
+      this.once("togglePair", (err, wristband) => {
+        if (err) reject(err);
+        else resolve(wristband);
+      });
+      this.state.togglePair();
+    });
   }
-  pair() {}
-  unpair() {}
 }
 
 export { Wristband };

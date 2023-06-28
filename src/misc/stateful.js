@@ -1,5 +1,18 @@
 import { capitalize } from "js_utils/misc";
 
+/**
+ * Stateful
+ *
+ * @typedef {Object} stateful
+ * @property {Object<State>} states
+ * @property {State} state
+ * @property {function} getStateName
+ * @property {function} getState
+ * @property {function} setState
+ * @property {function} inState
+ * @property {function} compareStates
+ */
+
 function stateful(states = {}, options = {}) {
   const stateNames = Object.keys(states);
   const stateInstances = Object.values(states);

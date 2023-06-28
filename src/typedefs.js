@@ -49,6 +49,22 @@
  */
 
 /**
+ * Backend Wristband
+ * @typedef {Object} BackendWristband
+ * @property {number} wristbandNumber
+ * @property {number} wristbandColor
+ * @property {boolean} [active]
+ */
+
+/**
+ * Frontend Wristband
+ * @typedef {Object} FrontendWristband
+ * @property {number} number
+ * @property {number} color
+ * @property {boolean} [active]
+ */
+
+/**
  * Backend Player
  *
  * @typedef {Object} BackendPlayer

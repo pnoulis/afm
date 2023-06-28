@@ -6,47 +6,77 @@ import { Player } from "../../afmachine/player/index.js";
 const boot = pipelineBackend.route(
   "/boot",
   async function (context, next) {
-    context.res = await BACKEND_API.boot(context.req.payload);
+    context.res = await BACKEND_API.boot(context.req);
     await next();
   },
   parseResponse
 );
 
+/**
+ * Register player route
+ * @param {AfmachinePlayer || FrontEndPlayer} context.req
+ **/
 const registerPlayer = pipelineBackend.route(
   "/player/register",
+  async function (context, next) {
+    context.req.payload = {
+      username: context.req.username,
+      name: context.req.name,
+      email: context.req.email,
+      surname: context.req.surname,
+      password: context.req.password,
+    };
+    await next();
+  },
   async function (context, next) {
     context.res = await BACKEND_API.registerPlayer(context.req.payload);
     await next();
   },
   parseResponse,
-
-  // hydration middleware
   async function (context, next) {
-    context.res.player = new Player({
-      ...context.res.player,
-      registered: true,
-    });
+    context.res.payload = context.res.player;
     await next();
   }
 );
 
+/**
+ * Login player route
+ * @param {AfmachinePlayer || FrontEndPlayer} context.req
+ **/
 const loginPlayer = pipelineBackend.route(
   "/player/login",
+  async function (context, next) {
+    context.req.payload = {
+      username: context.req.username,
+      password: context.req.password,
+    };
+    await next();
+  },
   async function (context, next) {
     context.res = await BACKEND_API.loginPlayer(context.req.payload);
     await next();
   },
   parseResponse,
-
-  // hydration middleware
   async function (context, next) {
-    context.res.yolo = "yolo";
+    context.res.payload = context.res.player;
     await next();
   }
 );
 
+/**
+ * Search player route
+ * @param {string} context.req - searchTerm
+ **/
 const searchPlayer = pipelineBackend.route(
   "/player/search",
+  async function (context, next) {
+    context.req = {
+      payload: {
+        searchTerm: context.req,
+      },
+    };
+    await next();
+  },
   async function (context, next) {
     context.res = await BACKEND_API.searchPlayer(context.req.payload);
     await next();
@@ -57,18 +87,28 @@ const searchPlayer = pipelineBackend.route(
 const listRegisteredPlayers = pipelineBackend.route(
   "/players/list",
   async function (context, next) {
-    context.res = await BACKEND_API.listRegisteredPlayers(context.req.payload);
+    context.res = await BACKEND_API.listRegisteredPlayers();
     await next();
   },
   parseResponse
 );
 
+/**
+ * Register wristband
+ * @param {Object} context.req
+ * @param {Object} context.req.player
+ * @param {string} context.req.player.username
+ * @param {Object} context.req.wristband
+ * @param {number} [context.req.wristband.wristbandNumber]
+ * @param {number} [context.req.wristband.number]
+ */
 const registerWristband = pipelineBackend.route(
   "/wristband/register",
   async function (context, next) {
     context.req.payload = {
-      username: context.req.payload.player.username,
-      wristbandNumber: context.req.payload.wristband.number,
+      username: context.req.player.username,
+      wristbandNumber:
+        context.req.wristband.number || context.req.wristband.wristbandNumber,
     };
     await next();
   },
@@ -76,22 +116,75 @@ const registerWristband = pipelineBackend.route(
     context.res = await BACKEND_API.registerWristband(context.req.payload);
     await next();
   },
-  parseResponse
+  parseResponse,
+  async function (context, next) {
+    context.res.payload = {
+      number: context.req.payload.wristbandNumber,
+      username: context.req.payload.username,
+      msg: context.res.message,
+    };
+    await next();
+  }
 );
 
+/**
+ * Unregister wristband
+ * @param {Object} context.req
+ * @param {Object} context.req.player
+ * @param {string} context.req.player.username
+ * @param {Object} context.req.wristband
+ * @param {number} [context.req.wristband.wristbandNumber]
+ * @param {number} [context.req.wristband.number]
+ */
 const unregisterWristband = pipelineBackend.route(
   "/wristband/unregister",
+  async function (context, next) {
+    context.req.payload = {
+      username: context.req.player.username,
+      wristbandNumber:
+        context.req.wristband.number || context.req.wristband.wristbandNumber,
+    };
+    await next();
+  },
   async function (context, next) {
     context.res = await BACKEND_API.unregisterWristband(context.req.payload);
     await next();
   },
-  parseResponse
+  parseResponse,
+  async function (context, next) {
+    context.res.payload = {
+      number: context.req.payload.wristbandNumber,
+      username: context.req.payload.username,
+      msg: context.res.message,
+    };
+    await next();
+  }
 );
 
+/**
+ * Info wristband
+ * @param {Object} req
+ * @param {number} [req.number]
+ * @param {number} [req.wristbandNumber]
+ */
 const infoWristband = pipelineBackend.route(
   "/wristband/info",
   async function (context, next) {
+    context.req.payload = {
+      wristbandNumber: context.req.number || context.req.wristbandNumber,
+    };
+    await next();
+  },
+  async function (context, next) {
     context.res = await BACKEND_API.infoWristband(context.req.payload);
+    await next();
+  },
+  async function (context, next) {
+    context.res.payload = {
+      number: context.res.wristband.wristbandNumber,
+      color: context.res.wristband.wristbandColor,
+      active: context.res.wristband.active,
+    };
     await next();
   },
   parseResponse
@@ -113,6 +206,23 @@ const subscribeWristbandScan = pipelineBackend.route(
         }
       },
     });
+  },
+  parseResponse
+);
+
+const getWristbandScan = pipelineBackend.route(
+  "/wristband/scan",
+  async function (context, next) {
+    context.res = await BACKEND_API.getWristbandScan();
+    await next();
+  },
+  async function (context, next) {
+    context.res.payload = {
+      number: context.res.wristbandNumber,
+      color: context.res.wristbandColor,
+      active: context.res.active ?? false,
+    };
+    await next();
   },
   parseResponse
 );
@@ -190,6 +300,7 @@ export {
   unregisterWristband,
   infoWristband,
   subscribeWristbandScan,
+  getWristbandScan,
   mergeTeam,
   mergeGroupTeam,
   listTeams,
