@@ -215,3 +215,5 @@ CLOSED: [2023-06-27 Tue 10:51]
 
 ** hydrations
 *** loginPlayer
+** Wristband
+Scan() -> changes state to pairing

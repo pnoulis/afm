@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeAll } from "vitest";
 /*
   TESTING COMPONENTS
 */
-import { AsyncAction } from "../../src/afmachine/async_action/AsyncAction.js";
+import { AsyncAction, errs } from "../../src/afmachine/async_action/index.js";
 
 /*
   DEPENDENCIES
@@ -13,7 +13,7 @@ import { randomWristband } from "../../scripts/randomWristband";
 import { randomPlayer } from "../../scripts/randomPlayer.js";
 import { emulateScan } from "../../scripts/emulateScan.js";
 import { backendClientService } from "../../src/services/backend/client.js";
-import * as Errors from "../../src/misc/errors.js";
+// import * as Errors from "../../src/misc/errors.js";
 import { delay } from "js_utils/misc";
 import * as ROUTES_BACKEND from "../../src/routes/backend/routesBackend.js";
 
@@ -39,26 +39,13 @@ describe("AsyncActions", () => {
     );
     await expect(aa.fire()).resolves.toBe("OK");
   });
-  it("Should change from Idle -> Pending -> Resolve -> Idle", async () => {
-    const aa = new AsyncAction(
-      () =>
-        new Promise((resolve, reject) => {
-          setTimeout(() => resolve("OK"), 1000);
-        })
-    );
-    expect(aa.inState("idle")).toBeTruthy();
-    aa.fire();
-    expect(aa.inState("pending")).toBeTruthy();
-    await expect(aa.fire()).resolves.toBe("OK");
-    expect(aa.inState("idle")).toBeTruthy();
-  });
-  it.only("Should not matter how many times the asyncAction is fired()", async () => {
-    const aa = new AsyncAction(
-      (count) =>
-        new Promise((resolve, reject) => {
-          setTimeout(() => resolve(count), 0);
-        })
-    );
+  it("Should not matter how many times the asyncAction is fired()", async () => {
+    const spyAction = vi.fn((count) => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => resolve(count), 0);
+      });
+    });
+    const aa = new AsyncAction(spyAction);
     const iters = [];
     for (let i = 0; i < 100; i++) {
       iters[i] = aa.fire(i);
@@ -85,5 +72,27 @@ describe("AsyncActions", () => {
       res = await iters.pop();
       expect(res).toBe(0);
     }
+    expect(spyAction).toHaveBeenCalledOnce();
+  });
+  it.only("Should only fire() when Idle or Pending", async () => {
+    const spyAction = vi.fn((count) => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => resolve(count), 0);
+      });
+    });
+    const aa = new AsyncAction(spyAction);
+    expect(aa.inState("idle")).toBe(true);
+    // fire when idle
+    aa.fire();
+    expect(aa.inState("pending")).toBe(true);
+
+    // fire when pending
+    await aa.fire();
+    expect(aa.inState("resolved"));
+
+    // throw error at Resolved
+    expect(aa.fire()).rejects.toThrowError(errs.ERR_AA_FIRE_SETTLED);
+
+    // throw error at Rejected
   });
 });

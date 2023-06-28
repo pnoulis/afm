@@ -1,4 +1,5 @@
 import { State } from "./State.js";
+import { ERR_AA_RESET_PENDING } from "./errors.js";
 
 class Pending extends State {
   constructor(action) {
@@ -9,8 +10,8 @@ class Pending extends State {
     this.action.tminus0 = this.action.options.minTimePending;
   }
 
-  fire(...args) {
-    return undefined;
+  reset() {
+    throw new ERR_AA_RESET_PENDING();
   }
 
   resolve(response) {

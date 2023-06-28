@@ -2,10 +2,11 @@ class State {
   constructor(action) {
     this.action = action;
   }
-
-  fire() {
-    console.log(`${this.action.state.name} fire`);
-  }
+  fire() {}
+  ff() {}
+  resolve() {}
+  reject() {}
+  reset() {};
 }
 
 export { State };

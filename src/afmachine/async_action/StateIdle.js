@@ -8,8 +8,8 @@ class Idle extends State {
   fire(...args) {
     this.action.tminus0 = this.action.options.fireDelay;
     this.action.startCountdown(this.action.options.fireDelay, () => {
-      this.action.changeState(this.action.getPendingState);
       this.action._fire(...args);
+      this.action.changeState(this.action.getPendingState);
     });
   }
 }

@@ -2,9 +2,12 @@ import { eventful } from "../../misc/eventful.js";
 import { stateful } from "../../misc/stateful.js";
 import { Empty } from "./StateEmpty.js";
 import { Pairing } from "./StatePairing.js";
-import { Scanned } from "./StateScanned.js";
 import { Paired } from "./StatePaired.js";
 import { subscribeWristbandScan } from "../../routes/backend/routesBackend.js";
+
+/*
+  Wristband
+ */
 
 subscribeWristbandScan({
   listener: function (err, wristband) {
@@ -47,7 +50,6 @@ class Wristband {
       stateful.call(this, {
         empty: new Empty(this),
         pairing: new Pairing(this),
-        scanned: new Scanned(this),
         paired: new Paired(this),
       })
     );
@@ -85,7 +87,11 @@ class Wristband {
   getColor(code) {
     return code ? this.color : Wristband.colors[this.color];
   }
+  scan() {}
+  unscan() {}
   verify() {}
+  register() {}
+  unregister() {}
 
   /* INTERFACE */
   scan(cb) {
@@ -95,13 +101,6 @@ class Wristband {
   }
   pair() {}
   unpair() {}
-  register() {}
-  unregister() {}
-  // register(player) {
-  //   return this.state.register(player);
-  // }
-  // unregister(player) {}
-  // unpair(player) {}
 }
 
 export { Wristband };

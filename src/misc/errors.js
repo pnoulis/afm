@@ -17,6 +17,24 @@ class WristbandError extends Error {
   }
 }
 
+// States: Idle Pending Resolved Rejected
+class AsyncActionError extends Error {
+  constructor(code) {
+    let message;
+    switch (code) {
+      case 0:
+        message = "trying to reset() a pending AsyncAction";
+        break;
+      case 1:
+      default:
+        message = "AsyncAction";
+        break;
+    }
+    super(message);
+    this.code = code;
+  }
+}
+
 class AfadminClientError extends Error {
   constructor({ message = "AfadminClientError", ...cause }) {
     super(message, { cause });
@@ -61,4 +79,5 @@ export {
   ValidationError,
   BackendError,
   WristbandError,
+  AsyncActionError,
 };

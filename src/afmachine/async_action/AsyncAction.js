@@ -47,6 +47,7 @@ class AsyncAction {
     this.action = action;
     this.resolve = [];
     this.reject = [];
+    this.response = null;
     this.setState(this.getIdleState);
   }
 
@@ -75,17 +76,35 @@ class AsyncAction {
     }
   }
 
-  _fire(...args) {
-    this.action(...args)
-      .then(this.state.resolve.bind(this.state))
-      .catch(this.state.reject.bind(this.state));
+  async _fire(...args) {
+    try {
+      this.response = await this.action(...args);
+      this.state.resolve(this.response);
+    } catch (err) {
+      this.respnose = err;
+      this.state.reject(this.response);
+    }
   }
   fire(...args) {
     return new Promise((resolve, reject) => {
-      this.resolve.push(resolve);
-      this.reject.push(reject);
-      this.state.fire(...args);
+      try {
+        this.state.fire(...args);
+        this.resolve.push(resolve);
+        this.reject.push(reject);
+      } catch (err) {
+        reject(err);
+      }
     });
+  }
+  // fire and forget
+  ff(...args) {
+    this.state.fire(...args);
+  }
+  yield() {
+    return this.response;
+  }
+  reset() {
+    this.state.reset();
   }
 }
 
