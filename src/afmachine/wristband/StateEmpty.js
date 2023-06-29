@@ -6,7 +6,7 @@ class Empty extends State {
   }
   togglePair() {
     this.wristband.pair();
-    this.wristband.changeState(this.wristband.getPairingState);
+    this.wristband.setState(this.wristband.getPairingState);
   }
 }
 

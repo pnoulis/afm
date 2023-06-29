@@ -1,9 +1,58 @@
+/**
+ * Eventful
+ *
+ * @typedef {Object} eventful
+ * @property {Array<Object>} events
+ **/
+function eventful(target, events = {}) {
+  // A Function object
+  const self = target;
+  // An Object
+  const prototype = self.prototype;
+
+  Object.defineProperties(prototype, {
+    events: {
+      value: events,
+      enumerable: true,
+      writable: true,
+    },
+    packageListener: {
+      value: packageListener,
+      enumerable: true,
+      writable: false,
+    },
+    ensureEvent: {
+      value: ensureEvent,
+      enumerable: true,
+      writable: false,
+    },
+    on: {
+      value: on,
+      enumerable: true,
+      writable: false,
+    },
+    once: {
+      value: once,
+      enumerable: true,
+      writable: false,
+    },
+    flush: {
+      value: flush,
+      enumerable: true,
+      writable: false,
+    },
+    emit: {
+      value: emit,
+      enumerable: true,
+      writable: false,
+    },
+  });
+}
+
 function packageListener(listener, options = {}) {
   return {
     listener,
-    persistent: options.persist ?? this.options.persistListeners,
-    timeout: Date.now() + (options.timeout || this.options.timeout),
-    ...options,
+    persistent: options.persist ?? true,
   };
 }
 function ensureEvent(event) {
@@ -14,13 +63,13 @@ function ensureEvent(event) {
   }
 }
 
-function on(event, listener, options) {
+function on(event, listener) {
   this.ensureEvent(event);
-  this.events[event].push(this.packageListener(listener, options));
+  this.events[event].push(this.packageListener(listener, { persist: true }));
   return this;
 }
 
-function once(event, listener, options) {
+function once(event, listener) {
   this.ensureEvent(event);
   this.events[event].push(this.packageListener(listener, { persist: false }));
   return this;
@@ -55,32 +104,12 @@ function flush(event, listener, clause) {
 function emit(event, ...args) {
   this.ensureEvent(event);
   [...this.events[event]].forEach(
-    (subscriber) => subscriber.listener && subscriber.listener(...args, this)
+    (subscriber) => subscriber.listener && subscriber.listener(...args)
   );
   this.events[event] = this.events[event].filter(({ listener, persistent }) => {
     return persistent;
   });
   return this;
-}
-
-function eventful(events = {}, options = {}) {
-  return {
-    events: {
-      error: [],
-      ...events,
-    },
-    options: {
-      persistListeners: true,
-      timeout: 30000,
-      ...options,
-    },
-    packageListener: this.packageListener || packageListener.bind(this),
-    ensureEvent: ensureEvent.bind(this),
-    on: on.bind(this),
-    once: once.bind(this),
-    flush: flush.bind(this),
-    emit: emit.bind(this),
-  };
 }
 
 export { eventful };

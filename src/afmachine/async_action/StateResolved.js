@@ -8,6 +8,9 @@ class Resolved extends State {
 
   init() {
     this.tminus0 = this.action.options.minTimeResolving;
+    this.action.startCountdown(this.action.options.minTimeResolving, () => {
+      this.action.emit("settled", null, this.action.response);
+    });
   }
 
   fire() {
@@ -16,19 +19,8 @@ class Resolved extends State {
 
   reset() {
     this.action.response = null;
-    this.action.changeState(this.action.getIdleState);
+    this.action.setState(this.action.getIdleState);
     return this.action;
-  }
-
-  resolve(response) {
-    this.action.startCountdown(this.action.options.minTimeResolving, () => {
-      for (let i = 0; i < this.action.resolve.length; i++) {
-        this.action.resolve[i].call(null, response);
-      }
-      this.action.response = response;
-      this.action.resolve = [];
-      this.action.reject = [];
-    });
   }
 }
 

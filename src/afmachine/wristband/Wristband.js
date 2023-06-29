@@ -119,15 +119,12 @@ class Wristband {
     this.number = response.number;
     this.color = response.color;
     this.active = response.active;
-    this.emit("togglePair", null);
   }
 
   unpaired(response) {
     this.number = null;
     this.color = null;
     this.active = false;
-    this.changeState(this.getEmptyState);
-    this.emit("togglePair", null);
   }
 
   unpair() {
@@ -139,6 +136,7 @@ class Wristband {
     });
     this.runActionsQueueUntilEmpty((response) => {
       this.unpaired(response);
+      this.changeState(this.getEmptyState);
     });
   }
   pair() {

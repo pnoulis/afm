@@ -10,20 +10,23 @@ class Pending extends State {
     this.action.tminus0 = this.action.options.minTimePending;
   }
 
-  reset() {
-    throw new ERR_AA_RESET_PENDING();
+  reset(force) {
+    if (!force) {
+      throw new ERR_AA_RESET_PENDING();
+    }
+    this.action.response = null;
+    this.action.setState(this.action.getIdleState);
+    return this.action;
   }
 
-  resolve(response) {
+  resolve() {
     this.action.startCountdown(this.action.options.minTimePending, () => {
-      this.action.changeState(this.action.getResolvedState);
-      this.action.state.resolve(response);
+      this.action.setState(this.action.getResolvedState);
     });
   }
-  reject(err) {
+  reject() {
     this.action.startCountdown(this.action.options.minTimePending, () => {
-      this.action.changeState(this.action.getRejectedState);
-      this.action.state.reject(err);
+      this.action.setState(this.action.getRejectedState);
     });
   }
 }

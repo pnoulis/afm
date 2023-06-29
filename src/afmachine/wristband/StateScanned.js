@@ -7,7 +7,7 @@ class Scanned extends State {
 
   togglePair() {
     this.wristband.unpair();
-    this.wristband.changeState(this.wristband.getPairingState);
+    this.wristband.setState(this.wristband.getPairingState);
   }
 }
 

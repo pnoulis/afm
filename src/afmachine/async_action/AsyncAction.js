@@ -16,47 +16,20 @@ class AsyncAction {
       minTimeRejecting = 0,
     } = {}
   ) {
-    Object.assign(
-      this,
-      stateful.call(this, {
-        idle: new Idle(this),
-        pending: new Pending(this),
-        resolved: new Resolved(this),
-        rejected: new Rejected(this),
-      })
-    );
+    // Stateful Initialization
+    this.statefulConstructor();
 
-    Object.assign(
-      this,
-      eventful.call(this, {
-        stateChange: [],
-        resolved: [],
-        rejected: [],
-        error: [],
-      })
-    );
-    Object.assign(this.options, {
-      ...this.options,
+    // AsyncAction Initialization
+    this.options = {
       fireDelay,
       minTimePending,
       minTimeResolving,
       minTimeRejecting,
-    });
+    };
 
     this.timeoutId = undefined;
-    this.action = action;
-    this.resolve = [];
-    this.reject = [];
+    this.exec = action;
     this.response = null;
-    this.setState(this.getIdleState);
-  }
-
-  changeState(state, cb) {
-    const previousState = this.state.name;
-    this.setState(state, () => {
-      this.emit("stateChange", previousState, this.state.name);
-      cb && cb();
-    });
   }
 
   set tminus0(count) {
@@ -76,24 +49,12 @@ class AsyncAction {
     }
   }
 
-  async _fire(...args) {
-    try {
-      this.response = await this.action(...args);
-      this.state.resolve(this.response);
-    } catch (err) {
-      this.respnose = err;
-      this.state.reject(this.response);
-    }
-  }
   fire(...args) {
     return new Promise((resolve, reject) => {
-      try {
-        this.state.fire(...args);
-        this.resolve.push(resolve);
-        this.reject.push(reject);
-      } catch (err) {
-        reject(err);
-      }
+      this.once("settled", function (err, response) {
+        err ? reject(err) : resolve(response);
+      });
+      this.state.fire(...args);
     });
   }
   // fire and forget
@@ -101,11 +62,23 @@ class AsyncAction {
     this.state.fire(...args);
   }
   yield() {
-    return this.response;
+    return this.inState("pending") ? this.action : this.response;
   }
-  reset() {
-    this.state.reset();
+  reset(force = false) {
+    this.state.reset(force);
   }
 }
+
+stateful(AsyncAction, {
+  idle: Idle,
+  pending: Pending,
+  resolved: Resolved,
+  rejected: Rejected,
+});
+
+eventful(AsyncAction, {
+  stateChange: [],
+  settled: [],
+});
 
 export { AsyncAction };

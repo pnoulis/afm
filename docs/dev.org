@@ -278,3 +278,9 @@ CLOSED: [2023-06-28 Wed 19:27]
 CLOSED: [2023-06-28 Wed 19:27]
 ** DONE unregisterWristband route payload translations
 CLOSED: [2023-06-28 Wed 19:27]
+
+* LOG 29/06/2023
+** Wristband
+Each backend api call should be wrapped in its own AsyncAction within the
+wristband, so that each action iteration may inspect the leftover state of the
+previous action sequence and behave accordingly.
