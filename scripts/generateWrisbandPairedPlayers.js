@@ -8,6 +8,7 @@ import { randomWristband } from "./randomWristband";
  */
 function generateWristbandPairedPlayers(count) {
   return new Promise((resolve, reject) => {});
+  Promise.all();
 }
 
 export { generateWristbandPairedPlayers };
