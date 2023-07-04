@@ -284,3 +284,6 @@ CLOSED: [2023-06-28 Wed 19:27]
 Each backend api call should be wrapped in its own AsyncAction within the
 wristband, so that each action iteration may inspect the leftover state of the
 previous action sequence and behave accordingly.
+* LOG 30/06/2023
+** Subscription
+Subscription calls should be wrapped within a class, that takes care of unsubscribing
