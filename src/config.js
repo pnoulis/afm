@@ -54,6 +54,4 @@ const LOGGER = new Pino({
   browser: ENVIRONMENT.RUNTIME === "browser" ? { asObject: true } : undefined,
 });
 
-// log ENVIRNOMENT
-console.log(ENVIRONMENT);
 export { ENVIRONMENT, LIB_MQTT, LOGGER };

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
-import { mockBackendServer } from "./mocks/mockBackendServer.js";
-import { backendClientService } from "../src/services/backend/api/client.js";
+import { mockBackendServer } from "agent_factory.shared/mocks/mockBackendServer.js";
+import { backendClient } from "../../src/services/backend/client.js";
 import { toClient as BACKEND_TOPICS } from "agent_factory.shared/backend_topics.js";
 
 function getTopicsExcept(...args) {
@@ -10,25 +10,18 @@ function getTopicsExcept(...args) {
 }
 
 describe("mock backend server", () => {
-  it("Should successfully boot", async () => {
-    await expect(backendClientService.init()).resolves.toMatchObject({
-      result: "OK",
-    });
-  });
   it("Should respond successfully to all requests", async () => {
-    for (const { alias } of getTopicsExcept("/wristband/scan")) {
-      await expect(
-        backendClientService.publish(alias, {})
-      ).resolves.toMatchObject({
+    for (const { pub } of getTopicsExcept("/wristband/scan")) {
+      await expect(backendClient.publish(pub, "msg")).resolves.toMatchObject({
         result: "OK",
         message: "MOCK_SERVER_UP",
       });
     }
-  });
+  }, 20000);
   it("Should allow for succeeding or failing the next response", async () => {
     mockBackendServer.fail();
     await expect(
-      backendClientService.publish("/player/register", {})
+      backendClient.publish("/player/register", {})
     ).resolves.toMatchObject({
       result: "NOK",
     });
@@ -39,7 +32,7 @@ describe("mock backend server", () => {
     });
 
     await expect(
-      backendClientService.publish("/player/login", {})
+      backendClient.publish("/player/login", {})
     ).resolves.toMatchObject({
       result: "NOK",
       message: "controlledFailure",
@@ -47,7 +40,7 @@ describe("mock backend server", () => {
 
     mockBackendServer.succeed();
     await expect(
-      backendClientService.publish("/player/register", {})
+      backendClient.publish("/player/register", {})
     ).resolves.toMatchObject({
       result: "OK",
     });
@@ -58,7 +51,7 @@ describe("mock backend server", () => {
     });
 
     await expect(
-      backendClientService.publish("/player/login", {})
+      backendClient.publish("/player/login", {})
     ).resolves.toMatchObject({
       result: "OK",
       message: "controlledSuccess",

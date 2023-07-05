@@ -35,7 +35,6 @@ all: build
 
 # ------------------------------ RUN ------------------------------ #
 .PHONY: run
-run: mode ?= development
 run: env
 run: file ?= ./tmp/scratch.js
 run:
@@ -48,7 +47,6 @@ run:
 	| $(PRETTY_OUTPUT)
 
 .PHONY: scratch
-scratch: mode ?= development
 scratch: env
 	set -a; source ./.env && \
 	$(INTERPRETER) ./tmp/scratch.js \
@@ -78,11 +76,8 @@ build: env
 
 # ------------------------------ TEST ------------------------------ #
 .PHONY: test
-
-test: mode ?= production
-test: env
 test: suite ?= *
-test:
+test: env
 	set -a; source ./.env && \
 	$(TESTER) run --reporter verbose --mode=$(mode) $(suite)
 
@@ -119,4 +114,5 @@ dirs:
 .PHONY: env
 env: mode ?= production
 env:
-	$(DOTENV) --mode=$(mode) $(ENVDIRS)
+	$(DOTENV) --mode=$(mode) $(ENVDIRS) > $(SRCDIR)/.env
+	@cat $(SRCDIR)/.env
