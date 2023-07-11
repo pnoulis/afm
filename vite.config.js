@@ -1,19 +1,12 @@
 /// <reference types="vitest" />
 import { defineConfig } from "vite";
 import { configDefaults } from "vitest/config";
+import { loadenv } from "js_utils/node/loadenv";
 
-// https:vitejs.dev/config/
+//https:vitejs.dev/config/
 export default defineConfig({
   define: {
-    "import.meta.env.MODE": JSON.stringify(process.env.MODE),
-    "import.meta.env.BACKEND_URL": JSON.stringify(process.env.BACKEND_URL),
-    "import.meta.env.BACKEND_AUTH_USERNAME": JSON.stringify(
-      process.env.BACKEND_AUTH_USERNAME
-    ),
-    "import.meta.env.BACKEND_AUTH_PASSWORD": JSON.stringify(
-      process.env.BACKEND_AUTH_PASSWORD
-    ),
-    "import.meta.env.LOGLEVEL": JSON.stringify(process.env.LOGLEVEL),
+    __STATIC_ENV__: loadenv(".", {}),
   },
   build: {
     outDir: "dist",

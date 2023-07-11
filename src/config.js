@@ -1,57 +1,35 @@
-import Pino from "pino";
 import { detectRuntime, detectMode, getEnvar } from "js_utils/environment";
 
-// CONFIGURE ENVIRONMENT
 const RUNTIME = detectRuntime();
-if (RUNTIME === "node") {
-  Object.defineProperty(import.meta, "env", {
-    enumerable: true,
-    value: {},
-  });
+
+/*
+  __ENV__ scope problem.
+
+  Image a situation where lib A depends on lib B.
+
+  Lib B uses a bundler to gather its surface area into a single file while at
+  the same time statically replacing MACROS such as __ENV__.
+
+  Lib A also depends on the same MACRO __ENV__.
+
+*/
+
+if (typeof __STATIC_ENV__ !== "undefined") {
+  // Means application is running within a browser and __STATIC_ENV__ has been
+  // statically defined by a macro preprocessor.
+  globalThis.__ENV__ = __STATIC_ENV__;
+} else if (RUNTIME === "node") {
+  const { loadenv } = await import("js_utils/node/loadenv");
+  globalThis.__ENV__ = {};
+  loadenv(null, globalThis.__ENV__);
+} else {
+  throw new Error("config.js failed to load __ENV__");
 }
 
 const ENVIRONMENT = {
   RUNTIME,
   MODE: detectMode(),
-  LOGLEVEL: getEnvar("LOGLEVEL", true, import.meta.env.LOGLEVEL),
-  BACKEND_CLIENT_ID: getEnvar("BACKEND_CLIENT_ID", true, "dev001"),
-  BACKEND_ROOM_NAME: getEnvar("BACKEND_ROOM_NAME", true, "registration5"),
-  BACKEND_DEVICE_TYPE: getEnvar(
-    "BACKEND_DEVICE_TYPE",
-    true,
-    "REGISTRATION_SCREEN"
-  ),
-  BACKEND_URL: getEnvar("BACKEND_URL", true, import.meta.env.BACKEND_URL),
-  BACKEND_AUTH_USERNAME: getEnvar(
-    "BACKEND_AUTH_USERNAME",
-    false,
-    import.meta.env.BACKEND_AUTH_USERNAME
-  ),
-  BACKEND_AUTH_PASSWORD: getEnvar(
-    "BACKEND_AUTH_PASSWORD",
-    false,
-    import.meta.env.BACKEND_AUTH_PASSWORD
-  ),
+  LOGLEVEL: getEnvar("LOGLEVEL", false, "debug"),
 };
 
-// CONFIGURE LIB_MQTT
-let LIB_MQTT = undefined;
-if (ENVIRONMENT.RUNTIME === "node") {
-  LIB_MQTT = await import("mqtt");
-} else {
-  LIB_MQTT = await import("precompiled-mqtt");
-}
-
-// CONFIGURE LOGGER
-const LOGGER = new Pino({
-  level: ENVIRONMENT.LOGLEVEL,
-  name: "Afmachine",
-  base: undefined,
-  timestamp: Pino.stdTimeFunctions.isoTime,
-  formatters: {
-    level: (label) => ({ level: label }),
-  },
-  browser: ENVIRONMENT.RUNTIME === "browser" ? { asObject: true } : undefined,
-});
-
-export { ENVIRONMENT, LIB_MQTT, LOGGER };
+export { ENVIRONMENT };

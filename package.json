@@ -17,7 +17,7 @@
   "files": ["dist"],
   "exports": {
     ".": {
-      "import": "./dist/index.js"
+      "import": "./src/index.js"
     }
   },
   "type": "module",
