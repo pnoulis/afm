@@ -1,40 +1,55 @@
-import { loggerService, backendService, storageService } from "./services/index.js";
+import { Pipeline } from "js_utils/pipeline";
+import { CreateBackendService } from "agent_factory.shared/services/backend/CreateBackendService.js";
+import { LoggerService } from "agent_factory.shared/services/logger/LoggerService.js";
+import { LocalStorageService } from "agent_factory.shared/services/client_storage/local_storage/index.js";
+import { parseResponse } from "./middleware/backend/parseResponse";
 
+let clientId;
+const clientName = "afclient";
 
-// storageService.set('agent_factory');
-// const res = storageService.get('agent_factory');
-
-// function getCurrentWindowTabs() {
-//   return browser
-// }
-
-/*
-  WINDOW LIFE CYCLE
-
-  active
-  - a page is in the active state if it is visible and has input focus
-  passive
-  - a page is in the passive state if it is visible and does not have niptu focus
- */
-
-// const b = storageService.setc('yolo', 2);
-// storageService.setc('ego', "piga");
-// const c = storageService.getc();
-// console.log(c);
-storageService.setp('one', 'two');
-console.log(storageService.getp());
-storageService.setp('three', 'four')
-console.log(storageService.getp());
-storageService.rmp('four');
-console.log(storageService.getp());
-storageService.cp();
-console.log(storageService.getp());
+// storage service
+const storageService = new LocalStorageService(clientId);
 storageService.start();
+clientId = storageService.masterId;
+// logger service
+const loggerService = new LoggerService(clientId, clientName);
+// backend service
+const backendService = new CreateBackendService(clientId);
 
-// const d = storageService.getp();
-// console.log(d);
+// Pipeline
+const pipeline = new Pipeline();
+pipeline.setGlobalLast(function (context, err) {
+  // for DEBUG purposes
+  loggerService.debug(context);
+  // simpler context object for INFO purposes
+  if (Object.hasOwn(context.res, "payload")) {
+    context.res = context.res.payload;
+  }
+  if (Object.hasOwn(context.req, "payload")) {
+    context.req = context.req.payload;
+  }
+  loggerService.info({
+    route: context.route,
+    req: context.req,
+    res: context.res,
+  });
 
+  // case error
+  if (err) {
+    loggerService.error(err);
+    throw err;
+  }
+});
 
-const Afmachine = {};
+const Afmachine = {
+  boot: pipeline.route(
+    "/boot",
+    async function (context, next) {
+      context.res = await backendService.boot();
+      await next();
+    },
+    parseResponse,
+  ),
+};
 
 export { Afmachine };

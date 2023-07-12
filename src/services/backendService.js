@@ -1,5 +1,4 @@
 import { CreateBackendService } from "agent_factory.shared/services/backend/CreateBackendService.js";
+const defaultBackend = CreateBackendService();
 
-const backendService = CreateBackendService();
-
-export { backendService };
+export { defaultBackend };

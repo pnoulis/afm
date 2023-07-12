@@ -1,5 +1,5 @@
-import { eventful } from "../../misc/eventful.js";
-import { stateful } from "../../misc/stateful.js";
+import { eventful } from 'js_utils/eventful';
+import { stateful } from 'js_utils/stateful';
 import { Idle } from "./StateIdle.js";
 import { Pending } from "./StatePending.js";
 import { Resolved } from "./StateResolved.js";
@@ -14,10 +14,10 @@ class AsyncAction {
       minTimePending = 0,
       minTimeResolving = 0,
       minTimeRejecting = 0,
-    } = {}
+    } = {},
   ) {
     // Stateful Initialization
-    this.statefulConstructor();
+    stateful.construct.call(this);
 
     // AsyncAction Initialization
     this.options = {
@@ -69,12 +69,16 @@ class AsyncAction {
   }
 }
 
-stateful(AsyncAction, {
-  idle: Idle,
-  pending: Pending,
-  resolved: Resolved,
-  rejected: Rejected,
-});
+stateful(AsyncAction, [
+  Idle,
+  "idle",
+  Pending,
+  "pending",
+  Resolved,
+  "resolved",
+  Rejected,
+  "rejected",
+]);
 
 eventful(AsyncAction, {
   stateChange: [],

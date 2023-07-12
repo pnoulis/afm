@@ -5,8 +5,8 @@ class Paired extends State {
     super(wristband);
   }
   togglePair() {
-    this.wristband.unpair();
     this.wristband.setState(this.wristband.getUnpairingState);
+    this.wristband.unpair();
   }
 }
 
