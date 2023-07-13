@@ -24,7 +24,6 @@ class Wristband {
       this.setState(this.getScannedState);
     }
     this.togglers = 0;
-    this.unsubscribeWristbandScan = null;
   }
 
   supersedeAction() {
@@ -32,18 +31,13 @@ class Wristband {
   }
 
   unscan() {
-    try {
-      if (typeof this.unsubscribeWristbandScan === "function") {
-        this.unsubscribeWristbandScan();
-      }
-      return Promise.resolve();
-    } catch (err) {
-      return Promise.reject(err);
-    } finally {
-      this.number = null;
-      this.color = null;
-      this.active = false;
+    this.number = null;
+    this.color = null;
+    this.active = false;
+    if (typeof this.unsubscribeWristbandScan === "function") {
+      this.unsubscribeWristbandScan();
     }
+    return Promise.resolve();
   }
 
   async scan() {
