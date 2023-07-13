@@ -50,8 +50,7 @@ run: env
 mode ?= 'development'
 scratch: env
 	set -a; source ./.env && \
-	$(INTERPRETER) ./tmp/scratch.js
-# | $(PRETTY_OUTPUT)
+	$(INTERPRETER) ./tmp/scratch.js | $(PRETTY_OUTPUT)
 
 .PHONY: run-build
 run-build:

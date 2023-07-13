@@ -2,15 +2,17 @@ import { Pipeline } from "js_utils/pipeline";
 import { CreateBackendService } from "agent_factory.shared/services/backend/CreateBackendService.js";
 import { LoggerService } from "agent_factory.shared/services/logger/LoggerService.js";
 import { LocalStorageService } from "agent_factory.shared/services/client_storage/local_storage/index.js";
-import { parseResponse } from "./middleware/backend/parseResponse";
+import { parseResponse } from "./middleware/backend/parseResponse.js";
+import * as Errors from "agent_factory.shared/errors.js";
+import { isObject } from "js_utils/misc";
 
-let clientId;
+let clientId = "teuh";
 const clientName = "afclient";
 
 // storage service
-const storageService = new LocalStorageService(clientId);
-storageService.start();
-clientId = storageService.masterId;
+// const storageService = new LocalStorageService(clientId);
+// storageService.start();
+// clientId = storageService.masterId;
 // logger service
 const loggerService = new LoggerService(clientId, clientName);
 // backend service
@@ -21,23 +23,16 @@ const pipeline = new Pipeline();
 pipeline.setGlobalLast(function (context, err) {
   // for DEBUG purposes
   loggerService.debug(context);
-  // simpler context object for INFO purposes
   if (Object.hasOwn(context.res, "payload")) {
     context.res = context.res.payload;
   }
-  if (Object.hasOwn(context.req, "payload")) {
-    context.req = context.req.payload;
-  }
-  loggerService.info({
-    route: context.route,
-    req: context.req,
-    res: context.res,
-  });
-
-  // case error
   if (err) {
-    loggerService.error(err);
-    throw err;
+    if (err instanceof Errors.ERR_UNSUBSCRIBED) {
+      throw err;
+    } else {
+      loggerService.error(err);
+      throw err;
+    }
   }
 });
 
@@ -49,6 +44,57 @@ const Afmachine = {
       await next();
     },
     parseResponse,
+  ),
+  getWristbandScan: pipeline.route(
+    "/wristband/scan",
+    // backend service
+    async function (context, next) {
+      context.res = await backendService.getWristbandScan(context.req[0]);
+      await next();
+    },
+    // generic backend response parser
+    parseResponse,
+    // backend - frontend translation
+    async function (context, next) {
+      context.res.payload = {
+        number: context.res.wristbandNumber,
+        color: context.res.wristbandColor,
+        active: context.res.active ?? false,
+      };
+      await next();
+    },
+  ),
+
+  verifyWristband: pipeline.route(
+    "/wristband/info",
+    // frontend - backend translation
+    async function (context, next) {
+      const wristband = context.req[0];
+      context.req.payload = {
+        wristbandNumber:
+          typeof wristband === "number" ? wristband : wristband.number,
+      };
+      console.log('FRONT END BACKNED TRANSLATION');
+      await next();
+    },
+    // backend service
+    async function (context, next) {
+      context.res = await backendService.infoWristband(context.req.payload);
+      console.log(context);
+      console.log('RESPONSE ARRIVED');
+      await next();
+    },
+    // generic backend response parser
+    parseResponse,
+    // backend - frontend translation
+    async function (context, next) {
+      context.res.payload = {
+        number: context.res.wristband.wristbandNumber,
+        color: context.res.wristband.wristbandColor,
+        active: context.res.wristband.active,
+      };
+      await next();
+    },
   ),
 };
 

@@ -1,6 +1,6 @@
 import { State } from "./State.js";
 
-class Empty extends State {
+class Verified extends State {
   constructor(wristband) {
     super(wristband);
   }
@@ -19,17 +19,16 @@ class Empty extends State {
         .catch(() => this.wristband.supersedeAction());
     }
   }
-  unregistered(err) {
-    if (err) {
-      return Promise.reject(err);
-    } else {
-      return this.wristband.unscan();
-    }
+  unregistered() {
+    return this.wristband.supersedeAction();
+  }
+  unpair() {
+    return this.wristband.unscan();
   }
   togglePair() {
-    this.wristband.setState(this.wristband.getPairingState);
-    return this.wristband.pair();
+    this.wristband.setState(this.wristband.getEmptyState);
+    return this.unpair();
   }
 }
 
-export { Empty };
+export { Verified };
