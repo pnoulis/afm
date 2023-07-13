@@ -22,7 +22,7 @@ const backendService = new CreateBackendService(clientId);
 const pipeline = new Pipeline();
 pipeline.setGlobalLast(function (context, err) {
   // for DEBUG purposes
-  loggerService.debug(context);
+  // loggerService.debug(context);
   if (Object.hasOwn(context.res, "payload")) {
     context.res = context.res.payload;
   }
@@ -30,7 +30,7 @@ pipeline.setGlobalLast(function (context, err) {
     if (err instanceof Errors.ERR_UNSUBSCRIBED) {
       throw err;
     } else {
-      loggerService.error(err);
+      // loggerService.error(err);
       throw err;
     }
   }
@@ -74,14 +74,11 @@ const Afmachine = {
         wristbandNumber:
           typeof wristband === "number" ? wristband : wristband.number,
       };
-      console.log('FRONT END BACKNED TRANSLATION');
       await next();
     },
     // backend service
     async function (context, next) {
       context.res = await backendService.infoWristband(context.req.payload);
-      console.log(context);
-      console.log('RESPONSE ARRIVED');
       await next();
     },
     // generic backend response parser
@@ -92,6 +89,46 @@ const Afmachine = {
         number: context.res.wristband.wristbandNumber,
         color: context.res.wristband.wristbandColor,
         active: context.res.wristband.active,
+      };
+      await next();
+    },
+  ),
+
+  /**
+   * Register wristband
+   * @param {(Object|string)} player
+   * @param {string} player.username
+   * @param {(Object|number)} wristband
+   * @param {number} wristband.number
+   */
+  registerWristband: pipeline.route(
+    "/wristband/register",
+    // frontend - backend translation
+    async function (context, next) {
+      const [player, wristband] = context.req;
+      context.req = {
+        player,
+        wristband,
+        payload: {
+          username: typeof player === "string" ? player : player.username,
+          wristbandNumber:
+            typeof wristband === "number" ? wristband : wristband.number,
+        },
+      };
+      await next();
+    },
+    // backend service
+    async function (context, next) {
+      context.res = await backendService.registerWristband(context.req.payload);
+      await next();
+    },
+    // generic backend response parser
+    parseResponse,
+    // backend - frontend translation
+    async function (context, next) {
+      context.res.payload = {
+        player: context.req.player,
+        wristband: context.req.wristband,
       };
       await next();
     },

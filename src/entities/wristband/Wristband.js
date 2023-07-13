@@ -24,6 +24,7 @@ class Wristband {
       this.setState(this.getScannedState);
     }
     this.togglers = 0;
+    this.unsubscribeWristbandScan = null;
   }
 
   supersedeAction() {
@@ -90,12 +91,12 @@ class Wristband {
     }
   }
 
-  async register(username, number) {
+  async register(wristband) {
     try {
-      const response = await Afmachine.registerWristband({
-        username,
-        number,
-      });
+      const response = await Afmachine.registerWristband(
+        this.player,
+        wristband,
+      );
       return this.state.registered(null, response);
     } catch (err) {
       return this.state.registered(err);
@@ -113,14 +114,14 @@ class Wristband {
   }
 
   // interface
-  togglePair() {
+  togglePair(cb) {
     this.togglers += 1;
+    let error;
     this.state
       .togglePair()
       .catch((err) => {
-        if (!(err instanceof werrs.ERR_SUPERSEDED_ACTION)) {
-          this.emit("error", err);
-        }
+        this.emit("error", err);
+        error = err;
       })
       .finally(() => {
         this.togglers -= 1;
@@ -131,6 +132,7 @@ class Wristband {
             this.emit("paired", this);
           }
         }
+        cb(error, !this.inState("empty"), this);
       });
   }
 }

@@ -5,9 +5,6 @@ class Pairing extends State {
     super(wristband);
   }
   scanned(err, response) {
-    console.log(err);
-    console.log(response);
-    console.log("scanned while pairing");
     return err ? Promise.reject(err) : Promise.resolve(response);
   }
   verified(err, response) {
