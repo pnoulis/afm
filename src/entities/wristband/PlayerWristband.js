@@ -9,6 +9,9 @@ class PlayerWristband extends Wristband {
 
   pair() {
     return this.scan()
+      .then((response) => {
+        return response;
+      })
       .then(this.verify.bind(this))
       .then((wristband) => {
         if (wristband.active) {

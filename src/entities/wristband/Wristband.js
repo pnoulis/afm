@@ -26,6 +26,7 @@ class Wristband {
     this.unsubscribeWristbandScan = null;
     this.releaseScanHandle = null;
     this.togglers = 0;
+    this.nextPairing = true;
   }
 
   supersedeAction() {
@@ -117,12 +118,16 @@ class Wristband {
   // interface
   togglePair(cb) {
     this.togglers += 1;
+    this.nextPairing = !this.nextPairing;
     let error;
     this.state
       .togglePair()
       .catch((err) => {
         this.emit("error", err);
         error = err;
+        if (!this.nextPairing && this.inState("pairing")) {
+          this.setState(this.getEmptyState);
+        }
       })
       .finally(() => {
         this.togglers -= 1;
