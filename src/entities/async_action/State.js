@@ -2,11 +2,9 @@ class State {
   constructor(action) {
     this.action = action;
   }
-  fire() {}
-  ff() {}
-  resolve() {}
+  run() {}
+  resolved() {}
   reject() {}
-  reset() {};
 }
 
 export { State };

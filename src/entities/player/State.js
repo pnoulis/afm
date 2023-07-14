@@ -1,17 +1,9 @@
-import { WristbandError } from "../../misc/errors.js";
-
 class State {
   constructor(player) {
     this.player = player;
   }
-  pairWristband(resolve, reject) {
-    reject(
-      new WristbandError({
-        message: `${this.player.state.name} player forbidden from pairing a new wristband`,
-        code: 1,
-      })
-    );
-  }
+  register() {}
+  pairWristband() {}
 }
 
 export { State };

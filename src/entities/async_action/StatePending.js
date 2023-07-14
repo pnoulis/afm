@@ -1,33 +1,47 @@
 import { State } from "./State.js";
-import { ERR_AA_RESET_PENDING } from "./errors.js";
+import { delay } from "js_utils/misc";
 
 class Pending extends State {
   constructor(action) {
     super(action);
   }
 
-  init() {
-    this.action.tminus0 = this.action.options.minTimePending;
+  resolved(response) {
+    // minTimePending
+    return delay(
+      this.action.queue[0]?.options.timePending || this.action.timePending,
+    )
+      .then(() => {
+        this.action.setState(this.action.getResolvedState);
+        // minTimeResolving
+        return delay(
+          this.action.queue[0]?.options.timeResolving ||
+            this.action.timeResolving,
+        );
+      })
+      .then(() => {
+        this.action.next();
+        return response;
+      });
   }
 
-  reset(force) {
-    if (!force) {
-      throw new ERR_AA_RESET_PENDING();
-    }
-    this.action.response = null;
-    this.action.setState(this.action.getIdleState);
-    return this.action;
-  }
-
-  resolve() {
-    this.action.startCountdown(this.action.options.minTimePending, () => {
-      this.action.setState(this.action.getResolvedState);
-    });
-  }
-  reject() {
-    this.action.startCountdown(this.action.options.minTimePending, () => {
-      this.action.setState(this.action.getRejectedState);
-    });
+  rejected(err) {
+    // minTimePending
+    return delay(
+      this.action.queue[0]?.options.timePending || this.action.timePending,
+    )
+      .then(() => {
+        this.action.setState(this.action.getRejectedState);
+        // minTimeRejecting
+        return delay(
+          this.action.queue[0]?.options.timeRejecting ||
+            this.action.timeRejecting,
+        );
+      })
+      .then(() => {
+        this.action.next();
+        throw err;
+      });
   }
 }
 

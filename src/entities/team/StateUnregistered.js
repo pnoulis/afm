@@ -1,12 +1,9 @@
 import { State } from "./State.js";
 
 class Unregistered extends State {
-  constructor(player) {
-    super(player);
+  constructor(team) {
+    super(team);
   }
-
-  register() {}
-  pairWristband() {}
 }
 
 export { Unregistered };

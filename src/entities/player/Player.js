@@ -4,9 +4,11 @@ import { Unregistered } from "./StateUnregistered.js";
 import { Registered } from "./StateRegistered.js";
 import { InTeam } from "./StateInTeam.js";
 import { InGame } from "./StateInGame.js";
-import { PlayerWristband } from "../wristband/PlayerWristband.js";
+import { PlayerWristband } from "../wristband/index.js";
+import { Afmachine } from "../../index.js";
 
 class Player {
+  static Afmachine = Afmachine;
   constructor(player = {}) {
     // Stateful initialization
     stateful.construct.call(this);
@@ -25,6 +27,12 @@ class Player {
     } else {
       this.setState(this.getUnregisteredState);
     }
+  }
+  register() {
+    this.state.register();
+  }
+  pairWristband() {
+    this.state.pairWristband();
   }
 }
 
