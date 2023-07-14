@@ -18,6 +18,9 @@
   "exports": {
     ".": {
       "import": "./src/index.js"
+    },
+    "./player": {
+      "import": "./src/entities/player/index.js"
     }
   },
   "type": "module",
