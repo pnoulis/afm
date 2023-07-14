@@ -23,6 +23,8 @@ class Wristband {
     } else if (this.number) {
       this.setState(this.getScannedState);
     }
+    this.unsubscribeWristbandScan = null;
+    this.releaseScanHandle = null;
     this.togglers = 0;
   }
 
@@ -37,16 +39,21 @@ class Wristband {
     if (typeof this.unsubscribeWristbandScan === "function") {
       this.unsubscribeWristbandScan();
     }
+    if (typeof this.releaseScanHandle === "function") {
+      this.releaseScanHandle();
+    }
     return Promise.resolve();
   }
 
   async scan() {
     try {
+      this.releaseScanHandle = Afmachine.lockWristbandScan();
       const response = await Afmachine.getWristbandScan((unsub) => {
         if (this.inState("pairing")) {
           this.unsubscribeWristbandScan = unsub;
         } else {
           unsub();
+          this.releaseScanHandle();
         }
       });
       return this.state.scanned(null, response);
@@ -126,7 +133,7 @@ class Wristband {
             this.emit("paired", this);
           }
         }
-        cb(error, !this.inState("empty"), this);
+        cb && cb(error, !this.inState("empty"), this);
       });
   }
 }

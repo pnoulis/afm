@@ -3,7 +3,7 @@ import { CreateBackendService } from "agent_factory.shared/services/backend/Crea
 import { LoggerService } from "agent_factory.shared/services/logger/LoggerService.js";
 import { LocalStorageService } from "agent_factory.shared/services/client_storage/local_storage/index.js";
 import { parseResponse } from "./middleware/backend/parseResponse.js";
-import * as Errors from "agent_factory.shared/errors.js";
+import * as aferrs from "agent_factory.shared/errors.js";
 import { isObject } from "js_utils/misc";
 
 let clientId = "teuh";
@@ -27,7 +27,7 @@ pipeline.setGlobalLast(function (context, err) {
     context.res = context.res.payload;
   }
   if (err) {
-    if (err instanceof Errors.ERR_UNSUBSCRIBED) {
+    if (err instanceof aferrs.ERR_UNSUBSCRIBED) {
       throw err;
     } else {
       // loggerService.error(err);
@@ -35,6 +35,17 @@ pipeline.setGlobalLast(function (context, err) {
     }
   }
 });
+
+const getWristbandScanHandle = (function () {
+  let lock = false;
+  return function () {
+    if (lock) throw new aferrs.ERR_WRISTBAND_LOCK();
+    lock = true;
+    return function () {
+      lock = !lock;
+    };
+  };
+})();
 
 const Afmachine = {
   boot: pipeline.route(
@@ -45,6 +56,9 @@ const Afmachine = {
     },
     parseResponse,
   ),
+  lockWristbandScan: function () {
+    return getWristbandScanHandle();
+  },
   getWristbandScan: pipeline.route(
     "/wristband/scan",
     // backend service
