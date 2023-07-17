@@ -4,7 +4,6 @@ import { Unregistered } from "./StateUnregistered.js";
 import { Registered } from "./StateRegistered.js";
 import { InTeam } from "./StateInTeam.js";
 import { InGame } from "./StateInGame.js";
-import { PlayerWristband } from "../wristband/index.js";
 import { AsyncAction } from "../async_action/index.js";
 
 class Player {
@@ -21,7 +20,10 @@ class Player {
     this.surname = player.surname || "";
     this.email = player.email || "";
     this.password = player.password || "";
-    this.wristband = new PlayerWristband(this, player.wristband);
+    this.wristband = this.Afmachine.createPlayerWristband(
+      this,
+      player.wristband,
+    );
     if (player.inGame) {
       this.setState(this.getInGameState);
     } else if (player.inTeam) {
@@ -36,8 +38,8 @@ class Player {
   register() {
     return this.state.register();
   }
-  pairWristband() {
-    return this.state.pairWristband();
+  pairWristband(cb) {
+    this.state.pairWristband(cb);
   }
 }
 

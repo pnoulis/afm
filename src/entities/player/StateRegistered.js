@@ -5,14 +5,13 @@ class Registered extends State {
   constructor(player) {
     super(player);
   }
-
   register() {
     return Promise.reject(
-      new aferrs.ERR_STATE_ACTION_BLOCK("Player", this.name, "register()"),
+      new aferrs.ERR_STATE_ACTION_BLOCK("Player", this.name, "register"),
     );
   }
-  pairWristband() {
-    return Promise.resolve("paired wristband");
+  pairWristband(cb) {
+    this.player.wristband.togglePair(cb);
   }
 }
 

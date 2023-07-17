@@ -79,9 +79,8 @@ class Wristband {
 
   async unregister(payload, state = true) {
     try {
-      const response = await this.Afmachine.unregisterWristband({
-        username: this.player.username,
-        number: this.number,
+      const response = await this.Afmachine.unregisterWristband(this.player, {
+        ...this.player.wristband,
         ...payload,
       });
       if (state) {

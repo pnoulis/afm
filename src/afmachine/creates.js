@@ -10,20 +10,20 @@ function createGroupTeam() {
   return new this.GroupTeam(this);
 }
 
-function createWristband() {
-  return new this.Wristband(this);
+function createWristband(wristband) {
+  return new this.Wristband(this, wristband);
 }
 
-function createPlayer() {
-  return new this.Player(this);
+function createPlayer(player) {
+  return new this.Player(this, player);
 }
 
-function createPlayerWristband() {
-  return new this.PlayerWristband(this);
+function createPlayerWristband(player, wristband) {
+  return new this.PlayerWristband(this, player, wristband);
 }
 
-function createGroupPlayerWristband() {
-  return new this.GroupPlayerWristband(this);
+function createGroupPlayerWristband(groupPlayer, wristband) {
+  return new this.GroupPlayerWristband(this, groupPlayer, wristband);
 }
 
 export {

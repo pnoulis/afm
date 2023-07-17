@@ -7,14 +7,15 @@ class InTeam extends State {
   }
   register() {
     return Promise.reject(
-      new aferrs.ERR_STATE_ACTION_BLOCK("Player", this.name, "register()"),
+      new aferrs.ERR_STATE_ACTION_BLOCK("Player", this.name, "register"),
     );
   }
-
-  pairWristband() {
-    return Promise.reject(
-      new aferrs.ERR_STATE_ACTION_BLOCK("Player", this.name, "pairWristband()"),
-    );
+  pairWristband(cb) {
+    if (cb) {
+      cb(
+        new aferrs.ERR_STATE_ACTION_BLOCK("Player", this.name, "pairWristband"),
+      );
+    }
   }
 }
 

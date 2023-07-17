@@ -1,3 +1,4 @@
+import { ENVIRONMENT } from "agent_factory.shared/config.js";
 import { Pipeline } from "js_utils/pipeline";
 import { CreateBackendService } from "agent_factory.shared/services/backend/CreateBackendService.js";
 import { LoggerService } from "agent_factory.shared/services/logger/LoggerService.js";
@@ -27,9 +28,14 @@ let clientId = "";
 const clientName = "afclient";
 
 // storage service
-// const storageService = new LocalStorageService(clientId);
-// storageService.start();
-// clientId = storageService.masterId;
+let storageService = null;
+if (ENVIRONMENT.RUNTIME === "browser") {
+  storageService = new LocalStorageService(clientId);
+  storageService.start();
+  clientId = storageService.masterId;
+} else {
+  clientId = "node";
+}
 // logger service
 const loggerService = new LoggerService(clientId, clientName);
 // backend service
@@ -39,7 +45,11 @@ const backendService = new CreateBackendService(clientId);
 const pipeline = new Pipeline();
 pipeline.setGlobalLast(function (context, err) {
   // for DEBUG purposes
-  // loggerService.debug(context);
+  loggerService.debug({
+    route: context.route,
+    req: context.req.payload,
+    res: context.res,
+  });
   if (Object.hasOwn(context.res, "payload")) {
     context.res = context.res.payload;
   }
@@ -47,7 +57,7 @@ pipeline.setGlobalLast(function (context, err) {
     if (err instanceof aferrs.ERR_UNSUBSCRIBED) {
       throw err;
     } else {
-      // loggerService.error(err);
+      loggerService.error(err);
       throw err;
     }
   }
@@ -59,7 +69,7 @@ const Afmachine = new (function () {
     parseResponse,
   };
   this.services = {
-    // storage: storageService,
+    storage: storageService,
     backend: backendService,
     log: loggerService,
   };

@@ -5,17 +5,18 @@ class Unregistered extends State {
   constructor(player) {
     super(player);
   }
-
   register() {
     return this.player.registration.run(this.player).then((res) => {
       this.player.setState(this.player.getRegisteredState);
       return this.player;
     });
   }
-  pairWristband() {
-    return Promise.reject(
-      new aferrs.ERR_STATE_ACTION_BLOCK("Player", this.name, "pairWristband()"),
-    );
+  pairWristband(cb) {
+    if (cb) {
+      cb(
+        new aferrs.ERR_STATE_ACTION_BLOCK("Player", this.name, "pairWristband"),
+      );
+    }
   }
 }
 
