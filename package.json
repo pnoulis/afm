@@ -4,7 +4,9 @@
   "description": "afmachine-summary",
   "homepage": "https://github.com/pnoulis/afmachine#readme",
   "bugs": "https://github.com/pnoulis/afmachine/issues",
-  "keywords": ["afmachine-keywords"],
+  "keywords": [
+    "afmachine-keywords"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/pnoulis/afmachine.git"
@@ -14,7 +16,9 @@
     "build": "make build",
     "test": "make test"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "import": "./dist/index.js"
@@ -35,7 +39,6 @@
   },
   "devDependencies": {
     "@types/react": "^18.0.34",
-    "dotenv": "^16.0.3",
     "eslint": "^8.38.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.8.0",
@@ -44,8 +47,6 @@
     "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "pino": "^8.11.0",
-    "pino-pretty": "^10.0.0",
     "prettier": "^2.8.7",
     "react": "^18.2.0",
     "vite": "^4.2.1",

@@ -13,7 +13,8 @@ export default defineConfig({
     target: "esnext",
     sourcemap: true,
     emptyOutDir: true,
-    copyPublicDir: false,
+    copyPublicDir: true,
+    minify: false,
     lib: {
       entry: {
         index: "./src/index.js",
@@ -21,6 +22,11 @@ export default defineConfig({
       name: "afmachine",
       formats: ["es"],
     },
+    rollupOptions: {
+      external: [
+        "node:fs",
+      ]
+    }
   },
   test: {
     // ...
