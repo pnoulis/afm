@@ -1,3 +1,5 @@
+#+TODO: TODO BUG DOING | DONE
+
 * System overview
 The afmachine or agent factory machine is a wrapper to all business logic
 associated with the agent_factory product and at the moment serves as the
@@ -26,3 +28,262 @@ logEvent -> afadmin_client
 
 * System configuration
 ** Parameters
+* Log 12/06/23
+config.js file  environment variables
+
+Basically i need to treat afmachine as a library.
+
+** Registering a player
+** stateful changes
+Stateful should anticipate a stateful duplicate somewhere along the prototype
+chain. It should then proceed to merge the two stateful objects instead of
+attaching its payload to the object provided.
+
+Stateful should extend an object's prototype, not attach functionality directly
+on the object.
+
+Statefull creates a new object. The new object has as its prototype the stateful object.
+
+* Log 13/06/23
+** DONE create the user registration process
+CLOSED: [2023-06-13 Tue 19:10]
+
+** Create mock server
+** TODO register a wristband to a player
+*** scan the wristband
+
+* Log 14/06/23
+** Build and Test backend routes
+Each backend route is required to log and *translate* its traffic.
+
+** Create a routing system.
+before each route
+after each route
+** importing typedefs
+/** @type {import('./some.js')} */
+
+/* @typedef MyType
+/* @prop {string} name
+/* @prop {string} description
+
+export const Types = {}
+
+import * as Types from './types.js';
+{Types.MyType}
+
+/**
+ * @typedef {import("path/ClassName").<name>} ClassName
+ */
+
+** TODO Create a mock backend server so that routes can be tested.
+subscribing too fast to all the routes in the mock backend server does not work.
+*** DONE add test mode to dotenv.sh
+CLOSED: [2023-06-14 Wed 19:25]
+** Create a mock backend server so that routes can be tested.
+*** add test mode to dotenv.sh
+* LOG 19/06/23
+middleware functions such as logging, handling of the request, transformations etc
+should be well defined and attached at a later stage.
+** bare actions
+All available topics and the resources they represent are accessed through
+the backend/actions.
+These actions do not have any middleware attached.
+
+** middlewared actions
+actions that include middleware such as logging are named routes, to
+differentiate them from bare actions.
+
+These are defined at:
+
+/src/routes/
+
+If some route requires extra middleware than the rest, then it is placed
+in a subdirectory of its own.
+
+** DONE Created emulateScan wrapper script
+CLOSED: [2023-06-19 Mon 20:46]
+** TODO Test wristband/scan
+* LOG 20/06/23
+** DONE define the unregister wristband action
+CLOSED: [2023-06-20 Tue 09:10]
+
+** DONE Test the unregister wristband action
+CLOSED: [2023-06-20 Tue 09:23]
+** TODO malformed payloads to unergisterWristband action do not elicit a response
+Should they? is it a bug?
+potential bug
+
+** DONE define the merge team action
+CLOSED: [2023-06-20 Tue 12:51]
+** DONE test registerWristband
+CLOSED: [2023-06-20 Tue 14:53]
+** DONE test unregisterWristband
+CLOSED: [2023-06-20 Tue 15:18]
+** DONE test mergeTeam
+CLOSED: [2023-06-20 Tue 16:29]
+* LOG 21/07/23
+** DONE Implement the middleware pattern
+CLOSED: [2023-06-22 Thu 11:12]
+* LOG 22/07?23
+Restructure the /src subdirectory hierarchy to better resemble the current architecture.
+
+services/logger/client.js
+services/backend/api/
+services/backend/client.js
+
+middleware/
+middleware/parseBackendResponsejs
+middleware/logRoute.js
+middleware/logRouteError.js
+
+routes/
+routes/afterAll.js
+routes/afterEach.js
+routes/
+
+afmachine/player/
+afmachine/roster/
+afmachine/wristband/
+afmachine/team/
+afmachine/cashier/
+afmachine/action/
+
+misc/stateful.js
+misc/eventful.js
+misc/errors.js
+
+config.js
+typedefs.js
+index.js
+** DONE test loginPlayer
+CLOSED: [2023-06-22 Thu 16:39]
+
+** DONE register player
+CLOSED: [2023-06-22 Thu 16:43]
+** DONE registerWristband
+CLOSED: [2023-06-22 Thu 16:49]
+
+** DONE unregister wristband
+CLOSED: [2023-06-22 Thu 18:53]
+
+** DONE mergeTeam
+CLOSED: [2023-06-22 Thu 19:04]
+
+** DONE boot
+CLOSED: [2023-06-22 Thu 19:45]
+
+* LOG 26/06/2023
+** DONE test listPackages
+CLOSED: [2023-06-26 Mon 13:15]
+** test addPackage
+** test removePackage
+* LOG 27/06/2023
+** DONE test backend route pipeline
+CLOSED: [2023-06-27 Tue 10:29]
+
+** DONE implement unregisterWristband route
+CLOSED: [2023-06-27 Tue 10:41]
+** implement subscribeWristbandScan route
+** DONE implement startTeam route
+CLOSED: [2023-06-27 Tue 10:48]
+** DONE implement searchPlayer route
+CLOSED: [2023-06-27 Tue 10:36]
+** DONE implement removePackage route
+CLOSED: [2023-06-27 Tue 10:51]
+** DONE implement registerWristband route
+CLOSED: [2023-06-27 Tue 10:39]
+** DONE implement registerPlayer route
+CLOSED: [2023-06-27 Tue 10:35]
+** DONE implement mergeTeam route
+CLOSED: [2023-06-27 Tue 10:43]
+** DONE implement mergeGroupTeam route
+CLOSED: [2023-06-27 Tue 10:43]
+** DONE implement loginPlayer route
+CLOSED: [2023-06-27 Tue 10:33]
+** DONE implement listTeams route
+CLOSED: [2023-06-27 Tue 10:46]
+** DONE implement listRegisteredPlayers route
+CLOSED: [2023-06-27 Tue 10:38]
+** DONE implement listPackages route
+CLOSED: [2023-06-27 Tue 10:51]
+** DONE implement infoWristband route
+CLOSED: [2023-06-27 Tue 10:44]
+** DONE implement boot route
+CLOSED: [2023-06-27 Tue 10:31]
+** DONE implement addPackage route
+CLOSED: [2023-06-27 Tue 10:51]
+
+** hydrations
+*** loginPlayer
+** Wristband
+Scan() -> changes state to pairing
+
+* LOG 28/06/2023
+** AsyncActions
+** Wristband
+Wristband's interface is limited to pair() and unpair().
+
+pair() changes the state to Pairing.
+Pairing changes to Paired only when the Wristband has:
+
+1. scanned wristband
+2. verified that is free
+3. registration
+
+When these asynchronous actions have all completed Wristband moves from Pairing to Paired.
+
+At any point in time the user may initiate another pair() sequence.
+If pair() intercepts the pairing process at the 'scanning' stage, Wristband
+shall drop the pairing process and return to its Empty state.
+
+If however pair() intercepts the pairing process at a level above the 'scanning'
+stage it shall not willfully
+
+*** togglePair()
+
+1. push a new promise to the togglePair event.
+   this.on('togglePair', promise(err, wristband);
+2. hand over the action to the states
+   this.state.togglePair();
+
+*** strategy
+The wristband states must be independent from the asynchronous actions.
+To achieve that, each time togglePair() is initiated a new promise is returned.
+However that promise is not tied to the actual sequence of events that the
+wristband
+must undertake to either unpair() or pair() itself. The promise is provided the
+result of the last iteration the sequence of events were  fired.
+
+
+a sequence of asynchronous actions. The first one to enter is the first one to
+leave.
+When it completes the wristband must decide if it has been superceded by more
+recent iterations of AA. If it has, then it must check if the most recent AA
+addition has the same target as it has.
+
+*** Added Scanned state
+A scanned wristband is mostly utilized by the Wristband base class.
+The wristband base class togglePair() action requests a wristband from the
+backend. When it gets one, it switches state from Empty to Scanned.
+and vice versa.
+** DONE loginPlayer route payload translations
+CLOSED: [2023-06-28 Wed 20:02]
+** DONE registerPlayer route payload translations
+CLOSED: [2023-06-28 Wed 20:02]
+** DONE getWristbandScan route payload translations
+CLOSED: [2023-06-28 Wed 20:02]
+** DONE infoWristband route payload translations
+CLOSED: [2023-06-28 Wed 19:27]
+** DONE registerWristband route payload translations
+CLOSED: [2023-06-28 Wed 19:27]
+** DONE unregisterWristband route payload translations
+CLOSED: [2023-06-28 Wed 19:27]
+
+* LOG 29/06/2023
+** Wristband
+Each backend api call should be wrapped in its own AsyncAction within the
+wristband, so that each action iteration may inspect the leftover state of the
+previous action sequence and behave accordingly.
+* LOG 30/06/2023
+** Subscription
+Subscription calls should be wrapped within a class, that takes care of unsubscribing

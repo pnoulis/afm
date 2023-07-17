@@ -10,7 +10,6 @@
     "url": "https://github.com/pnoulis/afmachine.git"
   },
   "scripts": {
-    "prepare": "make build-prod",
     "dev": "make run",
     "build": "make build",
     "test": "make test"
@@ -18,10 +17,17 @@
   "files": ["dist"],
   "exports": {
     ".": {
+<<<<<<< HEAD
       "import": "./dist/index.js"
     },
     "./config": {
       "import": "./configure.js"
+=======
+      "import": "./src/index.js"
+    },
+    "./player": {
+      "import": "./src/entities/player/index.js"
+>>>>>>> refactor
     }
   },
   "type": "module",

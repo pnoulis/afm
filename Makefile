@@ -5,107 +5,102 @@ SHELL = /usr/bin/bash
 .DELETE_ON_ERROR:
 .DEFAULT_GOAL := all
 
+# Include package information
+include ./PACKAGE
+
 # Critical Paths
-LOGDIR=var/log
+SRCDIR := .
+LOGDIR := var/log
+BUILDIR := $(SRCDIR)/build
+DISTDIR := $(SRCDIR)/dist
+# Monorepo dirs
+AGENT_FACTORY := $(SRCDIR)/../..
+SHARED := $(AGENT_FACTORY)/shared
+# preset environment dirs
+ENVDIRS = $(SHARED)/env $(SRCDIR)/config/env $(SRCDIR)/PACKAGE $(SRCDIR)
 
 # Programs
 INSTALL = /usr/bin/install
 MKDIRP = /usr/bin/mkdir -p
+SORT = /usr/bin/sort
 CP = /usr/bin/cp
 RM = /usr/bin/rm
 CHMOD = /usr/bin/chmod
-BUILDER = npx vite
+INTERPRETER = node
+BUNDLER = npx vite
 TESTER = npx vitest
 LINTER = npx eslint
 FORMATER = npx prettier
+DOTENV = ~/bin/dotenv
 PRETTY_OUTPUT = npx pino-pretty
-MAKE_ENV = ./scripts/dotenv.sh --pkgdir=. --envdir=./config/env
 
 .PHONY: all
 all: build
 
 # ------------------------------ RUN ------------------------------ #
-.PHONY: run scratch run-build
-run:
-	@if test -z "$$params"; then echo \
-	"make run missing params: -> params=./file make run"; \
-	exit 1; \
-	fi
-	$(MAKE_ENV) --mode=dev --host=dev
-	@set -a; source ./.env && node "$${params}" | $(PRETTY_OUTPUT)
+.PHONY: run
+mode ?= 'development'
+file ?= '$(SRCDIR)/tmp/scratch.js'
+run: env
+	set -a; source ./.env && \
+	$(INTERPRETER) $(file) \
+	| $(PRETTY_OUTPUT)
 
-run-scratch:
-	$(MAKE_ENV) --mode=dev --host=dev
-	set -a; source ./.env && node ./tmp/scratch.js | $(PRETTY_OUTPUT)
+.PHONY: scratch
+mode ?= 'development'
+scratch: env
+	set -a; source ./.env && \
+	$(INTERPRETER) ./tmp/scratch.js | $(PRETTY_OUTPUT)
 
+.PHONY: run-build
 run-build:
-	set -a; source ./.env && node ./dist/index.js | $(PRETTY_OUTPUT)
+	@set -a; source ./.env && \
+	$(INTERPRETER) ./dist/index.js \
+	| $(PRETTY_OUTPUT)
 
 # ------------------------------ DEV ------------------------------ #
-.PHONY: dev dev-dev dev-staging dev-prod
-dev: dev-dev
-
-dev-dev:
-	$(MAKE_ENV) --mode=dev --host=dev
-	set -a; source ./.env && $(BUILDER) serve --mode=dev
-
-dev-staging: dirs
-	$(MAKE_ENV) --mode=staging --host=dev
-	set -a; source ./.env && $(BUILDER) serve --mode=staging
-
-dev-prod: dirs
-	$(MAKE_ENV) --mode=prod --host=dev
-	set -a; source ./.env && $(BUILDER) serve --mode=prod
+.PHONY: dev
+mode ?= 'development'
+dev: env
+	set -a; source ./.env && \
+	$(BUNDLER) server --mode=$(mode)
 
 # ------------------------------ BUILD ------------------------------ #
-.PHONY: build build-dev build-staging build-prod
-build: build-prod
-
-build-dev:
-	$(MAKE_ENV) --mode=dev --host=prod
-	set -a; source ./.env && $(BUILDER) build --mode=dev $(params)
-
-build-staging:
-	$(MAKE_ENV) --mode=staging --host=prod
-	set -a; source ./.env && $(BUILDER) build --mode=staging $(params)
-
-build-prod:
-	$(MAKE_ENV) --mode=prod --host=prod
-	set -a; source ./.env && $(BUILDER) build --mode=prod $(params)
+.PHONY: build
+mode ?= 'production'
+build: env
+	set -a; source ./.env && \
+	$(BUNDLER) build --mode=$(mode)
 
 # ------------------------------ TEST ------------------------------ #
-.PHONY: test test-dev test-staging test-prod
-test: test-dev
-
-test-dev:
-	$(MAKE_ENV) --mode=dev --host=dev
-	set -a; source ./.env && $(TESTER) run --reporter verbose --mode=dev
-
-test-staging:
-	$(MAKE_ENV) --mode=staging --host=dev
-	set -a; source ./.env && $(TESTER) run --reporter verbose --mode=staging
-
-test-prod:
-	$(MAKE_ENV) --mode=prod --host=dev
-	set -a; source ./.env && $(TESTER) run --reporter verbose --mode=prod
+.PHONY: test
+mode ?= 'testing'
+suite ?= '*'
+test: env
+	set -a; source ./.env && \
+	$(TESTER) run --reporter verbose --mode=$(mode) $(suite)
 
 # ------------------------------ LINT ------------------------------ #
 .PHONY: lint
+file ?= '.'
 lint:
-	$(LINTER) --ext js,jsx --fix "$${params:-.}"
+	$(LINTER) --ext js,jsx --fix $(file)
 
 .PHONY: lint-check
+file ?= '.'
 lint-check:
-	$(LINTER) --ext js,jsx "$${params:-.}"
+	$(LINTER) --ext js,jsx $(file)
 
 # ------------------------------ FORMAT ------------------------------ #
 .PHONY: fmt
+file ?= '.'
 fmt:
-	$(FORMATER) --write "$${params:-.}"
+	$(FORMATER) --write $(file)
 
 .PHONY: fmt-check
+file ?= '.'
 fmt-check:
-	$(FORMATER) --check "$${params:-.}"
+	$(FORMATER) --check $(file)
 
 # ------------------------------ CLEAN ------------------------------ #
 .PHONY: clean distclean
@@ -115,10 +110,10 @@ clean:
 distclean: clean
 	rm -rdf node_modules package-lock.json
 
-# ------------------------------ VARIOUS ------------------------------ #
-dirs:
-	$(MKDIRP) $(LOGDIR)
-
+# ------------------------------ ENV ------------------------------#
 .PHONY: env
+mode ?= 'production'
 env:
-	$(MAKE_ENV) --mode=$(params)
+	$(DOTENV) --mode=$(mode) $(ENVDIRS) | $(SORT) > $(SRCDIR)/.env
+
+# ------------------------------ VARIOUS ------------------------------ #
