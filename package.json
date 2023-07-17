@@ -17,17 +17,7 @@
   "files": ["dist"],
   "exports": {
     ".": {
-<<<<<<< HEAD
       "import": "./dist/index.js"
-    },
-    "./config": {
-      "import": "./configure.js"
-=======
-      "import": "./src/index.js"
-    },
-    "./player": {
-      "import": "./src/entities/player/index.js"
->>>>>>> refactor
     }
   },
   "type": "module",
