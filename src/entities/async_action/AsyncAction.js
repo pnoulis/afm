@@ -9,7 +9,7 @@ class AsyncAction extends Scheduler {
   run(...args) {
     return new Promise((resolve, reject) => {
       this.queue.push({
-        options: args.at(-1),
+        options: args.at(-1) || {},
         action: function () {
           this.action(...args)
             .then((res) => this.state.resolved(res))

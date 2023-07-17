@@ -7,6 +7,7 @@ import { parseResponse } from "./middleware/backend/parseResponse.js";
 import * as aferrs from "agent_factory.shared/errors.js";
 import * as routes from "./routes/backend/index.js";
 import { lockWristbandScan } from "./afmachine/lockWristbandScan.js";
+import { AsyncAction } from "./entities/async_action/AsyncAction.js";
 import { Team, RegularTeam, GroupTeam } from "./entities/team/index.js";
 import {
   Wristband,
@@ -120,4 +121,4 @@ const Afmachine = new (function () {
   this.verifyWristband = pipeline.route(...routes.verifyWristband.call(this));
 })();
 
-export { Afmachine };
+export { Afmachine, AsyncAction };
