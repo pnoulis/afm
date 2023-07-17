@@ -1,8 +1,8 @@
 import { Team } from "./Team.js";
 
 class GroupTeam extends Team {
-  constructor(team, players) {
-    super(team, players);
+  constructor(Afmachine, team, players) {
+    super(Afmachine, team, players);
   }
 
   register() {

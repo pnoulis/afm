@@ -1,8 +1,8 @@
 import { Team } from "./Team.js";
 
 class RegularTeam extends Team {
-  constructor(team, players) {
-    super(team, players);
+  constructor(Afmachine, team, players) {
+    super(Afmachine, team, players);
   }
   register() {
     this.state.register();

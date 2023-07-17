@@ -4,12 +4,26 @@ import { LoggerService } from "agent_factory.shared/services/logger/LoggerServic
 import { LocalStorageService } from "agent_factory.shared/services/client_storage/local_storage/index.js";
 import { parseResponse } from "./middleware/backend/parseResponse.js";
 import * as aferrs from "agent_factory.shared/errors.js";
-import { isObject } from "js_utils/misc";
-import { randomPlayer } from "agent_factory.shared/scripts/randomPlayer.js";
-let Afmachine = {};
-// import { Player } from './entities/player/index.js';
+import * as routes from "./routes/backend/index.js";
+import { lockWristbandScan } from "./afmachine/lockWristbandScan.js";
+import { Team, RegularTeam, GroupTeam } from "./entities/team/index.js";
+import {
+  Wristband,
+  PlayerWristband,
+  GroupPlayerWristband,
+} from "./entities/wristband/index.js";
+import { Player } from "./entities/player/index.js";
+import {
+  createTeam,
+  createRegularTeam,
+  createGroupTeam,
+  createWristband,
+  createPlayer,
+  createPlayerWristband,
+  createGroupPlayerWristband,
+} from "./afmachine/creates.js";
 
-let clientId = "teuh";
+let clientId = "";
 const clientName = "afclient";
 
 // storage service
@@ -39,168 +53,61 @@ pipeline.setGlobalLast(function (context, err) {
   }
 });
 
-const getWristbandScanHandle = (function () {
-  let lock = false;
-  return function () {
-    if (lock) throw new aferrs.ERR_WRISTBAND_LOCK();
-    lock = true;
-    return function () {
-      lock = !lock;
-    };
+// Afmachine
+const Afmachine = new (function () {
+  this.middleware = {
+    parseResponse,
   };
+  this.services = {
+    // storage: storageService,
+    backend: backendService,
+    log: loggerService,
+  };
+
+  // entities
+  this.Team = Team;
+  this.RegularTeam = RegularTeam;
+  this.GroupTeam = GroupTeam;
+  this.Wristband = Wristband;
+  this.PlayerWristband = PlayerWristband;
+  this.GroupPlayerWristband = GroupPlayerWristband;
+  this.Player = Player;
+
+  // Initializers
+  this.createTeam = createTeam.bind(this);
+  this.createRegularTeam = createRegularTeam.bind(this);
+  this.createGroupTeam = createGroupTeam.bind(this);
+  this.createWristband = createWristband.bind(this);
+  this.createPlayer = createPlayer.bind(this);
+  this.createPlayerWristband = createPlayerWristband.bind(this);
+  this.createGroupPlayerWristband = createGroupPlayerWristband.bind(this);
+
+  // non-routes
+  this.lockWristbandScan = lockWristbandScan.bind(this);
+
+  // routes
+  this.addPackage = pipeline.route(...routes.addPackage.call(this));
+  this.boot = pipeline.route(...routes.boot.call(this));
+  this.getWristbandScan = pipeline.route(...routes.getWristbandScan.call(this));
+  this.listPackages = pipeline.route(...routes.listPackages.call(this));
+  this.listPairedWristbandPlayers = pipeline.route(
+    ...routes.listPairedWristbandPlayers.call(this),
+  );
+  this.listTeams = pipeline.route(...routes.listTeams.call(this));
+  this.loginPlayer = pipeline.route(...routes.loginPlayer.call(this));
+  this.mergeGroupTeam = pipeline.route(...routes.mergeGroupTeam.call(this));
+  this.mergeTeam = pipeline.route(...routes.mergeTeam.call(this));
+  this.registerPlayer = pipeline.route(...routes.registerPlayer.call(this));
+  this.registerWristband = pipeline.route(
+    ...routes.registerWristband.call(this),
+  );
+  this.removePackage = pipeline.route(...routes.removePackage.call(this));
+  this.searchPlayer = pipeline.route(...routes.searchPlayer.call(this));
+  this.startTeam = pipeline.route(...routes.startTeam.call(this));
+  this.unregisterWristband = pipeline.route(
+    ...routes.unregisterWristband.call(this),
+  );
+  this.verifyWristband = pipeline.route(...routes.verifyWristband.call(this));
 })();
 
-Afmachine.boot = pipeline.route(
-  "/boot",
-  async function (context, next) {
-    context.res = await backendService.boot();
-    await next();
-  },
-  parseResponse,
-);
-Afmachine.list = pipeline.route("/list", async function (context, next) {
-  context.res = await Promise.resolve(
-    new Array(5).fill(null).map((_) => randomPlayer()),
-  );
-  await next();
-});
-Afmachine.lockWristbandScan = function () {
-  return getWristbandScanHandle();
-};
-Afmachine.getWristbandScan = pipeline.route(
-  "/wristband/scan",
-  // backend service
-  async function (context, next) {
-    context.res = await backendService.getWristbandScan(context.req[0]);
-    await next();
-  },
-  // generic backend response parser
-  parseResponse,
-  // backend - frontend translation
-  async function (context, next) {
-    context.res.payload = {
-      number: context.res.wristbandNumber,
-      color: context.res.wristbandColor,
-      active: context.res.active ?? false,
-    };
-    await next();
-  },
-);
-
-Afmachine.verifyWristband = pipeline.route(
-  "/wristband/info",
-  // frontend - backend translation
-  async function (context, next) {
-    const wristband = context.req[0];
-    context.req.payload = {
-      wristbandNumber:
-        typeof wristband === "number" ? wristband : wristband.number,
-    };
-    await next();
-  },
-  // backend service
-  async function (context, next) {
-    context.res = await backendService.infoWristband(context.req.payload);
-    await next();
-  },
-  // generic backend response parser
-  parseResponse,
-  // backend - frontend translation
-  async function (context, next) {
-    context.res.payload = {
-      number: context.res.wristband.wristbandNumber,
-      color: context.res.wristband.wristbandColor,
-      active: context.res.wristband.active,
-    };
-    await next();
-  },
-);
-
-/**
- * Register wristband
- * @param {(Object|string)} player
- * @param {string} player.username
- * @param {(Object|number)} wristband
- * @param {number} wristband.number
- */
-Afmachine.registerWristband = pipeline.route(
-  "/wristband/register",
-  // frontend - backend translation
-  async function (context, next) {
-    const [player, wristband] = context.req;
-    context.req = {
-      player,
-      wristband,
-      payload: {
-        username: typeof player === "string" ? player : player.username,
-        wristbandNumber:
-          typeof wristband === "number" ? wristband : wristband.number,
-      },
-    };
-    await next();
-  },
-  // backend service
-  async function (context, next) {
-    context.res = await backendService.registerWristband(context.req.payload);
-    await next();
-  },
-  // generic backend response parser
-  parseResponse,
-  // backend - frontend translation
-  async function (context, next) {
-    context.res.payload = {
-      player: context.req.player,
-      wristband: context.req.wristband,
-    };
-    await next();
-  },
-);
-
-/**
- * Register player
- * @param {Object} player
- * @param {string} player.username
- * @param {string} player.surname
- * @param {string} player.name
- * @param {string} player.email
- * @param {string} [player.password]
- * @returns {Object} payload
- */
-Afmachine.registerPlayer = pipeline.route(
-  "/player/register",
-  // frontend - backend translation
-  async function (context, next) {
-    const [player] = context.req;
-    context.req = {
-      player,
-      payload: {
-        username: player?.username || "",
-        surname: player?.surname || "",
-        name: player?.name || "",
-        email: player?.email || "",
-        password: player?.password || "",
-      },
-    };
-    await next();
-  },
-  // backend service
-  async function (context, next) {
-    context.res = await backendService.registerPlayer(context.req.payload);
-    await next();
-  },
-  // generic backend response parser
-  parseResponse,
-  // backend - frontend translation
-  async function (context, next) {
-    context.res.payload = {
-      name: context.res.player.name || "",
-      surname: context.res.player.surname || "",
-      username: context.res.player.username || "",
-      email: context.res.player.email || "",
-    };
-    await next();
-  },
-);
-
-// const Player = await import("./entities/player/index.js");
-export { Afmachine};
+export { Afmachine };

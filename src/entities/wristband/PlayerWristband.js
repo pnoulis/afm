@@ -1,9 +1,9 @@
 import { Wristband } from "./Wristband.js";
-import * as werrs from "./errors.js";
+import * as aferrs from "agent_factory.shared/errors.js";
 
 class PlayerWristband extends Wristband {
-  constructor(player = {}, wristband = {}) {
-    super(wristband);
+  constructor(Afmachine, player = {}, wristband = {}) {
+    super(Afmachine, wristband);
     this.player = player;
   }
 
@@ -15,7 +15,7 @@ class PlayerWristband extends Wristband {
       .then(this.verify.bind(this))
       .then((wristband) => {
         if (wristband.active) {
-          throw new werrs.ERR_WRISTBAND_BOUND(wristband.number);
+          throw new aferrs.ERR_WRISTBAND_BOUND(wristband.number);
         }
         return this.register(wristband);
       })

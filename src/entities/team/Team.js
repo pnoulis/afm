@@ -5,13 +5,15 @@ import { Unregistered } from "./StateUnregistered.js";
 import { Registered } from "./StateRegistered.js";
 import { Packaged } from "./StatePackaged.js";
 import { Playing } from "./StatePlaying.js";
-import { Afmachine } from "../../index.js";
 
 class Team {
-  static Afmachine = Afmachine;
-  constructor(team = {}, ...players) {
+  constructor(Afmachine, team = {}, ...players) {
+    // Eventful initialization
+    eventful.construct.call(this);
     // Stateful initialization
     stateful.construct.call(this);
+    // Agent Factory
+    this.Afmachine = Afmachine;
     // Team initialization
     this.name = team.name || "";
     this.roster = new Roster(players);
@@ -31,8 +33,6 @@ stateful(Team, [
 ]);
 
 // Eventful
-eventful(Team, {
-  stateChange: [],
-});
+eventful(Team, ["stateChange"]);
 
 export { Team };

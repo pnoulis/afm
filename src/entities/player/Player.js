@@ -5,14 +5,16 @@ import { Registered } from "./StateRegistered.js";
 import { InTeam } from "./StateInTeam.js";
 import { InGame } from "./StateInGame.js";
 import { PlayerWristband } from "../wristband/index.js";
-import { Afmachine } from "../../index.js";
 import { AsyncAction } from "../async_action/index.js";
 
 class Player {
-  static Afmachine = Afmachine;
-  constructor(player = {}) {
+  constructor(Afmachine, player = {}) {
+    // Eventful initialization
+    eventful.construct.call(this);
     // Stateful initialization
     stateful.construct.call(this);
+    // Agent Factory
+    this.Afmachine = Afmachine;
     // Player initialization
     this.name = player.name || "";
     this.username = player.username || "";
@@ -29,7 +31,7 @@ class Player {
     } else {
       this.setState(this.getUnregisteredState);
     }
-    this.registration = new AsyncAction(Afmachine.registerPlayer);
+    this.registration = new AsyncAction(this.Afmachine.registerPlayer);
   }
   register() {
     return this.state.register();
@@ -52,8 +54,6 @@ stateful(Player, [
 ]);
 
 // Eventful
-eventful(Player, {
-  stateChange: [],
-});
+eventful(Player, ["stateChange"]);
 
 export { Player };

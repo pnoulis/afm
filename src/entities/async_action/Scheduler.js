@@ -7,6 +7,8 @@ import { Rejected } from "./StateRejected.js";
 
 class Scheduler {
   constructor(options = {}) {
+    // Eventful initialization
+    eventful.construct.call(this);
     // Stateful initialization
     stateful.construct.call(this);
     // AsyncAction initialization
@@ -56,9 +58,6 @@ stateful(Scheduler, [
 ]);
 
 // Eventful
-eventful(Scheduler, {
-  stateChange: [],
-  settled: [],
-});
+eventful(Scheduler, ["stateChange"]);
 
 export { Scheduler };

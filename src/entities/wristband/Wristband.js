@@ -5,15 +5,16 @@ import { Pairing } from "./StatePairing.js";
 import { Scanned } from "./StateScanned.js";
 import { Verified } from "./StateVerified.js";
 import { Paired } from "./StatePaired.js";
-import * as werrs from "./errors.js";
 import * as aferrs from "agent_factory.shared/errors.js";
-import { Afmachine } from "../../index.js";
 
 class Wristband {
-  constructor(wristband = {}) {
+  constructor(Afmachine, wristband = {}) {
+    // Eventful initialization
+    eventful.construct.call(this);
     // Stateful Initialization
     stateful.construct.call(this);
-
+    // Agent Factory
+    this.Afmachine = Afmachine;
     // Wristband Initialization
     this.number = wristband.number || null;
     this.color = wristband.color || null;
@@ -30,7 +31,7 @@ class Wristband {
   }
 
   supersedeAction() {
-    return Promise.reject(new werrs.ERR_SUPERSEDED_ACTION());
+    return Promise.reject(new aferrs.ERR_SUPERSEDED_ACTION());
   }
 
   unscan() {
@@ -48,8 +49,8 @@ class Wristband {
 
   async scan() {
     try {
-      this.releaseScanHandle = Afmachine.lockWristbandScan();
-      const response = await Afmachine.getWristbandScan((unsub) => {
+      this.releaseScanHandle = this.Afmachine.lockWristbandScan();
+      const response = await this.Afmachine.getWristbandScan((unsub) => {
         if (this.inState("pairing")) {
           this.unsubscribeWristbandScan = unsub;
         } else {
@@ -61,7 +62,7 @@ class Wristband {
     } catch (err) {
       return this.state.scanned(
         err instanceof aferrs.ERR_UNSUBSCRIBED
-          ? new werrs.ERR_SUPERSEDED_ACTION()
+          ? new aferrs.ERR_SUPERSEDED_ACTION()
           : err,
       );
     }
@@ -69,7 +70,7 @@ class Wristband {
 
   async verify(wristband) {
     try {
-      const response = await Afmachine.verifyWristband(wristband);
+      const response = await this.Afmachine.verifyWristband(wristband);
       return this.state.verified(null, response);
     } catch (err) {
       return this.state.verified(err);
@@ -78,7 +79,7 @@ class Wristband {
 
   async unregister(payload, state = true) {
     try {
-      const response = await Afmachine.unregisterWristband({
+      const response = await this.Afmachine.unregisterWristband({
         username: this.player.username,
         number: this.number,
         ...payload,
@@ -95,7 +96,7 @@ class Wristband {
 
   async register(wristband) {
     try {
-      const response = await Afmachine.registerWristband(
+      const response = await this.Afmachine.registerWristband(
         this.player,
         wristband,
       );
@@ -158,11 +159,6 @@ stateful(Wristband, [
 ]);
 
 // Eventful
-eventful(Wristband, {
-  stateChange: [],
-  paired: [],
-  unpaired: [],
-  error: [],
-});
+eventful(Wristband, ["stateChange", "paired", "unpaired", "error"]);
 
 export { Wristband };
