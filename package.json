@@ -33,9 +33,7 @@
   },
   "dependencies": {
     "js_utils": "file:../../lib/js_utils",
-    "mqtt": "^4.3.7",
-    "mqtt_proxy": "file:../../lib/mqtt_proxy",
-    "precompiled-mqtt": "^4.3.14-beta"
+    "mqtt_proxy": "file:../../lib/mqtt_proxy"
   },
   "devDependencies": {
     "@types/react": "^18.0.34",
@@ -48,12 +46,7 @@
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "prettier": "^2.8.7",
-    "react": "^18.2.0",
     "vite": "^4.2.1",
     "vitest": "^0.30.1"
-  },
-  "peerDependencies": {
-    "mqtt": "^4.3.7",
-    "precompiled-mqtt": "^4.3.14-beta"
   }
 }
