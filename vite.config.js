@@ -23,10 +23,8 @@ export default defineConfig({
       formats: ["es"],
     },
     rollupOptions: {
-      external: [
-        "node:fs",
-      ]
-    }
+      external: ["node:fs"],
+    },
   },
   test: {
     // ...
