@@ -4,17 +4,9 @@ async function parseResponse(context, next) {
   const { res } = context;
   if (res?.result === "NOK") {
     if (res?.validationErrors) {
-      throw new aferrs.ERR_BACKEND_VALIDATION(
-        context.route,
-        context.req.payload,
-        res.validationErrors,
-      );
+      throw new aferrs.ERR_BACKEND_VALIDATION(res.route, res.validationErrors);
     } else {
-      throw new aferrs.ERR_BACKEND_MODEL(
-        context.route,
-        context.req.payload,
-        res,
-      );
+      throw new aferrs.ERR_BACKEND_MODEL(res.message);
     }
   }
   await next();

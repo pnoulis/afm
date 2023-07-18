@@ -25,7 +25,7 @@ import {
   createGroupPlayerWristband,
 } from "./afmachine/creates.js";
 
-let clientId = "";
+let clientId = "001";
 const clientName = "afclient";
 
 // storage service
@@ -33,39 +33,39 @@ let storageService = null;
 if (ENVIRONMENT.RUNTIME === "browser") {
   storageService = new LocalStorageService(clientId);
   storageService.start();
-  clientId = storageService.masterId;
+  clientId = storageService.sessionId;
 } else {
-  clientId = "node";
+  clientId = "001";
 }
 // logger service
 const loggerService = new LoggerService(clientId, clientName);
 // backend service
-const backendService = new CreateBackendService(clientId);
+const backendService = CreateBackendService(clientId);
 
 // Pipeline
 const pipeline = new Pipeline();
-pipeline.setGlobalLast(function (context, err) {
-  // for DEBUG purposes
-  loggerService.debug({
-    route: context.route,
-    req: context.req.payload,
-    res: context.res,
-  });
-  if (Object.hasOwn(context.res, "payload")) {
-    context.res = context.res.payload;
-  }
+pipeline.setAfterAll(function (context, next, err) {
+  context.req = context.req?.payload || context.req;
+  context.res = context.res;
   if (err) {
-    if (err instanceof aferrs.ERR_UNSUBSCRIBED) {
-      throw err;
-    } else {
-      loggerService.error(err);
-      throw err;
+    if (/timeout/.test(err.message)) {
+      err = new aferrs.ERR_TIMEOUT();
     }
+    err.context = context;
+  }
+  next(err);
+});
+pipeline.setGlobalLast(function (context, err) {
+  loggerService.debug(context);
+  if (err) {
+    loggerService.error(err);
+    throw err;
   }
 });
 
 // Afmachine
 const Afmachine = new (function () {
+  this.pipeline = pipeline;
   this.middleware = {
     parseResponse,
   };

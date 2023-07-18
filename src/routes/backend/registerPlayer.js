@@ -36,14 +36,22 @@ function registerPlayer() {
     // generic backend response parser
     this.middleware.parseResponse,
     // backend - frontend translation
-    async function (context, next) {
-      context.res.payload = {
-        name: context.res.player.name || "",
-        surname: context.res.player.surname || "",
-        username: context.res.player.username || "",
-        email: context.res.player.email || "",
-      };
-      await next();
+    async function (context, next, err) {
+      if (err) {
+        context.res.payload = {
+          message: `Failed to register player ${context.req.payload.username}`,
+          reason: err.message,
+        };
+      } else {
+        context.res.message = `Registered player ${context.req.payload.username}`;
+        context.res.payload = {
+          name: context.res?.player?.name || "",
+          surname: context.res?.player?.surname || "",
+          username: context.res?.player?.username || "",
+          email: context.res?.player?.email || "",
+        };
+      }
+      await next(err);
     },
   ];
 }

@@ -5,8 +5,15 @@ import { Registered } from "./StateRegistered.js";
 import { InTeam } from "./StateInTeam.js";
 import { InGame } from "./StateInGame.js";
 import { AsyncAction } from "../async_action/index.js";
+import { randomPlayer } from "agent_factory.shared/scripts/randomPlayer.js";
 
 class Player {
+  static random(props = {}) {
+    return {
+      ...randomPlayer(),
+      ...props,
+    };
+  }
   constructor(Afmachine, player = {}) {
     // Eventful initialization
     eventful.construct.call(this);
