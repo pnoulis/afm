@@ -4,9 +4,7 @@
   "description": "afmachine-summary",
   "homepage": "https://github.com/pnoulis/afmachine#readme",
   "bugs": "https://github.com/pnoulis/afmachine/issues",
-  "keywords": [
-    "afmachine-keywords"
-  ],
+  "keywords": ["afmachine-keywords"],
   "repository": {
     "type": "git",
     "url": "https://github.com/pnoulis/afmachine.git"
@@ -15,14 +13,6 @@
     "dev": "make run",
     "build": "make build",
     "test": "make test"
-  },
-  "files": [
-    "dist"
-  ],
-  "exports": {
-    ".": {
-      "import": "./dist/index.js"
-    }
   },
   "type": "module",
   "private": true,

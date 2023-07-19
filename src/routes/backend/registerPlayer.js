@@ -1,3 +1,5 @@
+import * as aferrs from "agent_factory.shared/errors.js";
+
 /**
  * Register player
  * @param {Object} player
@@ -42,16 +44,16 @@ function registerPlayer() {
           message: `Failed to register player ${context.req.payload.username}`,
           reason: err.message,
         };
-      } else {
-        context.res.message = `Registered player ${context.req.payload.username}`;
-        context.res.payload = {
-          name: context.res?.player?.name || "",
-          surname: context.res?.player?.surname || "",
-          username: context.res?.player?.username || "",
-          email: context.res?.player?.email || "",
-        };
+        throw err;
       }
-      await next(err);
+      context.res.message = `Registered player ${context.req.payload.username}`;
+      context.res.payload = {
+        name: context.res?.player?.name || "",
+        surname: context.res?.player?.surname || "",
+        username: context.res?.player?.username || "",
+        email: context.res?.player?.email || "",
+      };
+      await next();
     },
   ];
 }

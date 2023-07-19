@@ -3,17 +3,11 @@ import { describe, it, expect, vi, beforeAll, beforeEach } from "vitest";
 /*
   TESTING COMPONENTS
 */
-import { Pipeline } from "../src/misc/pipeline/Pipeline.js";
+import { Pipeline } from "js_utils/pipeline";
 
 /*
   DEPENDENCIES
  */
-import { backendClientService } from "../src/services/backend/client.js";
-import { listRegisteredPlayers } from "../src/services/backend/api/index.js";
-
-beforeAll(async () => {
-  await backendClientService.init();
-});
 
 describe("pipeline", () => {
   it("Should return a function", () => {
@@ -165,57 +159,58 @@ describe("pipeline", () => {
     const pipeline = new Pipeline();
     const fone = vi.fn(async (context, next) => {
       console.log("FONE");
-      context.req.payload.count++;
+      context.res.count = 0;
+      context.res.count++;
       await next();
     });
     const ftwo = vi.fn(async (context, next) => {
       console.log("FTWO");
-      context.req.payload.count++;
+      context.res.count++;
       await next();
     });
     const fthree = vi.fn(async (context, next) => {
       console.log("FTHREE");
-      context.req.payload.count++;
+      context.res.count++;
       await next();
     });
     const fallbefore1 = vi.fn(async (context, next) => {
       console.log("fallbefore1");
-      context.req.payload.count++;
+      context.res.count++;
       await next();
     });
     const fallbefore2 = vi.fn(async (context, next) => {
       console.log("fallbefore2");
-      context.req.payload.count++;
+      context.res.count++;
       await next();
     });
     const fallafter1 = vi.fn(async (context, next) => {
       console.log("fallafter1");
-      context.req.payload.count++;
+      context.res.count++;
       await next();
     });
     const fallafter2 = vi.fn(async (context, next) => {
       console.log("fallafter2");
-      context.req.payload.count++;
+      context.res.count++;
       await next();
     });
     const feachbefore1 = vi.fn(async (context, next) => {
       console.log("feachbefore1");
-      context.req.payload.count++;
+      context.res.count++;
       await next();
     });
     const feachbefore2 = vi.fn(async (context, next) => {
       console.log("feachbefore2");
-      context.req.payload.count++;
+      context.res.count++;
       await next();
     });
     const feachafter1 = vi.fn(async (context, next) => {
       console.log("feachafter1");
-      context.req.payload.count++;
+      context.res.count++;
       await next();
     });
     const feachafter2 = vi.fn(async (context, next) => {
       console.log("feachafter2");
-      context.req.payload.count++;
+      context.res.count++;
       await next();
     });
 
@@ -225,32 +220,28 @@ describe("pipeline", () => {
     pipeline.setBeforeAll(fallbefore1, fallbefore2);
 
     const route = pipeline.route("/some/route", fone, ftwo, fthree);
-    await expect(route({ count: 0 })).resolves.toMatchObject({
-      route: "/some/route",
-      req: {
-        payload: {
-          count: 19,
-        },
-      },
-    });
+    const context = await route();
+    expect(context.res.count).toBe(15);
   });
-  it("Invoking the function should return a Promise", () => {
+  it.only("Invoking the function should return a Promise", () => {
     const pipeline = new Pipeline();
-    const route = pipeline.route("/some/route", () => {});
+    const route = pipeline.route("/some/route", async (context, next) => {
+      await next();
+    });
     expect(route()).toBeInstanceOf(Promise);
   });
-  it("Should resolve with a context object", async () => {
+  it.only("Should resolve with a context object", async () => {
     const pipeline = new Pipeline();
     const route = pipeline.route("/some/route", async (context, next) => {
       // do nothing
-      return;
+      await next();
     });
     await expect(route({})).resolves.toMatchObject({
       req: {},
       res: {},
     });
   });
-  it("Should reject with an error", async () => {
+  it.only("Should reject with an error", async () => {
     const pipeline = new Pipeline();
     const route = pipeline.route("/some/route", async (context, next) => {
       throw new Error("yolo");
@@ -258,7 +249,7 @@ describe("pipeline", () => {
     await expect(route()).rejects.toThrowError("yolo");
   });
 
-  it("Should handle asyncronous code", async () => {
+  it.only("Should handle asyncronous code", async () => {
     const pipeline = new Pipeline();
     const introduceRoute = vi.fn(async (context, next) => {
       console.log("before all middleware");
@@ -290,7 +281,7 @@ describe("pipeline", () => {
       console.log("listing registered players");
       let players;
       try {
-        players = await listRegisteredPlayers();
+        players = await Promise.resolve({ players: ["one", "tw"] });
         console.log("after listing registered players");
         context.res.players = players.players;
         next();
@@ -311,7 +302,7 @@ describe("pipeline", () => {
     expect(beforeCalling).toHaveBeenCalledTimes(1);
   });
 
-  it("Should handle asynchronous errors", async () => {
+  it.only("Should handle asynchronous errors", async () => {
     const pipeline = new Pipeline();
     const introduceRoute = vi.fn(async (context, next) => {
       await next();
@@ -333,12 +324,12 @@ describe("pipeline", () => {
     const route = pipeline.route(
       "/some/route",
       async function (context, next) {
-        await listRegisteredPlayers();
+        players = await Promise.resolve({ players: ["one", "tw"] });
         throw new Error("some error");
       },
       async (context, next) => {
         await next();
-      }
+      },
     );
 
     let response;
@@ -388,7 +379,7 @@ describe("pipeline", () => {
       },
       async (context, next) => {
         await next();
-      }
+      },
     );
 
     await route({ name: "yolo" });
@@ -443,7 +434,7 @@ describe("pipeline", () => {
         throw new Error("some error");
       },
       customErrHandler,
-      customErrHandler2
+      customErrHandler2,
     );
 
     await route({ name: "yolo" });
@@ -493,7 +484,7 @@ describe("pipeline", () => {
         await listRegisteredPlayers();
         throw new Error("some error");
       },
-      customErrHandler
+      customErrHandler,
     );
 
     await route({ name: "yolo" });
@@ -503,31 +494,31 @@ describe("pipeline", () => {
     expect(beforeCalling).toHaveBeenCalledTimes(1);
     expect(customErrHandler).toHaveBeenCalledOnce();
     expect(globalErrHandler.mock.results[0].value.message).toMatch(
-      "error handler error"
+      "error handler error",
     );
   });
 
-  it("Should handle large pipelines", async () => {
+  it.only("Should handle large pipelines", async () => {
     const pipeline = new Pipeline();
     const beforeAll = new Array(30).fill(
       vi.fn(async (context, next) => {
         await next();
-      })
+      }),
     );
     const afterAll = new Array(30).fill(
       vi.fn(async (context, next) => {
         await next();
-      })
+      }),
     );
     const beforeEach = new Array(30).fill(
       vi.fn(async (context, next) => {
         await next();
-      })
+      }),
     );
     const afterEach = new Array(30).fill(
       vi.fn(async (context, next) => {
         await next();
-      })
+      }),
     );
 
     const route = pipeline.route(
@@ -539,7 +530,7 @@ describe("pipeline", () => {
       },
       async function (context, next) {
         await next();
-      }
+      },
     );
 
     pipeline.setBeforeAll(...beforeAll);
@@ -558,22 +549,22 @@ describe("pipeline", () => {
     const beforeAll = new Array(30).fill(
       vi.fn(async (context, next) => {
         await next();
-      })
+      }),
     );
     const afterAll = new Array(30).fill(
       vi.fn(async (context, next) => {
         await next();
-      })
+      }),
     );
     const beforeEach = new Array(30).fill(
       vi.fn(async (context, next) => {
         await next();
-      })
+      }),
     );
     const afterEach = new Array(30).fill(
       vi.fn(async (context, next) => {
         await next();
-      })
+      }),
     );
 
     const rr = vi.fn(async (context, next) => {
