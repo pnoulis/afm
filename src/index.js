@@ -45,48 +45,31 @@ const backendService = CreateBackendService(clientId);
 // Pipeline
 const pipeline = new Pipeline();
 pipeline.setAfterAll(async function (context, next, err) {
-  context.req = context.req?.payload || context.req;
-  context.res = context.res;
   if (err) {
-    console.log("SET PIPELINE AFMACHINE LAST");
-    if (err instanceof Error) {
-      console.log("err is instace of erorr");
-    }
-
-    if (err instanceof aferrs.AgentFactoryError) {
-      console.log("err is instanceof AgentfactoryError");
-    }
-    if (err instanceof aferrs.ERR_BACKEND_VALIDATION) {
-      console.log("err is instanceof ERR_BACKEND_VAL");
-    }
-
     if (/timeout/.test(err.message)) {
       err = new aferrs.ERR_TIMEOUT();
     }
-    err.context = context;
+    err.context = { route: context.route, req: context.req, res: context.res };
+    delete context.args;
+    context.res = context.res.payload;
     throw err;
   }
+  delete context.args;
+  context.res = context.res.payload;
   await next();
 });
-pipeline.setGlobalLast(async function (context, next, err) {
-  console.log("SET GLOBAL LAST");
-  if (err instanceof Error) {
-    console.log("err is instace of erorr");
-  }
 
-  if (err instanceof aferrs.AgentFactoryError) {
-    console.log("err is instanceof AgentfactoryError");
-  }
-  if (err instanceof aferrs.ERR_BACKEND_VALIDATION) {
-    console.log("err is instanceof ERR_BACKEND_VAL");
-  }
-
+pipeline.setGlobalLast(function (context, next, err) {
   if (err) {
-    // loggerService.error(err);
+    loggerService.error(err);
     throw err;
-  } else {
-    // loggerService.debug(context);
   }
+  loggerService.debug({
+    route: context.route,
+    req: context.req,
+    res: context.res,
+  });
+  next();
 });
 
 // Afmachine

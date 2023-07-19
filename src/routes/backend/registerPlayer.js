@@ -15,24 +15,20 @@ function registerPlayer() {
     "/player/register",
     // frontend - backend translation
     async function (context, next) {
-      const [player] = context.req;
+      const [request, options = {}] = context.args;
       context.req = {
-        player,
-        payload: {
-          username: player?.username || "",
-          surname: player?.surname || "",
-          name: player?.name || "",
-          email: player?.email || "",
-          password: player?.password || "",
-        },
+        timestamp: Date.now(),
+        username: request?.username || "",
+        surname: request?.surname || "",
+        name: request?.name || "",
+        email: request?.email || "",
+        password: request?.password || "",
       };
       await next();
     },
     // backend service
     async (context, next) => {
-      context.res = await this.services.backend.registerPlayer(
-        context.req.payload,
-      );
+      context.res = await this.services.backend.registerPlayer(context.req);
       await next();
     },
     // generic backend response parser
@@ -41,17 +37,21 @@ function registerPlayer() {
     async function (context, next, err) {
       if (err) {
         context.res.payload = {
-          message: `Failed to register player ${context.req.payload.username}`,
+          msg: `Failed to register player ${context.req.username}`,
           reason: err.message,
+          data: {},
         };
         throw err;
       }
-      context.res.message = `Registered player ${context.req.payload.username}`;
+      const { player = {} } = context.res;
       context.res.payload = {
-        name: context.res?.player?.name || "",
-        surname: context.res?.player?.surname || "",
-        username: context.res?.player?.username || "",
-        email: context.res?.player?.email || "",
+        msg: `Registered player ${player?.username}`,
+        data: {
+          name: player?.name || "",
+          surname: player?.surname || "",
+          username: player?.username || "",
+          email: player?.email || "",
+        },
       };
       await next();
     },
