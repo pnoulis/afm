@@ -6,8 +6,26 @@ import { Scanned } from "./StateScanned.js";
 import { Verified } from "./StateVerified.js";
 import { Paired } from "./StatePaired.js";
 import * as aferrs from "agent_factory.shared/errors.js";
+import { randomWristband } from "agent_factory.shared/scripts/randomWristband.js";
 
 class Wristband {
+  static random(props = {}) {
+    return {
+      ...randomWristband(),
+      ...props,
+    };
+  }
+
+  static translate(wristband) {
+    const translated = {
+      number: wristband.number || null,
+      color: wristband.color || null,
+      active: wristband.active ?? false,
+      status: wristband.active ? "paired" : "empty",
+    };
+    return translated;
+  }
+
   constructor(Afmachine, wristband = {}) {
     // Eventful initialization
     eventful.construct.call(this);

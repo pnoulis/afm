@@ -3,36 +3,32 @@ import { describe, it, expect, vi, beforeAll } from "vitest";
 /*
   TESTING COMPONENTS
 */
-import * as ROUTES_BACKEND from "../../../src/routes/backend/routesBackend";
+
+import { Afmachine } from "../../../src/index.js";
 
 /*
   DEPENDENCIES
  */
-import { backendClientService } from "../../../src/services/backend/client.js";
-import { randomPlayer } from "../../../scripts/randomPlayer.js";
-import { randomWristband } from "../../../scripts/randomWristband.js";
-import { emulateScan } from "../../../scripts/emulateScan.js";
-import { Player } from "../../../src/afmachine/player/index.js";
-import { Wristband } from "../../../src/afmachine/wristband/index.js";
-import * as Errors from "../../../src/misc/errors.js";
+import { flushBackendDB } from "agent_factory.shared/scripts/flushBackendDB.js";
+import { randomPlayer } from "agent_factory.shared/scripts/randomPlayer.js";
 
 beforeAll(async () => {
-  await backendClientService.init();
+  await flushBackendDB();
 });
 
 describe("registerPlayer", () => {
-  it("Should accept params BackendPlayer", async () => {
-    const p = randomPlayer();
-    await expect(ROUTES_BACKEND.registerPlayer(p)).resolves.toBeTruthy();
+  it("Should register a player", async () => {
+    await expect(
+      Afmachine.registerPlayer(randomPlayer()),
+    ).resolves.toMatchObject(expect.any(Object));
   });
   it("Should resolve with", async () => {
     const p = randomPlayer();
-    const response = await ROUTES_BACKEND.registerPlayer(p);
-    console.log(response);
+    const response = await Afmachine.registerPlayer(p);
     expect(response).toMatchObject({
       username: p.username,
-      name: p.name,
       surname: p.surname,
+      name: p.name,
       email: p.email,
     });
   });

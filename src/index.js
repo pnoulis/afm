@@ -9,12 +9,12 @@ import * as routes from "./routes/backend/index.js";
 import { lockWristbandScan } from "./afmachine/lockWristbandScan.js";
 import { AsyncAction } from "./entities/async_action/AsyncAction.js";
 import { Team, RegularTeam, GroupTeam } from "./entities/team/index.js";
-import {
-  Wristband,
-  PlayerWristband,
-  GroupPlayerWristband,
-} from "./entities/wristband/index.js";
-import { Player } from "./entities/player/index.js";
+// import {
+//   Wristband,
+//   PlayerWristband,
+//   GroupPlayerWristband,
+// } from "./entities/wristband/index.js";
+// import { Player } from "./entities/player/index.js";
 import {
   createTeam,
   createRegularTeam,
@@ -41,6 +41,9 @@ if (ENVIRONMENT.RUNTIME === "browser") {
 const loggerService = new LoggerService(clientId, clientName);
 // backend service
 const backendService = CreateBackendService(clientId);
+backendService.start().then((res) => {
+  backendService.booted = true;
+});
 
 // Pipeline
 const pipeline = new Pipeline();
@@ -49,26 +52,20 @@ pipeline.setAfterAll(async function (context, next, err) {
     if (/timeout/.test(err.message)) {
       err = new aferrs.ERR_TIMEOUT();
     }
-    err.context = { route: context.route, req: context.req, res: context.res };
-    delete context.args;
+    err.context = context;
     context.res = context.res.payload;
     throw err;
   }
-  delete context.args;
   context.res = context.res.payload;
   await next();
 });
 
 pipeline.setGlobalLast(function (context, next, err) {
   if (err) {
-    loggerService.error(err);
+    // loggerService.error(err);
     throw err;
   }
-  loggerService.debug({
-    route: context.route,
-    req: context.req,
-    res: context.res,
-  });
+  // loggerService.debug(context);
   next();
 });
 
@@ -88,19 +85,19 @@ const Afmachine = new (function () {
   this.Team = Team;
   this.RegularTeam = RegularTeam;
   this.GroupTeam = GroupTeam;
-  this.Wristband = Wristband;
-  this.PlayerWristband = PlayerWristband;
-  this.GroupPlayerWristband = GroupPlayerWristband;
-  this.Player = Player;
+  // this.Wristband = Wristband;
+  // this.PlayerWristband = PlayerWristband;
+  // this.GroupPlayerWristband = GroupPlayerWristband;
+  // this.Player = Player;
 
   // Initializers
-  this.createTeam = createTeam.bind(this);
-  this.createRegularTeam = createRegularTeam.bind(this);
-  this.createGroupTeam = createGroupTeam.bind(this);
-  this.createWristband = createWristband.bind(this);
-  this.createPlayer = createPlayer.bind(this);
-  this.createPlayerWristband = createPlayerWristband.bind(this);
-  this.createGroupPlayerWristband = createGroupPlayerWristband.bind(this);
+  // this.createTeam = createTeam.bind(this);
+  // this.createRegularTeam = createRegularTeam.bind(this);
+  // this.createGroupTeam = createGroupTeam.bind(this);
+  // this.createWristband = createWristband.bind(this);
+  // this.createPlayer = createPlayer.bind(this);
+  // this.createPlayerWristband = createPlayerWristband.bind(this);
+  // this.createGroupPlayerWristband = createGroupPlayerWristband.bind(this);
 
   // non-routes
   this.lockWristbandScan = lockWristbandScan.bind(this);

@@ -1,5 +1,3 @@
-import * as aferrs from "agent_factory.shared/errors.js";
-
 /**
  * Register player
  * @param {Object} player
@@ -13,38 +11,39 @@ import * as aferrs from "agent_factory.shared/errors.js";
 function registerPlayer() {
   return [
     "/player/register",
-    // frontend - backend translation
+    // Argument parsing and validation
     async function (context, next) {
-      const [request, options = {}] = context.args;
+      const request = context.args;
       context.req = {
         timestamp: Date.now(),
-        username: request?.username || "",
-        surname: request?.surname || "",
-        name: request?.name || "",
-        email: request?.email || "",
-        password: request?.password || "",
+        username: request.username || "",
+        surname: request.surname || "",
+        name: request.name || "",
+        email: request.email || "",
+        password: request.password || "",
       };
       await next();
     },
-    // backend service
+    // register player
     async (context, next) => {
       context.res = await this.services.backend.registerPlayer(context.req);
       await next();
     },
-    // generic backend response parser
+    // generic backend response parsing
     this.middleware.parseResponse,
-    // backend - frontend translation
+    // specific backend response parsing
     async function (context, next, err) {
       if (err) {
         context.res.payload = {
+          ok: false,
           msg: `Failed to register player ${context.req.username}`,
           reason: err.message,
-          data: {},
         };
         throw err;
       }
       const { player = {} } = context.res;
       context.res.payload = {
+        ok: true,
         msg: `Registered player ${player?.username}`,
         data: {
           name: player?.name || "",

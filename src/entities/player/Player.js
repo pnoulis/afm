@@ -6,6 +6,7 @@ import { InTeam } from "./StateInTeam.js";
 import { InGame } from "./StateInGame.js";
 import { AsyncAction } from "../async_action/index.js";
 import { randomPlayer } from "agent_factory.shared/scripts/randomPlayer.js";
+import { Wristband } from "../wristband/index.js";
 
 class Player {
   static random(props = {}) {

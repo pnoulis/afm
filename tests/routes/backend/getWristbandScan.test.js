@@ -3,35 +3,33 @@ import { describe, it, expect, vi, beforeAll } from "vitest";
 /*
   TESTING COMPONENTS
 */
-import * as ROUTES_BACKEND from "../../../src/routes/backend/routesBackend";
+
+import { Afmachine } from "../../../src/index.js";
 
 /*
   DEPENDENCIES
  */
-import { backendClientService } from "../../../src/services/backend/client.js";
-import { randomPlayer } from "../../../scripts/randomPlayer.js";
-import { randomWristband } from "../../../scripts/randomWristband.js";
-import { emulateScan } from "../../../scripts/emulateScan.js";
-import { Player } from "../../../src/afmachine/player/index.js";
-import { Wristband } from "../../../src/afmachine/wristband/index.js";
+import { randomWristband } from "agent_factory.shared/scripts/randomWristband.js";
+import { emulateScan } from "agent_factory.shared/scripts/emulateScan.js";
 import { delay } from "js_utils/misc";
-import * as Errors from "../../../src/misc/errors.js";
-
-beforeAll(async () => {
-  await backendClientService.init();
-});
+import { mapWristbandColor } from "agent_factory.shared/utils/misc.js";
 
 describe("getWristbandScan", () => {
+  it("Should scan a wristband", async () => {
+    delay(2000).then(emulateScan);
+    await expect(Afmachine.getWristbandScan()).resolves.toMatchObject(
+      expect.any(Object),
+    );
+  });
   it("Should resolve with", async () => {
-    let wristband = {
-      number: 20,
-      color: 6,
-    };
-    delay(2000).then(emulateScan(20, 2));
-    const response = await ROUTES_BACKEND.getWristbandScan();
+    const { number, color, active } = randomWristband();
+    delay(2000).then(emulateScan.bind(null, number, color));
+    const response = await Afmachine.getWristbandScan();
+
     expect(response).toMatchObject({
-      number: 20,
-      color: 2,
+      number: number,
+      colorCode: color,
+      color: mapWristbandColor("colorCode", color),
       active: false,
     });
   });
