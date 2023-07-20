@@ -41,16 +41,11 @@ function registerPlayer() {
         };
         throw err;
       }
-      const { player = {} } = context.res;
+      const data = context.res.player;
       context.res.payload = {
         ok: true,
-        msg: `Registered player ${player?.username}`,
-        data: {
-          name: player?.name || "",
-          surname: player?.surname || "",
-          username: player?.username || "",
-          email: player?.email || "",
-        },
+        msg: `Registered player ${data.username}`,
+        data,
       };
       await next();
     },

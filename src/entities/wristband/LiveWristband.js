@@ -1,52 +1,139 @@
-import { stateful } from "js_utils/stateful";
-import { Empty } from "./StateEmpty.js";
-import { Pairing } from "./StatePairing.js";
-import { Scanned } from "./StateScanned.js";
-import { Verified } from "./StateVerified.js";
-import { Paired } from "./StatePaired.js";
-import { randomWristband } from "agent_factory.shared/scripts/randomWristband.js";
-import { mapWristbandColor } from "agent_factory.shared/utils/misc.js";
-import { WRISTBAND_COLORS } from "agent_factory.shared/constants.js";
+import { Wristband } from "./Wristband.js";
+import { eventful } from "js_utils/eventful";
+import * as aferrs from "agent_factory.shared/errors.js";
 
-class Wristband {
-  static random(props = {}) {
-    return new Wristband({ ...randomWristband(), ...props }, "unpaired");
+class LiveWristband extends Wristband {
+  constructor(Afmachine, wristband = {}) {
+    super(wristband);
+
+    // Eventful initialization
+    eventful.construct.call(this);
+
+    this.Afmachine = Afmachine;
+
+    this.unsubscribeWristbandScan = null;
+    this.releaseScanHandle = null;
+    this.togglers = 0;
+    this.nextPairing = true;
   }
-  static colors = WRISTBAND_COLORS;
 
-  constructor(wristband = {}, state = "") {
-    // Stateful initialization
-    stateful.construct.call(this);
+  supersedeAction() {
+    return Promise.reject(new aferrs.ERR_SUPERSEDED_ACTION());
+  }
 
-    // Wristband initialization
-    this.number = wristband.number || null;
-    this.colorCode = wristband.color || null;
-    this.color = this.mapColor("colorCode", this.colorCode);
-    this.active = wristband.active ?? false;
-    if (state) {
-      this.setState(state);
-    } else if (this.active) {
-      // this.setState("paired");
-    } else {
-      // this.setState("unpaired");
+  unscan() {
+    this.number = null;
+    this.color = "";
+    this.colorCode = null;
+    this.active = false;
+    if (typeof this.unsubscribeWristbandScan === "function") {
+      this.unsubscribeWristbandScan();
+      this.unsubscribeWristbandScan = null;
     }
+    if (typeof this.releaseScanHandle === "function") {
+      this.releaseScanHandle();
+      this.releaseScanHandle = null;
+    }
+    return Promise.resolve();
+  }
+
+  async scan() {
+    try {
+      this.releaseScanHandle = this.Afmachine.lockWristbandScan();
+      const response = await this.Afmachine.getWristbandScan({
+        unsubcb: (unsub) => {
+          if (this.inState("pairing")) {
+            if (typeof this.unsubscribeWristbandScan === "function") {
+              this.unsubscribeWristbandScan();
+              this.unsubscribeWristbandScan = null;
+            }
+            this.unsubscribeWristbandScan = unsub;
+          } else {
+            unsub();
+            if (typeof this.releaseScanHandle === "function") {
+              this.releaseScanHandle();
+              this.releaseScanHandle = null;
+            }
+          }
+        },
+      });
+      return this.state.scanned(null, response);
+    } catch (err) {
+      return this.state.scanned(
+        err instanceof aferrs.ERR_UNSUBSCRIBED
+          ? new aferrs.ERR_SUPERSEDED_ACTION()
+          : err,
+      );
+    }
+  }
+
+  verify(wristband) {
+    return this.Afmachine.verifyWristband(wristband)
+      .then(this.state.verified.bind(this, null))
+      .catch(this.state.verified.bind(this));
+  }
+
+  register(wristband) {
+    return this.Afmachine.registerWristband(wristband)
+      .then(this.state.registered.bind(this, null))
+      .catch(this.state.registered.bind(this));
+  }
+
+  unregister(wristband, state = true) {
+    return state
+      ? this.Afmachine.unregisterWristband(wristband)
+          .then(this.state.unregistered.bind(this, null))
+          .catch(this.state.unregistered.bind(this))
+      : this.Afmachine.unregisterWristband(wristband);
+  }
+
+  pair() {
+    return this.scan().then(({ number, color, colorCode, active }) => {
+      this.number = number;
+      this.colorCode = colorCode;
+      this.color = color;
+      this.active = active;
+      this.setState(this.getPairedState);
+    });
+  }
+
+  unpair() {
+    return this.unscan();
+  }
+
+  // interface
+  /*
+    Where cb signature: (err, pairing, wristband) => {}
+   */
+  toggle(cb) {
+    this.togglers += 1;
+    this.nextPairing = !this.nextPairing;
+    let error;
+    this.state
+      .toggle()
+      .catch((err) => {
+        if (!(err instanceof aferrs.ERR_SUPERSEDED_ACTION)) {
+          this.emit("error", err);
+          error = err;
+        }
+      })
+      .finally(() => {
+        this.togglers -= 1;
+        if (this.togglers <= 0) {
+          if (typeof this.releaseScanHandle === "function") {
+            this.releaseScanHandle();
+            this.releaseScanHandle = null;
+          }
+          if (error && this.inState("pairing")) {
+            this.setState(this.getUnpairedState);
+          }
+        }
+        cb && cb(error, this.inState("pairing"), this);
+      });
   }
 }
 
-Wristband.prototype.mapColor = mapWristbandColor;
+// Eventful
+eventful(Wristband, ["stateChange", "error"]);
 
-// Stateful
-stateful(Wristband, [
-  Empty,
-  "empty",
-  Pairing,
-  "pairing",
-  Scanned,
-  "scanned",
-  Verified,
-  "verified",
-  Paired,
-  "paired",
-]);
-
-export { Wristband };
+export { LiveWristband };

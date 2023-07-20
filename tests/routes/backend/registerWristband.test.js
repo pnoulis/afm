@@ -3,73 +3,57 @@ import { describe, it, expect, vi, beforeAll } from "vitest";
 /*
   TESTING COMPONENTS
 */
-import * as ROUTES_BACKEND from "../../../src/routes/backend/routesBackend";
+
+import { Afmachine } from "../../../src/index.js";
 
 /*
   DEPENDENCIES
  */
-import { backendClientService } from "../../../src/services/backend/client.js";
-import { randomPlayer } from "../../../scripts/randomPlayer.js";
-import { randomWristband } from "../../../scripts/randomWristband.js";
-import { emulateScan } from "../../../scripts/emulateScan.js";
-import { Player } from "../../../src/afmachine/player/index.js";
-import { Wristband } from "../../../src/afmachine/wristband/index.js";
-import * as Errors from "../../../src/misc/errors.js";
+import { registerPlayer } from "agent_factory.shared/scripts/registerPlayer.js";
+import { flushBackendDB } from "agent_factory.shared/scripts/flushBackendDB.js";
+import { randomWristband } from "agent_factory.shared/scripts/randomWristband.js";
+import { randomPlayer } from "agent_factory.shared/scripts/randomPlayer.js";
+import { mapWristbandColor } from "agent_factory.shared/utils/misc.js";
 
+let players;
+const wristbands = randomWristband(3);
 beforeAll(async () => {
-  await backendClientService.init();
+  await flushBackendDB();
+  await registerPlayer(3).then((res) => {
+    players = res;
+  });
 });
 
 describe("registerWristband", () => {
-  it("Should accept params BackendPlayer and FrontendWristband", async () => {
-    const player = randomPlayer();
-    const wristband = randomWristband();
-
-    await ROUTES_BACKEND.registerPlayer(player);
-
+  it("it should register a players wristband", async () => {
     await expect(
-      ROUTES_BACKEND.registerWristband({
-        // BACKEND PLAYER
-        player,
-        // FRONTEND WRISTBAND
-        wristband,
-      })
-    ).resolves.toMatchObject({
-      number: wristband.number,
-    });
+      Afmachine.registerWristband({
+        wristband: wristbands[0],
+        player: players[0],
+      }),
+    ).resolves.toMatchObject(expect.any(Object));
   });
-  it("Should accept params BackendPlayer and BackendWristband", async () => {
-    const player = randomPlayer();
-    const wristband = randomWristband();
-
-    await ROUTES_BACKEND.registerPlayer(player);
-
-    await expect(
-      ROUTES_BACKEND.registerWristband({
-        // FRONT END PLAYER
-        player,
-
-        // BACKEND WRISTBAND
-        wristband: {
-          wristbandNumber: wristband.number,
-          wristbandColor: wristband.color,
-        },
-      })
-    ).resolves.toMatchObject({
-      number: wristband.number,
+  it("Should resolve with primitves if given primitives as input", async () => {
+    const response = await Afmachine.registerWristband({
+      wristband: wristbands[1].number,
+      player: players[1].username,
     });
-  });
-  it("Should resolve with", async () => {
-    const player = randomPlayer();
-    const wristband = randomWristband();
 
-    await ROUTES_BACKEND.registerPlayer(player);
-    const response = await ROUTES_BACKEND.registerWristband({
-      player,
-      wristband,
-    });
     expect(response).toMatchObject({
-      number: wristband.number,
+      wristband: wristbands[1].number,
+      player: players[1].username,
+    });
+  });
+
+  it("Should resolve with objects if given objects as input", async () => {
+    const response = await Afmachine.registerWristband({
+      wristband: wristbands[2],
+      player: players[2],
+    });
+
+    expect(response).toMatchObject({
+      wristband: expect.objectContaining(wristbands[2]),
+      player: expect.objectContaining(players[2]),
     });
   });
 });

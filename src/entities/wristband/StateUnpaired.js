@@ -18,7 +18,7 @@ class Unpaired extends State {
           .finally(() => this.wristband.supersedeAction());
   }
   unregistered(err) {
-    return err ? Promise.reject(err) : this.wristband.unscan();
+    return err ? Promise.reject(err) : Promise.resolve();
   }
   toggle() {
     this.wristband.setState(this.wristband.getPairingState);

@@ -1,10 +1,11 @@
-import { Wristband } from "./Wristband.js";
+import { LiveWristband } from "./LiveWristband.js";
 import * as aferrs from "agent_factory.shared/errors.js";
 
-class PlayerWristband extends Wristband {
+class PlayerWristband extends LiveWristband {
   constructor(Afmachine, player = {}, wristband = {}) {
     super(Afmachine, wristband);
     this.player = player;
+    this.registered = false;
   }
 
   pair() {
@@ -14,14 +15,29 @@ class PlayerWristband extends Wristband {
         if (wristband.active) {
           throw new aferrs.ERR_WRISTBAND_BOUND(wristband.number);
         }
-        return this.register(wristband);
+        return this.register({
+          wristband,
+          player: this.player.username,
+        });
       })
-      .then((response) => {
-        this.number = response.wristband.number;
-        this.color = response.wristband.color;
-        this.active = response.wristband.active;
+      .then((wristband) => {
+        this.registered = true;
+        this.number = wristband.number;
+        this.colorCode = wristband.colorCode;
+        this.color = wristband.color;
+        this.active = wristband.active;
         this.setState(this.getPairedState);
       });
   }
+
+  unpair() {
+    return this.registered
+      ? this.unregister().then(() => {
+          this.registered = false;
+          return this.unscan();
+        })
+      : this.unscan();
+  }
 }
+
 export { PlayerWristband };

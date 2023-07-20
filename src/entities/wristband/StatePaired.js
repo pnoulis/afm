@@ -10,24 +10,18 @@ class Paired extends State {
   verified() {
     return this.wristband.supersedeAction();
   }
+
   registered(err, response) {
-    if (err) {
-      return this.wristband.supersedeAction();
-    } else {
-      return this.unregister(response, false)
-        .then(() => this.wristband.supersedeAction())
-        .catch(() => this.wristband.supersedeAction());
-    }
+    return err ? Promise.reject(err) : Promise.resolve(response);
   }
+
   unregistered() {
     return this.wristband.supersedeAction();
   }
-  unpair() {
-    return this.wristband.unregister();
-  }
-  togglePair() {
-    this.wristband.setState(this.wristband.getEmptyState);
-    return this.unpair();
+
+  toggle() {
+    this.wristband.setState(this.wristband.getUnpairedState);
+    return this.wristband.unpair();
   }
 }
 

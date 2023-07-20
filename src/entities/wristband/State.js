@@ -2,10 +2,11 @@ class State {
   constructor(wristband) {
     this.wristband = wristband;
   }
-  handleWristbandScan() {}
-  verified() {}
-  registered() {}
-  togglePair() {}
+  scanned() {};
+  verified() {};
+  registered() {};
+  unregistered() {};
+  toggle() {};
 }
 
 export { State };
