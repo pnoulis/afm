@@ -1,15 +1,22 @@
 import * as aferrs from "agent_factory.shared/errors.js";
-import { Wristband } from "../../new_wristband/Wristband.js";
+import { Wristband } from "../../entities/wristband/index.js";
+
+/**
+ * @example
+ * input: [ { number: 3 } ]
+ * output: Wristband.translate({ ...context.res.wristband,  ...context.args })
+ * @returns {Object} Wristband.translate()
+ */
 
 function verifyWristband() {
   return [
     "/wristband/info",
     // argument parsing and validation
     async function (context, next) {
-      const request = context.args;
+      const wristband = context.args;
       context.req = {
         timestamp: Date.now(),
-        wristbandNumber: request.number,
+        wristbandNumber: wristband.number,
       };
       await next();
     },
@@ -33,9 +40,16 @@ function verifyWristband() {
       if (
         context.res.wristband.wristbandNumber !== context.req.wristbandNumber
       ) {
-        throw new aferrs.ERR_MQTT_TANGLED_MSG(
+        err = new aferrs.ERR_MQTT_TANGLED_MSG(
           `Wristband verification request for rfid ${context.req.wristbandNumber} returned with rfid ${context.res.wristband.wristbandNumber}`,
         );
+
+        context.res.payload = {
+          ok: false,
+          msg: `Failed to retrieve information on wristband ${context.req.wristbandNumber}`,
+          reason: err.message,
+        };
+        throw err;
       }
 
       // merging of req and res because backend response does not

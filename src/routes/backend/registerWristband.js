@@ -1,10 +1,13 @@
 import { isObject } from "js_utils/misc";
 /**
+ * @example
+ * input: [ { wristband, player } ]
  * Register wristband
  * @param {(Object|string)} player
  * @param {string} player.username
  * @param {(Object|number)} wristband
  * @param {number} wristband.number
+ * @returns {Object} input
  */
 function registerWristband() {
   return [

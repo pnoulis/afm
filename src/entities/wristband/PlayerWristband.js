@@ -20,12 +20,9 @@ class PlayerWristband extends LiveWristband {
           player: this.player.username,
         });
       })
-      .then((wristband) => {
+      .then(({ wristband }) => {
         this.registered = true;
-        this.number = wristband.number;
-        this.colorCode = wristband.colorCode;
-        this.color = wristband.color;
-        this.active = wristband.active;
+        this.fill(wristband);
         this.setState(this.getPairedState);
       });
   }

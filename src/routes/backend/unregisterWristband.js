@@ -1,29 +1,46 @@
+import { isObject } from "js_utils/misc";
+
 function unregisterWristband() {
   return [
     "/wristband/unregister",
-    // frontend - backend translation
+    // argument parsing and validation
     async function (context, next) {
-      const [player, wristband] = context.req;
+      const { wristband, player } = context.args;
       context.req = {
-        player,
-        wristband,
-        payload: {
-          username: typeof player === "string" ? player : player.username,
-          wristbandNumber:
-            typeof wristband === "number" ? wristband : wristband.number,
-        },
+        timestamp: Date.now(),
+        username: isObject(player) ? player.username : player,
+        wristbandNumber: isObject(wristband) ? wristband.number : wristband,
       };
       await next();
     },
-    // backend service
+
+    // unregister wristband
     async (context, next) => {
       context.res = await this.services.backend.unregisterWristband(
-        context.req.payload,
+        context.req,
       );
       await next();
     },
     // generic backend response parser
     this.middleware.parseResponse,
+    // specific backend response parsing
+    async function (context, next, err) {
+      if (err) {
+        context.res.payload = {
+          ok: false,
+          msg: `Failed to unpair ${context.req.username} from wristband ${context.req.wristbandNumber}`,
+          reason: err.message,
+        };
+        throw err;
+      }
+
+      context.res.payload = {
+        ok: true,
+        msg: `Successfuly unpaired ${context.req.username} from wristband ${context.req.wristbandNumber}`,
+        data: { ...context.args },
+      };
+      await next();
+    },
   ];
 }
 

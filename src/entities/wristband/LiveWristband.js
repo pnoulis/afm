@@ -88,11 +88,8 @@ class LiveWristband extends Wristband {
   }
 
   pair() {
-    return this.scan().then(({ number, color, colorCode, active }) => {
-      this.number = number;
-      this.colorCode = colorCode;
-      this.color = color;
-      this.active = active;
+    return this.scan().then((wristband) => {
+      this.fill(wristband);
       this.setState(this.getPairedState);
     });
   }

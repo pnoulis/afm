@@ -9,10 +9,10 @@ function searchPlayer() {
     "/player/search",
     // Argument parsing and validation
     async function (context, next) {
-      const request = context.args;
+      const { searchTerm = "" } = context.args;
       context.req = {
         timestamp: Date.now(),
-        searchTerm: request.searchTerm || "",
+        searchTerm: searchTerm,
       };
       await next();
     },

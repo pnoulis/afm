@@ -1,4 +1,12 @@
-import { Wristband } from "../../new_wristband/Wristband.js";
+import { Wristband } from "../../entities/wristband/index.js";
+
+/**
+ * @example
+ * input: [ { unsubcb: () => {} }]
+ * input from scan: { wristbandNumber, wristbandColor, active }
+ * output: Wristband.translate(context.res);
+ * @returns {Object} Wristband.translate()
+ */
 
 function getWristbandScan() {
   return [
@@ -26,11 +34,10 @@ function getWristbandScan() {
         };
         throw err;
       }
-      const wristband = Wristband.translate(context.res);
       context.res.payload = {
         ok: true,
-        msg: `Scanned ${wristband.color} wristband ${wristband.number}`,
-        data: wristband,
+        msg: `Scanned ${context.res.wristbandColor} wristband ${context.res.wristbandNumber}`,
+        data: Wristband.translate(context.res),
       };
       await next();
     },
