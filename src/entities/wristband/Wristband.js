@@ -1,4 +1,5 @@
 import { stateful } from "js_utils/stateful";
+import { eventful } from "js_utils/eventful";
 import { Unpaired } from "./StateUnpaired.js";
 import { Pairing } from "./StatePairing.js";
 import { Paired } from "./StatePaired.js";
@@ -20,15 +21,17 @@ class Wristband {
       colorCode:
         wristband.colorCode ??
         wristband.wristbandColor ??
-        wristband.color ??
-        null,
+        (wristband.color || null),
       color: Wristband.mapWristbandColor(
         "colorCode",
-        wristband.colorCode ?? wristband.wristbandColor ?? wristband.color,
+        wristband.colorCode ??
+          wristband.wristbandColor ??
+          wristband.color ??
+          null,
       ),
       state:
         state || isObject(wristband.state)
-          ? wristband.state.name
+          ? wristband.state?.name
           : wristband.state,
     };
 
@@ -43,6 +46,9 @@ class Wristband {
   }
 
   constructor(wristband = {}, state = "") {
+    // Eventful initialization
+    eventful.construct.call(this);
+
     // Stateful initialization
     stateful.construct.call(this);
 
@@ -53,8 +59,9 @@ class Wristband {
 }
 
 Wristband.prototype.fill = function fill(props = {}) {
-  Object.assign(this, this.translate(this.random(props)));
+  Object.assign(this, this.translate(this.random(props), this.state));
   this.bootstrap();
+  this.emit("change");
   return this;
 };
 Wristband.prototype.bootstrap = function bootstrap() {
@@ -75,5 +82,8 @@ stateful(Wristband, [
   Paired,
   "paired",
 ]);
+
+// Eventful
+eventful(Wristband, ["stateChange", "change", "error"]);
 
 export { Wristband };

@@ -1,3 +1,5 @@
+import { Player } from "../../entities/player/Player.js";
+
 /**
  * Search player
  * @param {...Object} arguments
@@ -35,6 +37,12 @@ function searchPlayer() {
       }
 
       const { players = [] } = context.res;
+
+      const lnPlayers = players.length;
+      for (let i = 0; i < lnPlayers; i++) {
+        players[i] = new Player(players[i]);
+      }
+
       context.res.payload = {
         ok: true,
         data: players,

@@ -1,14 +1,9 @@
 import { Wristband } from "./Wristband.js";
-import { eventful } from "js_utils/eventful";
 import * as aferrs from "agent_factory.shared/errors.js";
 
 class LiveWristband extends Wristband {
   constructor(Afmachine, wristband = {}) {
     super(wristband);
-
-    // Eventful initialization
-    eventful.construct.call(this);
-
     this.Afmachine = Afmachine;
 
     this.unsubscribeWristbandScan = null;
@@ -129,8 +124,5 @@ class LiveWristband extends Wristband {
       });
   }
 }
-
-// Eventful
-eventful(Wristband, ["stateChange", "error"]);
 
 export { LiveWristband };

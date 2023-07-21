@@ -11,19 +11,27 @@ function createGroupTeam() {
 }
 
 function createWristband(wristband) {
-  return new this.Wristband(this, wristband);
+  return new this.Wristband(wristband);
 }
 
-function createPlayer(player) {
-  return new this.Player(this, player);
+function createLiveWristband(wristband) {
+  return new this.LiveWristband(this, wristband);
+}
+
+function createGroupPlayerWristband(player, wristband) {
+  return new this.GroupPlayerWristband(this, player, wristband);
 }
 
 function createPlayerWristband(player, wristband) {
   return new this.PlayerWristband(this, player, wristband);
 }
 
-function createGroupPlayerWristband(groupPlayer, wristband) {
-  return new this.GroupPlayerWristband(this, groupPlayer, wristband);
+function createPlayer(player) {
+  return new this.Player(player);
+}
+
+function createLivePlayer(player) {
+  return new this.LivePlayer(this, player);
 }
 
 export {
@@ -31,7 +39,9 @@ export {
   createRegularTeam,
   createGroupTeam,
   createWristband,
-  createPlayer,
+  createLiveWristband,
   createPlayerWristband,
   createGroupPlayerWristband,
+  createPlayer,
+  createLivePlayer,
 };

@@ -1,4 +1,4 @@
-import { State } from './State.js';
+import { State } from "./State.js";
 
 class Pairing extends State {
   constructor(wristband) {
@@ -6,7 +6,12 @@ class Pairing extends State {
   }
 
   scanned(err, response) {
-    return err ? Promise.reject(err) : Promise.resolve(response);
+    if (err) {
+      return Promise.reject(err);
+    } else {
+      this.wristband.unsubscribeWristbandScan = null;
+      return Promise.resolve(response);
+    }
   }
   verified(err, response) {
     return err ? Promise.reject(err) : Promise.resolve(response);

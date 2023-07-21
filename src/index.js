@@ -9,20 +9,23 @@ import * as routes from "./routes/backend/index.js";
 import { lockWristbandScan } from "./afmachine/lockWristbandScan.js";
 import { AsyncAction } from "./entities/async_action/AsyncAction.js";
 import { Team, RegularTeam, GroupTeam } from "./entities/team/index.js";
-// import {
-//   Wristband,
-//   PlayerWristband,
-//   GroupPlayerWristband,
-// } from "./entities/wristband/index.js";
-// import { Player } from "./entities/player/index.js";
+import {
+  Wristband,
+  LiveWristband,
+  GroupPlayerWristband,
+  PlayerWristband,
+} from "./entities/wristband/index.js";
+import { Player, LivePlayer } from "./entities/player/index.js";
 import {
   createTeam,
   createRegularTeam,
   createGroupTeam,
   createWristband,
-  createPlayer,
+  createLiveWristband,
   createPlayerWristband,
   createGroupPlayerWristband,
+  createPlayer,
+  createLivePlayer,
 } from "./afmachine/creates.js";
 
 let clientId = "001";
@@ -62,10 +65,10 @@ pipeline.setAfterAll(async function (context, next, err) {
 
 pipeline.setGlobalLast(function (context, next, err) {
   if (err) {
-    // loggerService.error(err);
+    loggerService.error(err);
     throw err;
   }
-  // loggerService.debug(context);
+  loggerService.debug(context);
   next();
 });
 
@@ -85,19 +88,23 @@ const Afmachine = new (function () {
   this.Team = Team;
   this.RegularTeam = RegularTeam;
   this.GroupTeam = GroupTeam;
-  // this.Wristband = Wristband;
-  // this.PlayerWristband = PlayerWristband;
-  // this.GroupPlayerWristband = GroupPlayerWristband;
-  // this.Player = Player;
+  this.Wristband = Wristband;
+  this.LiveWristband = LiveWristband;
+  this.GroupPlayerWristband = GroupPlayerWristband;
+  this.PlayerWristband = PlayerWristband;
+  this.Player = Player;
+  this.LivePlayer = LivePlayer;
 
   // Initializers
-  // this.createTeam = createTeam.bind(this);
-  // this.createRegularTeam = createRegularTeam.bind(this);
-  // this.createGroupTeam = createGroupTeam.bind(this);
-  // this.createWristband = createWristband.bind(this);
-  // this.createPlayer = createPlayer.bind(this);
-  // this.createPlayerWristband = createPlayerWristband.bind(this);
-  // this.createGroupPlayerWristband = createGroupPlayerWristband.bind(this);
+  this.createTeam = createTeam.bind(this);
+  this.createRegularTeam = createRegularTeam.bind(this);
+  this.createGroupTeam = createGroupTeam.bind(this);
+  this.createWristband = createWristband.bind(this);
+  this.createLiveWristband = createLiveWristband.bind(this);
+  this.createPlayerWristband = createPlayerWristband.bind(this);
+  this.createGroupPlayerWristband = createGroupPlayerWristband.bind(this);
+  this.createPlayer = createPlayer.bind(this);
+  this.createLivePlayer = createLivePlayer.bind(this);
 
   // non-routes
   this.lockWristbandScan = lockWristbandScan.bind(this);

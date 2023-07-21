@@ -1,4 +1,5 @@
 import { stateful } from "js_utils/stateful";
+import { eventful } from "js_utils/eventful";
 import { Unregistered } from "./StateUnregistered.js";
 import { Registered } from "./StateRegistered.js";
 import { InTeam } from "./StateInTeam.js";
@@ -12,21 +13,30 @@ class Player {
     return { ...randomPlayer(), ...props };
   }
 
-  static translate(player = {}, state = "") {
+  static translate(player = {}, state = "", depth = true) {
     const translated = {
       name: player.name || "",
       username: player.username || "",
       surname: player.surname || "",
       email: player.email || "",
       password: player.password || "",
-      wristband: Wristband.translate(player.wristband),
-      state: state || isObject(player.state) ? player.state.name : player.state,
+      wristband: depth
+        ? Wristband.translate(player.wristband || {})
+        : player.wristband || {},
+      state:
+        state || isObject(player.state) ? player.state?.name : player.state,
     };
+
     if (translated.state) {
       return translated;
     } else if (player.wristbandMerged) {
       translated.state = "inTeam";
-    } else if (translated.wristband.status === "paired") {
+    } else if (translated.wristband?.status === "paired") {
+      translated.state = "registered";
+    } else if (
+      "getState" in translated.wristband &&
+      translated.wristband.getState().name === "paired"
+    ) {
       translated.state = "registered";
     } else {
       translated.state = "unregistered";
@@ -35,18 +45,33 @@ class Player {
   }
 
   constructor(player = {}, state = "") {
+    // Eventful initialization
+    eventful.construct.call(this);
+
     // Stateful initialization
     stateful.construct.call(this);
 
     // Player initialization
-    Object.assign(this, this.translate(player, state));
+    Object.assign(this, this.translate(player, state, false));
+    this.wristband = new Wristband(player.wristband || {});
     this.bootstrap();
   }
 }
 
-Player.prototype.fill = function fill(props = {}) {
-  Object.assign(this, this.translate(this.random(props)));
+Player.prototype.fill = function fill(props = {}, depth = false) {
+  Object.assign(
+    this,
+    this.translate(
+      { ...this.random(props), wristband: this.wristband },
+      null,
+      false,
+    ),
+  );
   this.bootstrap();
+  if (depth) {
+    this.wristband.fill();
+  }
+  this.emit("change");
   return this;
 };
 
@@ -69,5 +94,8 @@ stateful(Player, [
   InGame,
   "inGame",
 ]);
+
+// Eventful
+eventful(Player, ["stateChange", "change"]);
 
 export { Player };

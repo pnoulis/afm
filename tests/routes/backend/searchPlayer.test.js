@@ -21,7 +21,7 @@ describe("searchPlayers", () => {
   it("Should search for players", async () => {
     await expect(
       Afmachine.searchPlayer({ searchTerm: "test" }),
-    ).resolves.toMatchObject(expect.any(Object));
+    ).resolves.toMatchObject(expect.any(Array));
   });
   it("Should resolve with", async () => {
     const response = await Afmachine.searchPlayer({ searchTerm: "test" });
