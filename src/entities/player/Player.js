@@ -7,10 +7,12 @@ import { InGame } from "./StateInGame.js";
 import { Wristband } from "../wristband/index.js";
 import { normalize } from "./normalize.js";
 import { random } from "./random.js";
+import { mapftob } from "./mapftob.js";
 
 class Player {
   static random = random;
   static normalize = normalize;
+  static mapftob = mapftob;
 
   constructor(player = {}, state = "") {
     // Eventful initialization
@@ -32,7 +34,10 @@ class Player {
   }
 }
 
-Player.prototype.fill = function fill(source = {}, { state = "", depth = 0 }) {
+Player.prototype.fill = function fill(
+  source = {},
+  { state = "", depth = 0 } = {},
+) {
   Object.assign(this, Player.random(source));
   if (depth) {
     Player.wristband = new Wristband(Wristband.random(source.wristband));
@@ -48,6 +53,10 @@ Player.prototype.bootstrap = function bootstrap(state) {
   } else if (typeof this.state === "string") {
     this.setState(this.getState(this.state));
   }
+};
+
+Player.prototype.mapftob = function () {
+  return Player.mapftob(this);
 };
 
 // Stateful

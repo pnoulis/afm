@@ -11,12 +11,12 @@ import { Wristband, LiveWristband } from "/src/entities/wristband/index.js";
  */
 import { emulateScan } from "agent_factory.shared/scripts/emulateScan.js";
 import { delay } from "js_utils/misc";
-import { randomWristband } from "agent_factory.shared/scripts/randomWristband.js";
+import * as aferrs from "agent_factory.shared/errors.js";
 
 // const wristbands = [new Wristband2(), new Wristband2(), new Wristband2()];
 
 describe("Entity wristband", () => {
-  it("It should scan a wristband", async () => {
+  it.skip("It should scan a wristband", async () => {
     const response = new Promise((resolve, reject) => {
       wristbands[0].togglePair((err, wristband) => {
         err ? reject(err) : resolve(wristband);
@@ -25,7 +25,7 @@ describe("Entity wristband", () => {
     delay(2000).then(emulateScan);
     await expect(response).resolves.toMatchObject({ result: "OK" });
   });
-  it.only("Should be able to take a wristband in any representation and normalize it into its FRONTEND form", () => {
+  it("Should be able to take a wristband in any representation and normalize it into its FRONTEND form", () => {
     expect(
       Wristband.normalize({
         wristbandNumber: 0,
@@ -138,5 +138,16 @@ describe("Entity wristband", () => {
       color: null,
       state: "registered",
     });
+  });
+  it("Should map colorCodes to colors", () => {
+    const w = new Wristband().fill({ color: 5 });
+    expect(w.getColor()).toEqual(Wristband.colors[5]);
+
+    w.color = null;
+    expect(w.getColor()).toEqual("");
+
+    expect(() => w.fill({ color: Wristband.colors.length }).getColor()).toThrow(
+      aferrs.ERR_WRISTBAND_COLOR_OUT_OF_BOUNDS,
+    );
   });
 });
