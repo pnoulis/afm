@@ -3,47 +3,17 @@ import { eventful } from "js_utils/eventful";
 import { Unpaired } from "./StateUnpaired.js";
 import { Pairing } from "./StatePairing.js";
 import { Paired } from "./StatePaired.js";
-import { randomWristband } from "agent_factory.shared/scripts/randomWristband.js";
+import { Registered } from "./StateRegistered.js";
 import { mapWristbandColor } from "agent_factory.shared/utils/misc.js";
 import { WRISTBAND_COLORS } from "agent_factory.shared/constants.js";
-import { isObject } from "js_utils/misc";
+import { normalize } from "./normalize.js";
+import { random } from "./random.js";
 
 class Wristband {
   static mapWristbandColor = mapWristbandColor;
   static colors = WRISTBAND_COLORS;
-
-  static random(props = {}) {
-    return { ...randomWristband(), ...props };
-  }
-  static translate(wristband = {}, state = "") {
-    const translated = {
-      number: wristband.wristbandNumber ?? wristband.number ?? null,
-      colorCode:
-        wristband.colorCode ??
-        wristband.wristbandColor ??
-        (wristband.color || null),
-      color: Wristband.mapWristbandColor(
-        "colorCode",
-        wristband.colorCode ??
-          wristband.wristbandColor ??
-          wristband.color ??
-          null,
-      ),
-      state:
-        state || isObject(wristband.state)
-          ? wristband.state?.name
-          : wristband.state,
-    };
-
-    if (translated.state) {
-      return translated;
-    } else if (wristband.active) {
-      translated.state = "paired";
-    } else {
-      translated.state = "unpaired";
-    }
-    return translated;
-  }
+  static normalize = normalize;
+  static random = random;
 
   constructor(wristband = {}, state = "") {
     // Eventful initialization
@@ -53,25 +23,28 @@ class Wristband {
     stateful.construct.call(this);
 
     // Wristband initialization
-    Object.assign(this, Wristband.translate(wristband, state));
-    this.bootstrap();
+    this.id = wristband.id ?? null;
+    this.color = wristband.color ?? null;
+    if (wristband.state || state) {
+      this.setState(this.getState(wristband.state || state));
+    }
   }
 }
 
-Wristband.prototype.fill = function fill(props = {}) {
-  Object.assign(this, this.translate(this.random(props), this.state));
-  this.bootstrap();
+Wristband.prototype.fill = function fill(source = {}, { state }) {
+  Object.assign(this, Wristband.random(source));
+  this.bootstrap(state || source.state);
   this.emit("change");
   return this;
 };
+
 Wristband.prototype.bootstrap = function bootstrap() {
-  if (typeof this.state === "string") {
+  if (state) {
+    this.setState(this.getState(state));
+  } else if (typeof this.state === "string") {
     this.setState(this.getState(this.state));
   }
 };
-Wristband.prototype.translate = Wristband.translate;
-Wristband.prototype.random = Wristband.random;
-Wristband.prototype.mapWristbandColor = Wristband.mapWristbandColor;
 
 // Stateful
 stateful(Wristband, [
@@ -81,9 +54,11 @@ stateful(Wristband, [
   "pairing",
   Paired,
   "paired",
+  Registered,
+  "registered",
 ]);
 
 // Eventful
-eventful(Wristband, ["stateChange", "change", "error"]);
+eventful(Wristband, ["stateChange", "change"]);
 
 export { Wristband };

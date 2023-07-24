@@ -4,45 +4,13 @@ import { Unregistered } from "./StateUnregistered.js";
 import { Registered } from "./StateRegistered.js";
 import { InTeam } from "./StateInTeam.js";
 import { InGame } from "./StateInGame.js";
-import { randomPlayer } from "agent_factory.shared/scripts/randomPlayer.js";
 import { Wristband } from "../wristband/index.js";
-import { isObject } from "js_utils/misc";
+import { normalize } from "./normalize.js";
+import { random } from "./random.js";
 
 class Player {
-  static random(props = {}) {
-    return { ...randomPlayer(), ...props };
-  }
-
-  static translate(player = {}, state = "", depth = true) {
-    const translated = {
-      name: player.name || "",
-      username: player.username || "",
-      surname: player.surname || "",
-      email: player.email || "",
-      password: player.password || "",
-      wristband: depth
-        ? Wristband.translate(player.wristband || {})
-        : player.wristband || {},
-      state:
-        state || isObject(player.state) ? player.state?.name : player.state,
-    };
-
-    if (translated.state) {
-      return translated;
-    } else if (player.wristbandMerged) {
-      translated.state = "inTeam";
-    } else if (translated.wristband?.status === "paired") {
-      translated.state = "registered";
-    } else if (
-      "getState" in translated.wristband &&
-      translated.wristband.getState().name === "paired"
-    ) {
-      translated.state = "registered";
-    } else {
-      translated.state = "unregistered";
-    }
-    return translated;
-  }
+  static random = random;
+  static normalize = normalize;
 
   constructor(player = {}, state = "") {
     // Eventful initialization
@@ -52,36 +20,35 @@ class Player {
     stateful.construct.call(this);
 
     // Player initialization
-    Object.assign(this, this.translate(player, state, false));
-    this.wristband = new Wristband(player.wristband || {});
-    this.bootstrap();
+    this.name = player.name || "";
+    this.username = player.username || "";
+    this.surname = player.surname || "";
+    this.email = player.email || "";
+    this.password = player.password || "";
+    this.wristband = new Wristband(player.wristband);
+    if (player.state || state) {
+      this.setState(this.getState(player.state || state));
+    }
   }
 }
 
-Player.prototype.fill = function fill(props = {}, depth = false) {
-  Object.assign(
-    this,
-    this.translate(
-      { ...this.random(props), wristband: this.wristband },
-      null,
-      false,
-    ),
-  );
-  this.bootstrap();
+Player.prototype.fill = function fill(source = {}, { state = "", depth = 0 }) {
+  Object.assign(this, Player.random(source));
   if (depth) {
-    this.wristband.fill();
+    Player.wristband = new Wristband(Wristband.random(source.wristband));
   }
+  this.bootstrap(state || source.state);
   this.emit("change");
   return this;
 };
 
-Player.prototype.bootstrap = function bootstrap() {
-  if (typeof this.state === "string") {
+Player.prototype.bootstrap = function bootstrap(state) {
+  if (state) {
+    this.setState(this.getState(state));
+  } else if (typeof this.state === "string") {
     this.setState(this.getState(this.state));
   }
 };
-Player.prototype.translate = Player.translate;
-Player.prototype.random = Player.random;
 
 // Stateful
 stateful(Player, [
