@@ -27,7 +27,13 @@ class Wristband {
     this.id = wristband.id ?? null;
     this.color = wristband.color ?? null;
     if (state || wristband.state) {
-      this.setState(this.getState(state || wristband.state));
+      this.setState(
+        this.getState(
+          state || typeof wristband.state === "object"
+            ? wristband.state.name
+            : wristband.state,
+        ),
+      );
     }
   }
 }
@@ -52,7 +58,7 @@ Wristband.prototype.fill = function fill(source = {}, { state = "" } = {}) {
   return this;
 };
 Wristband.prototype.bootstrap = function bootstrap(state) {
-  this.setState(this.getState(state || this.state));
+  this.setState(state || this.state);
 };
 Wristband.prototype.mapftob = function () {
   return Wristband.mapftob(this);

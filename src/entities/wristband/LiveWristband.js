@@ -27,7 +27,8 @@ class LiveWristband extends Wristband {
       this.releaseScanHandle();
       this.releaseScanHandle = null;
     }
-    return Promise.resolve();
+    this.setState(this.getUnpairedState);
+    return Promise.resolve(this);
   }
 
   async scan() {
@@ -74,10 +75,10 @@ class LiveWristband extends Wristband {
 
   unregister(wristband, state = true) {
     return state
-      ? this.Afmachine.unregisterWristband(wristband)
-          .then(this.state.unregistered.bind(this, null))
-          .catch(this.state.unregistered.bind(this))
-      : this.Afmachine.unregisterWristband(wristband);
+      ? this.Afmachine.unregisterWristband(wristband || this)
+          .then(this.state.unregistered.bind(wristband || this, null))
+          .catch(this.state.unregistered.bind(wristband || this))
+      : this.Afmachine.unregisterWristband(wristband || this);
   }
 
   pair() {

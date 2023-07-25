@@ -1,4 +1,5 @@
-import { Player } from "../../entities/player/Player.js";
+import { Player } from "../../entities/player/index.js";
+import { Wristband } from "../../entities/wristband/index.js";
 
 /**
  * Search player
@@ -40,7 +41,11 @@ function searchPlayer() {
 
       const lnPlayers = players.length;
       for (let i = 0; i < lnPlayers; i++) {
-        players[i] = new Player(Player.normalize(players[i], "registered"))
+        players[i].wristband = Wristband.normalize(players[i].wristband);
+        if (players[i].wristband.state === "paired") {
+          players[i].wristband.state = "registered";
+        }
+        players[i] = new Player(Player.normalize(players[i], "registered"));
       }
 
       context.res.payload = {

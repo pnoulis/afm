@@ -15,6 +15,11 @@ class Registered extends State {
       err ? reject(err) : resolve(this.player);
     });
   }
+  unpairWristband(resolve, reject) {
+    this.player.wristband.toggle((err) => {
+      err ? reject(err) : resolve(this.player);
+    });
+  }
 }
 
 export { Registered };

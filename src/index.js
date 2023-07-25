@@ -55,7 +55,7 @@ pipeline.setAfterAll(async function (context, next, err) {
     if (/timeout/.test(err.message)) {
       err = new aferrs.ERR_TIMEOUT();
     }
-    err.context = context;
+    // err.context = context;
     context.res = context.res.payload;
     throw err;
   }

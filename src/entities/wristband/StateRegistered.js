@@ -21,7 +21,6 @@ class Registered extends State {
   }
 
   toggle() {
-    this.wristband.setState(this.wristband.getUnpairedState);
     return this.wristband.unpair();
   }
 }

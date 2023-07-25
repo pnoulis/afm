@@ -15,6 +15,11 @@ class InGame extends State {
       new aferrs.ERR_STATE_ACTION_BLOCK(this.name, "player", "pairWristband"),
     );
   }
+  unpairWristband(resolve, reject) {
+    reject(
+      new aferrs.ERR_STATE_ACTION_BLOCK(this.name, "player", "pairWristband"),
+    );
+  }
 }
 
 export { InGame };

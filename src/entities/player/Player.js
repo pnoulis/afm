@@ -14,7 +14,7 @@ class Player {
   static normalize = normalize;
   static mapftob = mapftob;
 
-  constructor(player = {}, state = "") {
+  constructor(player = {}, { state = "", deep = true } = {}) {
     // Eventful initialization
     eventful.construct.call(this);
 
@@ -27,7 +27,9 @@ class Player {
     this.surname = player.surname || "";
     this.email = player.email || "";
     this.password = player.password || "";
-    this.wristband = new Wristband(player.wristband);
+    if (deep) {
+      this.wristband = new Wristband(player.wristband);
+    }
     if (state || player.state) {
       this.setState(this.getState(state || player.state));
     }
@@ -53,7 +55,7 @@ Player.prototype.fill = function fill(
 };
 
 Player.prototype.bootstrap = function bootstrap(state) {
-  this.setState(this.getState(state || this.state));
+  this.setState(state || this.state);
 };
 
 Player.prototype.mapftob = function () {

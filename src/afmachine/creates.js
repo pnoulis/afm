@@ -23,15 +23,32 @@ function createGroupPlayerWristband(player, wristband) {
 }
 
 function createPlayerWristband(player, wristband) {
-  return new this.PlayerWristband(this, player, wristband);
+  return new this.PlayerWristband(
+    this,
+    player && player instanceof this.Player
+      ? this.Player.normalize(player)
+      : player,
+    wristband && wristband instanceof this.Wristband
+      ? this.Wristband.normalize(wristband)
+      : wristband,
+  );
 }
 
 function createPlayer(player) {
-  return new this.Player(player);
+  return new this.Player(
+    player && player instanceof this.Player
+      ? this.Player.normalize(player)
+      : player,
+  );
 }
 
 function createPersistentPlayer(player) {
-  return new this.PersistentPlayer(this, player);
+  return new this.PersistentPlayer(
+    this,
+    player && player instanceof this.Player
+      ? this.Player.normalize(player)
+      : player,
+  );
 }
 
 export {
