@@ -12,7 +12,9 @@ function random(player = {}, deep = false) {
     name: player.name || name,
     surname: player.surname || surname,
     password: player.password || password,
-    wristband: deep ? Wristband.random() : Wristband.normalize(),
+    wristband: deep
+      ? Wristband.random(player.wristband)
+      : Wristband.normalize(),
     state: player.state || "unregistered",
   };
 }

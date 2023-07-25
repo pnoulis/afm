@@ -5,34 +5,27 @@ class PlayerWristband extends LiveWristband {
   constructor(Afmachine, player = {}, wristband = {}) {
     super(Afmachine, wristband);
     this.player = player;
-    this.registered = false;
   }
 
   pair() {
     return this.scan()
       .then(this.verify.bind(this))
       .then((wristband) => {
-        if (wristband.active) {
+        if (wristband.state === "paired") {
           throw new aferrs.ERR_WRISTBAND_BOUND(wristband.number);
         }
         return this.register({
           wristband,
           player: this.player.username,
+        }).then(() => {
+          this.setState(this.getRegisteredState);
         });
-      })
-      .then(({ wristband }) => {
-        this.registered = true;
-        this.fill(wristband);
-        this.setState(this.getPairedState);
       });
   }
 
   unpair() {
-    return this.registered
-      ? this.unregister().then(() => {
-          this.registered = false;
-          return this.unscan();
-        })
+    return this.inState("registered")
+      ? this.unregister().then(this.unscan.bind(this))
       : this.unscan();
   }
 }

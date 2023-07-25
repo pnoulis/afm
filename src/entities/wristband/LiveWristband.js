@@ -17,10 +17,8 @@ class LiveWristband extends Wristband {
   }
 
   unscan() {
-    this.number = null;
-    this.color = "";
-    this.colorCode = null;
-    this.active = false;
+    this.id = null;
+    this.color = null;
     if (typeof this.unsubscribeWristbandScan === "function") {
       this.unsubscribeWristbandScan();
       this.unsubscribeWristbandScan = null;

@@ -11,7 +11,6 @@ class GroupPlayerWristband extends LiveWristband {
     return this.scan()
       .then(this.verify.bind(this))
       .then((wristband) => {
-        console.log(wristband);
         if (wristband.state === "paired") {
           throw new aferrs.ERR_WRISTBAND_BOUND(wristband.number);
         }

@@ -12,7 +12,7 @@ class Paired extends State {
   }
 
   registered(err, response) {
-    return err ? Promise.reject(err) : Promise.resolve(response);
+    return this.wristband.supersedeAction();
   }
 
   unregistered() {

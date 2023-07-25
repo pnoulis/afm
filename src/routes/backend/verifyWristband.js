@@ -13,10 +13,19 @@ function verifyWristband() {
     "/wristband/info",
     // argument parsing and validation
     async function (context, next) {
-      const wristband = context.args;
+      context.wristband = Object.hasOwn(context.args, "wristband")
+        ? context.args.wristband
+        : context.args;
+
+      context.wristband = Wristband.normalize(
+        typeof context.wristband === "number"
+          ? { id: context.wristband }
+          : context.wristband,
+      );
+
       context.req = {
         timestamp: Date.now(),
-        wristbandNumber: wristband.number,
+        wristbandNumber: context.wristband.id,
       };
       await next();
     },
@@ -32,34 +41,15 @@ function verifyWristband() {
       if (err) {
         context.res.payload = {
           ok: false,
-          msg: `Failed to retrieve information on wristband ${context.req.wristbandNumber}`,
-          reason: err.message,
-        };
-        throw err;
-      }
-      if (
-        context.res.wristband.wristbandNumber !== context.req.wristbandNumber
-      ) {
-        err = new aferrs.ERR_MQTT_TANGLED_MSG(
-          `Wristband verification request for rfid ${context.req.wristbandNumber} returned with rfid ${context.res.wristband.wristbandNumber}`,
-        );
-
-        context.res.payload = {
-          ok: false,
-          msg: `Failed to retrieve information on wristband ${context.req.wristbandNumber}`,
+          msg: `Failed to retrieve information on wristband ${context.wristband.id}`,
           reason: err.message,
         };
         throw err;
       }
 
-      // merging of req and res because backend response does not
-      // return with full data
       context.res.payload = {
         ok: true,
-        data: Wristband.translate({
-          ...context.res.wristband,
-          ...context.args,
-        }),
+        data: Wristband.normalize(context.wristband, context.res.wristband),
       };
       await next();
     },

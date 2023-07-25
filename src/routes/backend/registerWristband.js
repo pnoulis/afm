@@ -1,4 +1,7 @@
+import { Player } from "../../entities/player/index.js";
+import { Wristband } from "../../entities/wristband/index.js";
 import { isObject } from "js_utils/misc";
+
 /**
  * @example
  * input: [ { wristband, player } ]
@@ -14,11 +17,28 @@ function registerWristband() {
     "/wristband/register",
     // argument parsing and validation
     async function (context, next) {
-      const { wristband, player } = context.args;
+      context.player = Object.hasOwn(context.args, "player")
+        ? context.args.player
+        : context.args;
+      context.wristband = Object.hasOwn(context.args, "wristband")
+        ? context.args.wristband
+        : context.player.wristband;
+
+      context.player = Player.normalize(
+        typeof context.player === "string"
+          ? { username: context.player }
+          : context.player,
+      );
+      context.player.wristband = Wristband.normalize(
+        context.player.wristband,
+        typeof context.wristband === "number"
+          ? { id: context.wristband }
+          : context.wristband,
+      );
       context.req = {
         timestamp: Date.now(),
-        username: isObject(player) ? player.username : player,
-        wristbandNumber: isObject(wristband) ? wristband.number : wristband,
+        username: context.player.username,
+        wristbandNumber: context.player.wristband.id,
       };
       await next();
     },
@@ -34,16 +54,17 @@ function registerWristband() {
       if (err) {
         context.res.payload = {
           ok: false,
-          msg: `Failed to pair ${context.req.username} to wristband ${context.req.wristbandNumber}`,
+          msg: `Failed to pair ${context.player.username} to wristband ${context.player.wristband.id}`,
           reason: err.message,
         };
         throw err;
       }
 
+      context.player.wristband.state = "registered";
       context.res.payload = {
         ok: true,
-        msg: `Successfuly paired ${context.req.username} to wristband ${context.req.wristbandNumber}`,
-        data: { ...context.args },
+        msg: `Successfuly paired ${context.player.username} to wristband ${context.player.wristband.id}`,
+        data: context.player,
       };
       await next();
     },

@@ -28,8 +28,8 @@ class Player {
     this.email = player.email || "";
     this.password = player.password || "";
     this.wristband = new Wristband(player.wristband);
-    if (player.state || state) {
-      this.setState(this.getState(player.state || state));
+    if (state || player.state) {
+      this.setState(this.getState(state || player.state));
     }
   }
 }
@@ -38,21 +38,17 @@ Player.prototype.fill = function fill(
   source = {},
   { state = "", depth = 0 } = {},
 ) {
-  Object.assign(this, Player.random(source));
+  Object.assign(this, Player.random({ ...this, ...source }));
   if (depth) {
-    Player.wristband = new Wristband(Wristband.random(source.wristband));
+    this.wristband = new Wristband(Wristband.random(source.wristband));
   }
-  this.bootstrap(state || source.state);
+  this.bootstrap(state);
   this.emit("change");
   return this;
 };
 
 Player.prototype.bootstrap = function bootstrap(state) {
-  if (state) {
-    this.setState(this.getState(state));
-  } else if (typeof this.state === "string") {
-    this.setState(this.getState(this.state));
-  }
+  this.setState(this.getState(state || this.state));
 };
 
 Player.prototype.mapftob = function () {

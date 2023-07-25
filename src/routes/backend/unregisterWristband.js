@@ -1,3 +1,5 @@
+import { Player } from "../../entities/player/index.js";
+import { Wristband } from "../../entities/wristband/index.js";
 import { isObject } from "js_utils/misc";
 
 function unregisterWristband() {
@@ -5,11 +7,28 @@ function unregisterWristband() {
     "/wristband/unregister",
     // argument parsing and validation
     async function (context, next) {
-      const { wristband, player } = context.args;
+      context.player = Object.hasOwn(context.args, "player")
+        ? context.args.player
+        : context.args;
+      context.wristband = Object.hasOwn(context.args, "wristband")
+        ? context.args.wristband
+        : context.player.wristband;
+
+      context.player = Player.normalize(
+        typeof context.player === "string"
+          ? { username: context.player }
+          : context.player,
+      );
+      context.player.wristband = Wristband.normalize(
+        context.player.wristband,
+        typeof context.wristband === "number"
+          ? { id: context.wristband }
+          : context.wristband,
+      );
       context.req = {
         timestamp: Date.now(),
-        username: isObject(player) ? player.username : player,
-        wristbandNumber: isObject(wristband) ? wristband.number : wristband,
+        username: context.player.username,
+        wristbandNumber: context.player.wristband.id,
       };
       await next();
     },
@@ -28,16 +47,17 @@ function unregisterWristband() {
       if (err) {
         context.res.payload = {
           ok: false,
-          msg: `Failed to unpair ${context.req.username} from wristband ${context.req.wristbandNumber}`,
+          msg: `Failed to unpair ${context.player.username} from wristband ${context.player.wristband.id}`,
           reason: err.message,
         };
         throw err;
       }
 
+      context.player.wristband = Wristband.normalize();
       context.res.payload = {
         ok: true,
-        msg: `Successfuly unpaired ${context.req.username} from wristband ${context.req.wristbandNumber}`,
-        data: { ...context.args },
+        msg: `Successfuly unpaired ${context.player.username} from wristband ${context.req.wristbandNumber}`,
+        data: context.player,
       };
       await next();
     },

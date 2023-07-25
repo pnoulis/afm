@@ -1,7 +1,57 @@
-import { Player } from './Player.js';
-import { Wristband } from '../wristband/Wristband.js';
+import { Player } from "./Player.js";
+import { Wristband } from "../wristband/Wristband.js";
 
-function normalize(player = {}, state = "") {
+/**
+ * Normalize wristband to conform to frontend schema.
+ * @param {Object...,string,string} args
+ * @param {Object...,string} args
+ *
+ */
+function normalize(...sources) {
+  const opts = {
+    nulls:
+      typeof sources.at(-1) === "boolean" ? sources.splice(-1).pop() : false,
+    state: typeof sources.at(-1) === "string" ? sources.splice(-1).pop() : "",
+  };
+
+  if (sources.length < 2) {
+    return __normalize(sources[0], opts.state);
+  }
+
+  let player = __normalize(sources.shift());
+
+  // All sources are normalized and merged together. The order of execution is
+  // the same used by Object.assign which uses a L to R direction. However
+  // unlike Object.assign by default normalize() shall not allow falsy property
+  // values to replace truthy property values unles the (opts.nulls = true).
+
+  let source;
+  if (opts.nulls) {
+    while (sources.length) {
+      source = __normalize(sources.shift());
+      Object.assign(player, source);
+    }
+  } else {
+    while (sources.length) {
+      source = __normalize(sources.shift());
+      player = {
+        username: source.username || player.username,
+        name: source.name || player.name,
+        surname: source.surname || player.surname,
+        email: source.email || player.email,
+        password: source.password || player.password,
+        state: source.state || player.state,
+        wristband: source.wristband || player.wristband,
+      };
+    }
+  }
+  if (opts.state) {
+    player.state = opts.state;
+  }
+  return player;
+}
+
+function __normalize(player = {}, state = "") {
   const __player = {
     name: player.name || "",
     username: player.username || "",

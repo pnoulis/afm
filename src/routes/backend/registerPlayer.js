@@ -1,3 +1,5 @@
+import { Player } from "../../entities/player/index.js";
+
 /**
  * Register player
  * @param {Object} player
@@ -13,15 +15,18 @@ function registerPlayer() {
     "/player/register",
     // Argument parsing and validation
     async function (context, next) {
-      const request = context.args;
-      context.req = {
-        timestamp: Date.now(),
-        username: request.username || "",
-        surname: request.surname || "",
-        name: request.name || "",
-        email: request.email || "",
-        password: request.password || "",
-      };
+      context.player = Player.normalize(
+        Object.hasOwn(context.args, "player")
+          ? context.args.player
+          : context.args,
+      );
+      Object.assign(
+        context.req,
+        {
+          timestamp: Date.now(),
+        },
+        context.player,
+      );
       await next();
     },
     // register player
@@ -36,16 +41,17 @@ function registerPlayer() {
       if (err) {
         context.res.payload = {
           ok: false,
-          msg: `Failed to register player ${context.req.username}`,
+          msg: `Failed to register player ${context.player.username}`,
           reason: err.message,
         };
         throw err;
       }
-      const data = context.res.player;
+
+      context.player.state = "registered";
       context.res.payload = {
         ok: true,
-        msg: `Registered player ${data.username}`,
-        data,
+        msg: `Registered player ${context.player.username}`,
+        data: context.player,
       };
       await next();
     },

@@ -26,8 +26,8 @@ class Wristband {
     // Wristband initialization
     this.id = wristband.id ?? null;
     this.color = wristband.color ?? null;
-    if (wristband.state || state) {
-      this.setState(this.getState(wristband.state || state));
+    if (state || wristband.state) {
+      this.setState(this.getState(state || wristband.state));
     }
   }
 }
@@ -44,21 +44,17 @@ Wristband.prototype.getColor = function () {
   }
 };
 Wristband.prototype.fill = function fill(source = {}, { state = "" } = {}) {
-  Object.assign(this, Wristband.random(source));
-  this.bootstrap(state || source.state);
+  Object.assign(this, Wristband.random({ ...this, ...source }));
+  this.bootstrap(state);
   this.emit("change");
   return this;
 };
 Wristband.prototype.bootstrap = function bootstrap(state) {
-  if (state) {
-    this.setState(this.getState(state));
-  } else if (typeof this.state === "string") {
-    this.setState(this.getState(this.state));
-  }
+  this.setState(this.getState(state || this.state));
 };
-Wristband.prototype.mapftob = function() {
+Wristband.prototype.mapftob = function () {
   return Wristband.mapftob(this);
-}
+};
 
 // Stateful
 stateful(Wristband, [

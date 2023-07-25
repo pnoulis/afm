@@ -5,6 +5,8 @@ import { describe, it, expect, vi, beforeAll } from "vitest";
 */
 
 import { Afmachine } from "../../../src/index.js";
+import { Player } from "/src/entities/player/index.js";
+import { Wristband } from "/src/entities/wristband/index.js";
 
 /*
   DEPENDENCIES
@@ -16,11 +18,11 @@ import { randomPlayer } from "agent_factory.shared/scripts/randomPlayer.js";
 import { mapWristbandColor } from "agent_factory.shared/utils/misc.js";
 
 let players;
-const wristbands = randomWristband(3);
+const wristbands = randomWristband(5).map((w) => Wristband.normalize(w));
 beforeAll(async () => {
   await flushBackendDB();
-  await registerPlayer(3).then((res) => {
-    players = res;
+  await registerPlayer(5).then((res) => {
+    players = res.map((p) => Player.normalize(p, "registered"));
   });
 });
 
@@ -33,27 +35,57 @@ describe("registerWristband", () => {
       }),
     ).resolves.toMatchObject(expect.any(Object));
   });
-  it("Should resolve with primitves if given primitives as input", async () => {
+  it("Should resolve with an FPlayer", async () => {
     const response = await Afmachine.registerWristband({
-      wristband: wristbands[1].number,
-      player: players[1].username,
+      wristband: wristbands[1],
+      player: players[1],
     });
 
     expect(response).toMatchObject({
-      wristband: wristbands[1].number,
-      player: players[1].username,
+      ...players[1],
+      wristband: {
+        ...wristbands[1],
+        state: "registered",
+      },
     });
   });
 
-  it("Should resolve with objects if given objects as input", async () => {
-    const response = await Afmachine.registerWristband({
-      wristband: wristbands[2],
-      player: players[2],
+  it("Should accept various payload formats", async () => {
+    await expect(
+      Afmachine.registerWristband({
+        wristband: wristbands[2].id,
+        player: players[2].username,
+      }),
+    ).resolves.toMatchObject({
+      username: players[2].username,
+      wristband: {
+        id: wristbands[2].id,
+        state: "registered",
+      },
     });
 
-    expect(response).toMatchObject({
-      wristband: expect.objectContaining(wristbands[2]),
-      player: expect.objectContaining(players[2]),
+    await expect(
+      Afmachine.registerWristband({
+        wristband: wristbands[3],
+        player: players[3],
+      }),
+    ).resolves.toMatchObject({
+      ...players[3],
+      wristband: {
+        ...wristbands[3],
+        state: "registered",
+      },
+    });
+
+    const p = Player.normalize(
+      new Player(players[4]).fill(undefined, { depth: 1 }),
+    );
+    await expect(Afmachine.registerWristband(p)).resolves.toMatchObject({
+      ...p,
+      wristband: {
+        ...p.wristband,
+        state: "registered",
+      },
     });
   });
 });

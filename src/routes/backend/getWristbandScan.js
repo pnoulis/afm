@@ -1,4 +1,5 @@
 import { Wristband } from "../../entities/wristband/index.js";
+import { mapWristbandColor } from "agent_factory.shared/utils/misc.js";
 
 /**
  * @example
@@ -13,8 +14,7 @@ function getWristbandScan() {
     "/wristband/scan",
     // argument parsing and validation
     async function (context, next) {
-      const request = context.args;
-      context.req = request.unsubcb;
+      context.req = context.args;
       await next();
     },
     // backend service
@@ -34,10 +34,15 @@ function getWristbandScan() {
         };
         throw err;
       }
+
+      context.wristband = Wristband.normalize(context.res);
       context.res.payload = {
         ok: true,
-        msg: `Scanned ${context.res.wristbandColor} wristband ${context.res.wristbandNumber}`,
-        data: Wristband.translate(context.res),
+        msg: `Scanned ${mapWristbandColor(
+          "colorCode",
+          context.wristband.color,
+        )} wristband ${context.wristband.id}`,
+        data: context.wristband,
       };
       await next();
     },

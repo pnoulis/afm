@@ -26,6 +26,11 @@ describe("Entity wristband", () => {
     await expect(response).resolves.toMatchObject({ result: "OK" });
   });
   it("Should be able to take a wristband in any representation and normalize it into its FRONTEND form", () => {
+    expect(Wristband.normalize()).toMatchObject({
+      id: null,
+      color: null,
+      state: "unpaired",
+    });
     expect(
       Wristband.normalize({
         wristbandNumber: 0,
@@ -137,6 +142,50 @@ describe("Entity wristband", () => {
       id: 5,
       color: null,
       state: "registered",
+    });
+  });
+  it.only("Should normalize and merge multiple objects either in frontend or backend representations", () => {
+    expect(
+      Wristband.normalize(
+        { id: 3, color: 4, state: "paired" },
+        { id: 4, color: 5, state: "unpaired" },
+      ),
+    ).toMatchObject({
+      id: 4,
+      color: 5,
+      state: "unpaired",
+    });
+
+    expect(
+      Wristband.normalize(
+        Wristband.random({ id: 3, color: 3, state: "paired" }),
+        { id: null, color: null, state: "unpaired" },
+        "paired",
+      ),
+    ).toMatchObject({
+      id: 3,
+      color: 3,
+      state: "paired",
+    });
+
+    expect(
+      Wristband.normalize(Wristband.random(), new Wristband(), "", true),
+    ).toMatchObject({
+      id: null,
+      color: null,
+      state: "unpaired",
+    });
+
+    expect(
+      Wristband.normalize(Wristband.random({ id: 10, color: 5 }), {
+        wristbandNumber: 5,
+        wristbandColor: null,
+        active: false,
+      }),
+    ).toMatchObject({
+      id: 5,
+      color: 5,
+      state: "unpaired",
     });
   });
   it("Should map colorCodes to colors", () => {

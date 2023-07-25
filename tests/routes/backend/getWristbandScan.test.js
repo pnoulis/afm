@@ -5,6 +5,7 @@ import { describe, it, expect, vi, beforeAll } from "vitest";
 */
 
 import { Afmachine } from "../../../src/index.js";
+import { Wristband } from "/src/entities/wristband/index.js";
 
 /*
   DEPENDENCIES
@@ -21,16 +22,14 @@ describe("getWristbandScan", () => {
       expect.any(Object),
     );
   });
-  it("Should resolve with", async () => {
-    const { number, color, active } = randomWristband();
-    delay(2000).then(emulateScan.bind(null, number, color));
+  it.only("Should resolve with an FWristband", async () => {
+    const w = Wristband.random();
+    delay(2000).then(emulateScan.bind(null, w.id, w.color));
     const response = await Afmachine.getWristbandScan();
-
     expect(response).toMatchObject({
-      number: number,
-      colorCode: color,
-      color: mapWristbandColor("colorCode", color),
-      active: false,
+      id: w.id,
+      color: w.color,
+      state: "paired",
     });
   });
 });

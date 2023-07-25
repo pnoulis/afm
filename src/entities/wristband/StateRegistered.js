@@ -1,4 +1,4 @@
-import { State } from './State.js';
+import { State } from "./State.js";
 
 class Registered extends State {
   constructor(wristband) {
@@ -16,8 +16,8 @@ class Registered extends State {
     return err ? Promise.reject(err) : Promise.resolve(response);
   }
 
-  unregistered() {
-    return this.wristband.supersedeAction();
+  unregistered(err, response) {
+    return err ? Promise.reject(err) : Promise.resolve(response);
   }
 
   toggle() {

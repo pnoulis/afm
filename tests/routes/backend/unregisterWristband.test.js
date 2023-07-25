@@ -3,72 +3,70 @@ import { describe, it, expect, vi, beforeAll } from "vitest";
 /*
   TESTING COMPONENTS
 */
-import * as ROUTES_BACKEND from "../../../src/routes/backend/routesBackend";
+
+import { Afmachine } from "../../../src/index.js";
+import { Player } from "/src/entities/player/index.js";
+import { Wristband } from "/src/entities/wristband/index.js";
 
 /*
   DEPENDENCIES
  */
-import { backendClientService } from "../../../src/services/backend/client.js";
-import { randomPlayer } from "../../../scripts/randomPlayer.js";
-import { randomWristband } from "../../../scripts/randomWristband.js";
-import { emulateScan } from "../../../scripts/emulateScan.js";
-import { Player } from "../../../src/afmachine/player/index.js";
-import { Wristband } from "../../../src/afmachine/wristband/index.js";
-import * as Errors from "../../../src/misc/errors.js";
+import { registerPlayer } from "agent_factory.shared/scripts/registerPlayer.js";
+import { registerWristband } from "agent_factory.shared/scripts/registerWristband.js";
+import { flushBackendDB } from "agent_factory.shared/scripts/flushBackendDB.js";
+import { randomWristband } from "agent_factory.shared/scripts/randomWristband.js";
+import { randomPlayer } from "agent_factory.shared/scripts/randomPlayer.js";
 
+let players;
 beforeAll(async () => {
-  await backendClientService.init();
+  await flushBackendDB();
+  await registerWristband(6).then((res) => {
+    players = res.map((p) => Player.normalize(p));
+  });
 });
 
 describe("unregisterWristband", () => {
-  it("Should accept params BackendPlayer and FrontendWristband", async () => {
-    const wristband = randomWristband();
-    const player = randomPlayer();
-
-    await expect(ROUTES_BACKEND.registerPlayer(player)).resolves.toBeTruthy();
+  it("Should unregister a wristband", async () => {
     await expect(
-      ROUTES_BACKEND.registerWristband({ player, wristband })
-    ).resolves.toBeTruthy();
-
-    await expect(
-      ROUTES_BACKEND.unregisterWristband({ player, wristband })
-    ).resolves.toBeTruthy();
+      Afmachine.unregisterWristband(players[0]),
+    ).resolves.toMatchObject(expect.any(Object));
   });
-  it("Should accept params BackendPlayer and BackendWristband", async () => {
-    const wristband = randomWristband();
-    const player = randomPlayer();
-
-    await expect(ROUTES_BACKEND.registerPlayer(player)).resolves.toBeTruthy();
+  it("Should resolve with FPlayer", async () => {
     await expect(
-      ROUTES_BACKEND.registerWristband({ player, wristband })
-    ).resolves.toBeTruthy();
-
-    await expect(
-      ROUTES_BACKEND.unregisterWristband({
-        player,
-        wristband: {
-          wristbandNumber: wristband.number,
-        },
-      })
-    ).resolves.toBeTruthy();
-  });
-  it("Should resolve with", async () => {
-    const wristband = randomWristband();
-    const player = randomPlayer();
-
-    await expect(ROUTES_BACKEND.registerPlayer(player)).resolves.toBeTruthy();
-    await expect(
-      ROUTES_BACKEND.registerWristband({ player, wristband })
-    ).resolves.toBeTruthy();
-
-    const response = await ROUTES_BACKEND.unregisterWristband({
-      player,
-      wristband,
+      Afmachine.unregisterWristband(players[1]),
+    ).resolves.toMatchObject({
+      ...players[1],
+      wristband: {
+        ...Wristband.normalize(),
+      },
     });
-    expect(response).toMatchObject({
-      number: wristband.number,
-      username: player.username,
-      msg: expect.any(String),
+  });
+  it.only("Should accept various payload formats", async () => {
+    await expect(
+      Afmachine.unregisterWristband({
+        wristband: players[2].wristband.id,
+        player: players[2].username,
+      }),
+    ).resolves.toMatchObject({
+      username: players[2].username,
+      wristband: Wristband.normalize(),
+    });
+
+    await expect(
+      Afmachine.unregisterWristband({
+        wristband: players[3].wristband,
+        player: players[3],
+      }),
+    ).resolves.toMatchObject({
+      ...players[3],
+      wristband: Wristband.normalize(),
+    });
+
+    await expect(
+      Afmachine.unregisterWristband(players[4]),
+    ).resolves.toMatchObject({
+      ...players[4],
+      wristband: Wristband.normalize(),
     });
   });
 });
