@@ -11,12 +11,10 @@ class Unregistered extends State {
       return this.player;
     });
   }
-  pairWristband(cb) {
-    if (cb) {
-      cb(
-        new aferrs.ERR_STATE_ACTION_BLOCK("Player", this.name, "pairWristband"),
-      );
-    }
+  pairWristband(resolve, reject) {
+    reject(
+      new aferrs.ERR_STATE_ACTION_BLOCK(this.name, "player", "pairWristband"),
+    );
   }
 }
 

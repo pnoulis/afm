@@ -1,2 +1,2 @@
 export * from "./Player.js";
-export * from './LivePlayer.js';
+export * from './PersistentPlayer.js';

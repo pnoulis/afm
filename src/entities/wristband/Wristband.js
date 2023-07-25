@@ -44,7 +44,9 @@ Wristband.prototype.getColor = function () {
   }
 };
 Wristband.prototype.fill = function fill(source = {}, { state = "" } = {}) {
-  Object.assign(this, Wristband.random({ ...this, ...source }));
+  const wristband = Wristband.random(source);
+  this.id ??= wristband.id;
+  this.color ??= wristband.color;
   this.bootstrap(state);
   this.emit("change");
   return this;

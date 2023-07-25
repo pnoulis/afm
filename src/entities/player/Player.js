@@ -38,9 +38,14 @@ Player.prototype.fill = function fill(
   source = {},
   { state = "", depth = 0 } = {},
 ) {
-  Object.assign(this, Player.random({ ...this, ...source }));
+  const player = Player.random(source);
+  this.name ||= player.name;
+  this.username ||= player.username;
+  this.surname ||= player.surname;
+  this.email ||= player.email;
+  this.password ||= player.password;
   if (depth) {
-    this.wristband = new Wristband(Wristband.random(source.wristband));
+    this.wristband.fill();
   }
   this.bootstrap(state);
   this.emit("change");

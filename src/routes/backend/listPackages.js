@@ -10,6 +10,22 @@ function listPackages() {
     },
     // generic backend response parser
     this.middleware.parseResponse,
+    async function (context, next, err) {
+      if (err) {
+        context.res.payload = {
+          ok: false,
+          msg: "Failed to list packages",
+          reason: err.message,
+        };
+        throw err;
+      }
+
+      context.res.payload = {
+        ok: true,
+        data: context.res.packages,
+      };
+      await next();
+    },
   ];
 }
 

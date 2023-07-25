@@ -47,33 +47,26 @@ function normalize(...sources) {
   return wristband;
 }
 
-function __normalize(wristband = {}, state = "") {
+function __normalize(wristband, state = "") {
+  wristband ??= {};
   const __wristband = {
     id: wristband.id ?? wristband.wristbandNumber ?? wristband.number ?? null,
-    color: null,
+    color: wristband.color ?? wristband.wristbandColor ?? null,
   };
 
-  if (__wristband.id === null) {
-    __wristband.state = "unpaired";
-    return __wristband;
-  } else {
-    __wristband.color = wristband.color ?? wristband.wristbandColor ?? null;
-  }
-
   let __state = "";
-
-  if (state) {
-    __state = state;
-  } else if (Object.hasOwn(wristband, "active")) {
+  if (Object.hasOwn(wristband, "active")) {
     __wristband.state = wristband.active ? "paired" : "unpaired";
     return __wristband;
   } else if (wristband instanceof Wristband) {
     __wristband.state = wristband.getState().name;
     return __wristband;
-  } else if (typeof wristband.state === "string") {
+  } else if (typeof wristband.state === 'string') {
     __state = wristband.state;
+  } else if (state) {
+    __state = state;
   } else {
-    __wristband.state = "paired";
+    __wristband.state = "unpaired";
     return __wristband;
   }
 

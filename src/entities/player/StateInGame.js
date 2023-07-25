@@ -7,15 +7,13 @@ class InGame extends State {
   }
   register() {
     return Promise.reject(
-      new aferrs.ERR_STATE_ACTION_BLOCK("Player", this.name, "register"),
+      new aferrs.ERR_STATE_ACTION_BLOCK(this.name, "player", "register"),
     );
   }
-  pairWristband(cb) {
-    if (cb) {
-      cb(
-        new aferrs.ERR_STATE_ACTION_BLOCK("Player", this.name, "pairWristband"),
-      );
-    }
+  pairWristband(resolve, reject) {
+    reject(
+      new aferrs.ERR_STATE_ACTION_BLOCK(this.name, "player", "pairWristband"),
+    );
   }
 }
 

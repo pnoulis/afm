@@ -30,8 +30,8 @@ function createPlayer(player) {
   return new this.Player(player);
 }
 
-function createLivePlayer(player) {
-  return new this.LivePlayer(this, player);
+function createPersistentPlayer(player) {
+  return new this.PersistentPlayer(this, player);
 }
 
 export {
@@ -43,5 +43,5 @@ export {
   createPlayerWristband,
   createGroupPlayerWristband,
   createPlayer,
-  createLivePlayer,
+  createPersistentPlayer,
 };

@@ -40,7 +40,7 @@ function searchPlayer() {
 
       const lnPlayers = players.length;
       for (let i = 0; i < lnPlayers; i++) {
-        players[i] = new Player(players[i]);
+        players[i] = new Player(Player.normalize(players[i], "registered"))
       }
 
       context.res.payload = {

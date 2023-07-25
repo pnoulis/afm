@@ -17,7 +17,8 @@ class PlayerWristband extends LiveWristband {
         return this.register({
           wristband,
           player: this.player.username,
-        }).then(() => {
+        }).then((wristband) => {
+          this.fill(wristband);
           this.setState(this.getRegisteredState);
         });
       });

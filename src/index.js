@@ -15,7 +15,7 @@ import {
   GroupPlayerWristband,
   PlayerWristband,
 } from "./entities/wristband/index.js";
-import { Player, LivePlayer } from "./entities/player/index.js";
+import { Player, PersistentPlayer } from "./entities/player/index.js";
 import {
   createTeam,
   createRegularTeam,
@@ -25,7 +25,7 @@ import {
   createPlayerWristband,
   createGroupPlayerWristband,
   createPlayer,
-  createLivePlayer,
+  createPersistentPlayer,
 } from "./afmachine/creates.js";
 
 let clientId = "001";
@@ -68,7 +68,7 @@ pipeline.setGlobalLast(function (context, next, err) {
     loggerService.error(err);
     throw err;
   }
-  loggerService.debug(context);
+  // loggerService.debug(context);
   next();
 });
 
@@ -93,7 +93,7 @@ const Afmachine = new (function () {
   this.GroupPlayerWristband = GroupPlayerWristband;
   this.PlayerWristband = PlayerWristband;
   this.Player = Player;
-  this.LivePlayer = LivePlayer;
+  this.PersistentPlayer = PersistentPlayer;
 
   // Initializers
   this.createTeam = createTeam.bind(this);
@@ -104,7 +104,7 @@ const Afmachine = new (function () {
   this.createPlayerWristband = createPlayerWristband.bind(this);
   this.createGroupPlayerWristband = createGroupPlayerWristband.bind(this);
   this.createPlayer = createPlayer.bind(this);
-  this.createLivePlayer = createLivePlayer.bind(this);
+  this.createPersistentPlayer = createPersistentPlayer.bind(this);
 
   // non-routes
   this.lockWristbandScan = lockWristbandScan.bind(this);

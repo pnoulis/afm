@@ -40,7 +40,7 @@ describe("Entity wristband", () => {
     ).toMatchObject({
       id: 0,
       color: 6,
-      state: "registered",
+      state: "paired",
     });
     expect(
       Wristband.normalize({
@@ -51,7 +51,7 @@ describe("Entity wristband", () => {
     ).toMatchObject({
       id: 0,
       color: 6,
-      state: "paired",
+      state: "unpaired",
     });
     expect(
       Wristband.normalize({
@@ -60,8 +60,8 @@ describe("Entity wristband", () => {
       }),
     ).toMatchObject({
       id: null,
-      color: null,
-      state: "unpaired",
+      color: 6,
+      state: "paired",
     });
     expect(
       Wristband.normalize({
@@ -71,7 +71,7 @@ describe("Entity wristband", () => {
     ).toMatchObject({
       id: 5,
       color: 6,
-      state: "paired",
+      state: "unpaired",
     });
 
     expect(
@@ -82,7 +82,7 @@ describe("Entity wristband", () => {
     ).toMatchObject({
       id: 0,
       color: 0,
-      state: "paired",
+      state: "unpaired",
     });
 
     expect(
@@ -93,7 +93,7 @@ describe("Entity wristband", () => {
     ).toMatchObject({
       id: 3,
       color: 2,
-      state: "paired",
+      state: "unpaired",
     });
 
     expect(
@@ -104,7 +104,7 @@ describe("Entity wristband", () => {
     ).toMatchObject({
       id: 0,
       color: 0,
-      state: "paired",
+      state: "unpaired",
     });
 
     expect(
@@ -144,7 +144,7 @@ describe("Entity wristband", () => {
       state: "registered",
     });
   });
-  it.only("Should normalize and merge multiple objects either in frontend or backend representations", () => {
+  it("Should normalize and merge multiple objects either in frontend or backend representations", () => {
     expect(
       Wristband.normalize(
         { id: 3, color: 4, state: "paired" },

@@ -7,11 +7,13 @@ class Registered extends State {
   }
   register() {
     return Promise.reject(
-      new aferrs.ERR_STATE_ACTION_BLOCK("Player", this.name, "register"),
+      new aferrs.ERR_STATE_ACTION_BLOCK(this.name, "player", "register"),
     );
   }
-  pairWristband(cb) {
-    this.player.wristband.togglePair(cb);
+  pairWristband(resolve, reject) {
+    this.player.wristband.toggle((err) => {
+      err ? reject(err) : resolve(this.player);
+    });
   }
 }
 
