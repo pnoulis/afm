@@ -125,6 +125,9 @@ const Afmachine = new (function () {
   this.registerWristband = pipeline.route(
     ...routes.registerWristband.call(this),
   );
+  this.onWristbandRegistration = pipeline.route(
+    ...routes.onWristbandRegistration.call(this),
+  );
   this.removePackage = pipeline.route(...routes.removePackage.call(this));
   this.searchPlayer = pipeline.route(...routes.searchPlayer.call(this));
   this.startTeam = pipeline.route(...routes.startTeam.call(this));

@@ -1,6 +1,5 @@
 import { Player } from "../../entities/player/index.js";
 import { Wristband } from "../../entities/wristband/index.js";
-import { isObject } from "js_utils/misc";
 
 /**
  * @example
@@ -71,4 +70,43 @@ function registerWristband() {
   ];
 }
 
-export { registerWristband };
+function onWristbandRegistration() {
+  return [
+    "/wristband/register",
+    // argument parsing and validation
+    async function (context, next) {
+      // listener
+      context.req = context.args.listener;
+      if (typeof context.req !== "function") {
+        throw new TypeError(
+          `onWristbandRegistration listener function missing`,
+        );
+      }
+      await next();
+    },
+    // subscribe wristband registration messages
+    async (context, next) => {
+      context.res = this.services.backend.onWristbandRegistration(context.req);
+      await next();
+    },
+    async function (context, next, err) {
+      if (err) {
+        context.res.payload = {
+          ok: false,
+          msg: "Failed to subscribe to wristband registration topic",
+          reason: err.message,
+        };
+        throw err;
+      }
+      context.res.payload = {
+        ok: true,
+        msg: "Successfuly subscribed to wristband registration topic",
+        // unsubscribe function
+        data: context.res,
+      };
+      await next();
+    },
+  ];
+}
+
+export { registerWristband, onWristbandRegistration };
