@@ -114,26 +114,33 @@ const Afmachine = new (function () {
   this.boot = pipeline.route(...routes.boot.call(this));
   this.getWristbandScan = pipeline.route(...routes.getWristbandScan.call(this));
   this.listPackages = pipeline.route(...routes.listPackages.call(this));
-  this.listPairedWristbandPlayers = pipeline.route(
-    ...routes.listPairedWristbandPlayers.call(this),
+  this.listRegisteredWristbandPlayers = pipeline.route(
+    ...routes.listRegisteredWristbandPlayers.call(this),
   );
   this.listTeams = pipeline.route(...routes.listTeams.call(this));
   this.loginPlayer = pipeline.route(...routes.loginPlayer.call(this));
   this.mergeGroupTeam = pipeline.route(...routes.mergeGroupTeam.call(this));
   this.mergeTeam = pipeline.route(...routes.mergeTeam.call(this));
   this.registerPlayer = pipeline.route(...routes.registerPlayer.call(this));
+
+  // --------------------------  REGISTER WRISTBAND  -------------------------- //
   this.registerWristband = pipeline.route(
     ...routes.registerWristband.call(this),
   );
-  this.onWristbandRegistration = pipeline.route(
-    ...routes.onWristbandRegistration.call(this),
+  this.onRegisterWristband = pipeline.route(
+    ...routes.onRegisterWristband.call(this),
   );
-  this.removePackage = pipeline.route(...routes.removePackage.call(this));
-  this.searchPlayer = pipeline.route(...routes.searchPlayer.call(this));
-  this.startTeam = pipeline.route(...routes.startTeam.call(this));
+  // -------------------------  UNREGISTER WRISTBAND  ------------------------- //
   this.unregisterWristband = pipeline.route(
     ...routes.unregisterWristband.call(this),
   );
+  this.onUnregisterWristband = pipeline.route(
+    ...routes.onUnregisterWristband.call(this),
+  );
+
+  this.removePackage = pipeline.route(...routes.removePackage.call(this));
+  this.searchPlayer = pipeline.route(...routes.searchPlayer.call(this));
+  this.startTeam = pipeline.route(...routes.startTeam.call(this));
   this.verifyWristband = pipeline.route(...routes.verifyWristband.call(this));
 })();
 

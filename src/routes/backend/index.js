@@ -2,7 +2,7 @@ export * from "./addPackage.js";
 export * from "./boot.js";
 export * from "./getWristbandScan.js";
 export * from "./listPackages.js";
-export * from "./listPairedWristbandPlayers.js";
+export * from "./listRegisteredWristbandPlayers.js";
 export * from "./listTeams.js";
 export * from "./loginPlayer.js";
 export * from "./mergeGroupTeam.js";

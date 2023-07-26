@@ -70,7 +70,7 @@ function registerWristband() {
   ];
 }
 
-function onWristbandRegistration() {
+function onRegisterWristband() {
   return [
     "/wristband/register",
     // argument parsing and validation
@@ -86,7 +86,7 @@ function onWristbandRegistration() {
     },
     // subscribe wristband registration messages
     async (context, next) => {
-      context.res = this.services.backend.onWristbandRegistration(context.req);
+      context.res = this.services.backend.onRegisterWristband(context.req);
       await next();
     },
     async function (context, next, err) {
@@ -100,7 +100,6 @@ function onWristbandRegistration() {
       }
       context.res.payload = {
         ok: true,
-        msg: "Successfuly subscribed to wristband registration topic",
         // unsubscribe function
         data: context.res,
       };
@@ -109,4 +108,4 @@ function onWristbandRegistration() {
   ];
 }
 
-export { registerWristband, onWristbandRegistration };
+export { registerWristband, onRegisterWristband };
