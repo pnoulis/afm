@@ -1,13 +1,13 @@
-function loginPlayer() {
+function loginPlayer(afmachine) {
   return [
     "/player/login",
     // backend service
     async (context, next) => {
-      context.res = await this.services.backend.login(context.req.payload);
+      context.res = await afmachine.services.backend.login(context.req.payload);
       await next();
     },
     // generic backend response parser
-    this.middleware.parseResponse,
+    afmachine.middleware.parseResponse,
   ];
 }
 

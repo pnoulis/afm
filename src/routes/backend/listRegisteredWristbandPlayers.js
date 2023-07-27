@@ -1,7 +1,7 @@
 import { Player } from "../../entities/player/index.js";
 import { Wristband } from "../../entities/wristband/index.js";
 
-function listRegisteredWristbandPlayers() {
+function listRegisteredWristbandPlayers(afmachine) {
   return [
     "/players/list/available",
     // Argument parsing, validation and request builder
@@ -14,13 +14,13 @@ function listRegisteredWristbandPlayers() {
     // list those players that have paired and registered
     // their wristband
     async (context, next) => {
-      context.res = await this.services.backend.listWristbandPlayers(
+      context.res = await afmachine.services.backend.listWristbandPlayers(
         context.req,
       );
       await next();
     },
     // generic backend response parser
-    this.middleware.parseResponse,
+    afmachine.middleware.parseResponse,
     // request parsing and response builder
     async function (context, next, err) {
       if (err) {

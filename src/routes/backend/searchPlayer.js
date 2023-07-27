@@ -7,7 +7,7 @@ import { Wristband } from "../../entities/wristband/index.js";
  * @param {Object} request
  * @param {string} request.searchTerm
  */
-function searchPlayer() {
+function searchPlayer(afmachine) {
   return [
     "/player/search",
     // Argument parsing and validation
@@ -21,11 +21,11 @@ function searchPlayer() {
     },
     // search player
     async (context, next) => {
-      context.res = await this.services.backend.searchPlayer(context.req);
+      context.res = await afmachine.services.backend.searchPlayer(context.req);
       await next();
     },
     // generic backend response parsing
-    this.middleware.parseResponse,
+    afmachine.middleware.parseResponse,
     // specific backend response parsing
     async function (context, next, err) {
       if (err) {

@@ -9,7 +9,7 @@ import { mapWristbandColor } from "agent_factory.shared/utils/misc.js";
  * @returns {Object} Wristband.translate()
  */
 
-function getWristbandScan() {
+function getWristbandScan(afmachine) {
   return [
     "/wristband/scan",
     // argument parsing and validation
@@ -19,11 +19,11 @@ function getWristbandScan() {
     },
     // backend service
     async (context, next) => {
-      context.res = await this.services.backend.getWristbandScan(context.req);
+      context.res = await afmachine.services.backend.getWristbandScan(context.req);
       await next();
     },
     // generic backend response parser
-    this.middleware.parseResponse,
+    afmachine.middleware.parseResponse,
     // specific backend response parsing
     async function (context, next, err) {
       if (err) {

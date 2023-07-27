@@ -1,14 +1,11 @@
 import { ENVIRONMENT } from "agent_factory.shared/config.js";
 import { Pipeline } from "js_utils/pipeline";
-import { CreateBackendService } from "agent_factory.shared/services/backend/CreateBackendService.js";
+import { parseResponse } from "./middleware/backend/parseResponse.js";
+import * as routes from "./routes/backend/index.js";
+import * as aferrs from "agent_factory.shared/errors.js";
 import { LoggerService } from "agent_factory.shared/services/logger/LoggerService.js";
 import { LocalStorageService } from "agent_factory.shared/services/client_storage/local_storage/index.js";
-import { parseResponse } from "./middleware/backend/parseResponse.js";
-import * as aferrs from "agent_factory.shared/errors.js";
-import * as routes from "./routes/backend/index.js";
-import { lockWristbandScan } from "./afmachine/lockWristbandScan.js";
-import { AsyncAction } from "./entities/async_action/AsyncAction.js";
-import { Team, RegularTeam, GroupTeam } from "./entities/team/index.js";
+import { CreateBackendService } from "agent_factory.shared/services/backend/CreateBackendService.js";
 import {
   Wristband,
   LiveWristband,
@@ -16,6 +13,8 @@ import {
   PlayerWristband,
 } from "./entities/wristband/index.js";
 import { Player, PersistentPlayer } from "./entities/player/index.js";
+import { Team, RegularTeam, GroupTeam } from "./entities/team/index.js";
+import { AsyncAction } from "./entities/async_action/AsyncAction.js";
 import {
   createTeam,
   createRegularTeam,
@@ -27,64 +26,56 @@ import {
   createPlayer,
   createPersistentPlayer,
 } from "./afmachine/creates.js";
+import { lockWristbandScan } from "./afmachine/lockWristbandScan.js";
 
-let clientId = "001";
-const clientName = "afclient";
+function Afmachine() {
+  this.clientId = "001";
+  this.clientName = "afclient";
 
-// storage service
-let storageService = null;
-if (ENVIRONMENT.RUNTIME === "browser") {
-  storageService = new LocalStorageService(clientId);
-  storageService.start();
-  clientId = storageService.sessionId;
-} else {
-  clientId = "001";
-}
-// logger service
-const loggerService = new LoggerService(clientId, clientName);
-// backend service
-const backendService = CreateBackendService(clientId);
-backendService.start().then((res) => {
-  backendService.booted = true;
-});
-
-// Pipeline
-const pipeline = new Pipeline();
-pipeline.setAfterAll(async function (context, next, err) {
-  if (err) {
-    if (/timeout/.test(err.message)) {
-      err = new aferrs.ERR_TIMEOUT();
-    }
-    // err.context = context;
-    context.res = context.res.payload;
-    throw err;
+  // Services
+  this.services = {};
+  // cache storage
+  if (ENVIRONMENT.RUNTIME === "browser") {
+    this.services.storage = new LocalStorageService(this.clientId);
+    this.services.storage.start();
+    this.clientId = this.services.storage.sessionId;
+  } else {
+    this.clientId = "001";
   }
-  context.res = context.res.payload;
-  await next();
-});
+  // logging
+  this.services.logger = new LoggerService(this.clientId, this.clientName);
+  // backend api
+  this.services.backend = CreateBackendService(this.clientId);
 
-pipeline.setGlobalLast(function (context, next, err) {
-  if (err) {
-    loggerService.error(err);
-    throw err;
-  }
-  // loggerService.debug(context);
-  next();
-});
-
-// Afmachine
-const Afmachine = new (function () {
-  this.pipeline = pipeline;
+  // Middleware
   this.middleware = {
     parseResponse,
   };
-  this.services = {
-    storage: storageService,
-    backend: backendService,
-    log: loggerService,
-  };
 
-  // entities
+  // Pipeline
+  this.pipeline = new Pipeline();
+  this.pipeline.setAfterAll(async (context, next, err) => {
+    if (err) {
+      if (/timeout/.test(err.message)) {
+        err = new aferrs.ERR_TIMEOUT();
+      }
+      // err.context = context;
+      context.res = context.res.payload;
+      throw err;
+    }
+    context.res = context.res.payload;
+    await next();
+  });
+  this.pipeline.setGlobalLast((context, next, err) => {
+    if (err) {
+      this.services.logger.error(err);
+      throw err;
+    }
+    this.services.logger.debug(context);
+    next();
+  });
+
+  // Entities
   this.Team = Team;
   this.RegularTeam = RegularTeam;
   this.GroupTeam = GroupTeam;
@@ -95,53 +86,45 @@ const Afmachine = new (function () {
   this.Player = Player;
   this.PersistentPlayer = PersistentPlayer;
 
-  // Initializers
-  this.createTeam = createTeam.bind(this);
-  this.createRegularTeam = createRegularTeam.bind(this);
-  this.createGroupTeam = createGroupTeam.bind(this);
-  this.createWristband = createWristband.bind(this);
-  this.createLiveWristband = createLiveWristband.bind(this);
-  this.createPlayerWristband = createPlayerWristband.bind(this);
-  this.createGroupPlayerWristband = createGroupPlayerWristband.bind(this);
-  this.createPlayer = createPlayer.bind(this);
-  this.createPersistentPlayer = createPersistentPlayer.bind(this);
-
-  // non-routes
-  this.lockWristbandScan = lockWristbandScan.bind(this);
-
-  // routes
-  this.addPackage = pipeline.route(...routes.addPackage.call(this));
-  this.boot = pipeline.route(...routes.boot.call(this));
-  this.getWristbandScan = pipeline.route(...routes.getWristbandScan.call(this));
-  this.listPackages = pipeline.route(...routes.listPackages.call(this));
-  this.listRegisteredWristbandPlayers = pipeline.route(
-    ...routes.listRegisteredWristbandPlayers.call(this),
+  // Routes
+  this.addPackage = this.pipeline.route(...routes.addPackage(this));
+  this.boot = this.pipeline.route(...routes.boot(this));
+  this.getWristbandScan = this.pipeline.route(...routes.getWristbandScan(this));
+  this.listPackages = this.pipeline.route(...routes.listPackages(this));
+  this.listRegisteredWristbandPlayers = this.pipeline.route(
+    ...routes.listRegisteredWristbandPlayers(this),
   );
-  this.listTeams = pipeline.route(...routes.listTeams.call(this));
-  this.loginPlayer = pipeline.route(...routes.loginPlayer.call(this));
-  this.mergeGroupTeam = pipeline.route(...routes.mergeGroupTeam.call(this));
-  this.mergeTeam = pipeline.route(...routes.mergeTeam.call(this));
-  this.registerPlayer = pipeline.route(...routes.registerPlayer.call(this));
+  this.listTeams = this.pipeline.route(...routes.listTeams(this));
+  this.loginPlayer = this.pipeline.route(...routes.loginPlayer(this));
+  this.mergeGroupTeam = this.pipeline.route(...routes.mergeGroupTeam(this));
+  this.mergeTeam = this.pipeline.route(...routes.mergeTeam(this));
+  this.registerPlayer = this.pipeline.route(...routes.registerPlayer(this));
+  this.registerWristband = this.pipeline.route(
+    ...routes.registerWristband(this),
+  );
+  this.onRegisterWristband = this.pipeline.route(
+    ...routes.onRegisterWristband(this),
+  );
+  this.unregisterWristband = this.pipeline.route(
+    ...routes.unregisterWristband(this),
+  );
+  this.onUnregisterWristband = this.pipeline.route(
+    ...routes.onUnregisterWristband(this),
+  );
+  this.removePackage = this.pipeline.route(...routes.removePackage(this));
+  this.searchPlayer = this.pipeline.route(...routes.searchPlayer(this));
+  this.startTeam = this.pipeline.route(...routes.startTeam(this));
+  this.verifyWristband = this.pipeline.route(...routes.verifyWristband(this));
+}
 
-  // --------------------------  REGISTER WRISTBAND  -------------------------- //
-  this.registerWristband = pipeline.route(
-    ...routes.registerWristband.call(this),
-  );
-  this.onRegisterWristband = pipeline.route(
-    ...routes.onRegisterWristband.call(this),
-  );
-  // -------------------------  UNREGISTER WRISTBAND  ------------------------- //
-  this.unregisterWristband = pipeline.route(
-    ...routes.unregisterWristband.call(this),
-  );
-  this.onUnregisterWristband = pipeline.route(
-    ...routes.onUnregisterWristband.call(this),
-  );
+Afmachine.prototype.createWristband = createWristband;
+Afmachine.prototype.createLiveWristband = createLiveWristband;
+Afmachine.prototype.createPlayerWristband = createPlayerWristband;
+Afmachine.prototype.createGroupPlayerWristband = createGroupPlayerWristband;
+Afmachine.prototype.createPlayer = createPlayer;
+Afmachine.prototype.createPersistentPlayer = createPersistentPlayer;
+Afmachine.prototype.lockWristbandScan = lockWristbandScan;
 
-  this.removePackage = pipeline.route(...routes.removePackage.call(this));
-  this.searchPlayer = pipeline.route(...routes.searchPlayer.call(this));
-  this.startTeam = pipeline.route(...routes.startTeam.call(this));
-  this.verifyWristband = pipeline.route(...routes.verifyWristband.call(this));
-})();
-
-export { Afmachine, AsyncAction };
+const afmachine = new Afmachine();
+export { afmachine, AsyncAction };
+export * from './misc/log.js';

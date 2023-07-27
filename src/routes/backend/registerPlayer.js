@@ -10,7 +10,7 @@ import { Player } from "../../entities/player/index.js";
  * @param {string} [player.password]
  * @returns {Object} payload
  */
-function registerPlayer() {
+function registerPlayer(afmachine) {
   return [
     "/player/register",
     // Argument parsing and validation
@@ -31,11 +31,13 @@ function registerPlayer() {
     },
     // register player
     async (context, next) => {
-      context.res = await this.services.backend.registerPlayer(context.req);
+      context.res = await afmachine.services.backend.registerPlayer(
+        context.req,
+      );
       await next();
     },
     // generic backend response parsing
-    this.middleware.parseResponse,
+    afmachine.middleware.parseResponse,
     // specific backend response parsing
     async function (context, next, err) {
       if (err) {

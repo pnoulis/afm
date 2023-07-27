@@ -1,15 +1,15 @@
-function mergeGroupTeam() {
+function mergeGroupTeam(afmachine) {
   return [
     "/groupteam/merge",
     // backend service
     async (context, next) => {
-      context.res = await this.services.backend.mergeGroupTeam(
+      context.res = await afmachine.services.backend.mergeGroupTeam(
         context.req.payload,
       );
       await next();
     },
     // generic backend response parser
-    this.middleware.parseResponse,
+    afmachine.middleware.parseResponse,
   ];
 }
 

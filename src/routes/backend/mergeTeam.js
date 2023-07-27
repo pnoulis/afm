@@ -1,13 +1,13 @@
-function mergeTeam() {
+function mergeTeam(afmachine) {
   return [
     "/team/merge",
     // backend service
     async (context, next) => {
-      context.res = await this.services.backend.mergeTeam(context.req.payload);
+      context.res = await afmachine.services.backend.mergeTeam(context.req.payload);
       await next();
     },
     // generic backend response parser
-    this.middleware.parseResponse,
+    afmachine.middleware.parseResponse,
   ];
 }
 

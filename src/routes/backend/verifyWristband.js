@@ -8,7 +8,7 @@ import { Wristband } from "../../entities/wristband/index.js";
  * @returns {Object} Wristband.translate()
  */
 
-function verifyWristband() {
+function verifyWristband(afmachine) {
   return [
     "/wristband/info",
     // argument parsing and validation
@@ -31,11 +31,11 @@ function verifyWristband() {
     },
     // verify wristband
     async (context, next) => {
-      context.res = await this.services.backend.infoWristband(context.req);
+      context.res = await afmachine.services.backend.infoWristband(context.req);
       await next();
     },
     // generic backend response parser
-    this.middleware.parseResponse,
+    afmachine.middleware.parseResponse,
     // specific backend response parsing
     async function (context, next, err) {
       if (err) {

@@ -2,7 +2,7 @@ import { Player } from "../../entities/player/index.js";
 import { Wristband } from "../../entities/wristband/index.js";
 import { isObject } from "js_utils/misc";
 
-function unregisterWristband() {
+function unregisterWristband(afmachine) {
   return [
     "/wristband/unregister",
     // argument parsing and validation
@@ -35,13 +35,13 @@ function unregisterWristband() {
 
     // unregister wristband
     async (context, next) => {
-      context.res = await this.services.backend.unregisterWristband(
+      context.res = await afmachine.services.backend.unregisterWristband(
         context.req,
       );
       await next();
     },
     // generic backend response parser
-    this.middleware.parseResponse,
+    afmachine.middleware.parseResponse,
     // specific backend response parsing
     async function (context, next, err) {
       if (err) {
@@ -64,7 +64,7 @@ function unregisterWristband() {
   ];
 }
 
-function onUnregisterWristband() {
+function onUnregisterWristband(afmachine) {
   return [
     "/wristband/unregister",
     // argument parsing and validation
@@ -80,7 +80,7 @@ function onUnregisterWristband() {
     },
     // subscribe wristband registration messages
     async (context, next) => {
-      context.res = this.services.backend.onUnregisterWristband(context.req);
+      context.res = afmachine.services.backend.onUnregisterWristband(context.req);
       await next();
     },
     async function (context, next, err) {

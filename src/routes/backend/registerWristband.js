@@ -11,7 +11,7 @@ import { Wristband } from "../../entities/wristband/index.js";
  * @param {number} wristband.number
  * @returns {Object} input
  */
-function registerWristband() {
+function registerWristband(afmachine) {
   return [
     "/wristband/register",
     // argument parsing and validation
@@ -43,11 +43,11 @@ function registerWristband() {
     },
     // register wristband
     async (context, next) => {
-      context.res = await this.services.backend.registerWristband(context.req);
+      context.res = await afmachine.services.backend.registerWristband(context.req);
       await next();
     },
     // generic backend response parser
-    this.middleware.parseResponse,
+    afmachine.middleware.parseResponse,
     // specific backend response parsing
     async function (context, next, err) {
       if (err) {
@@ -70,7 +70,7 @@ function registerWristband() {
   ];
 }
 
-function onRegisterWristband() {
+function onRegisterWristband(afmachine) {
   return [
     "/wristband/register",
     // argument parsing and validation
@@ -86,7 +86,7 @@ function onRegisterWristband() {
     },
     // subscribe wristband registration messages
     async (context, next) => {
-      context.res = this.services.backend.onRegisterWristband(context.req);
+      context.res = afmachine.services.backend.onRegisterWristband(context.req);
       await next();
     },
     async function (context, next, err) {

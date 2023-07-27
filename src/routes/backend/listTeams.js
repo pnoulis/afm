@@ -1,13 +1,13 @@
-function listTeams() {
+function listTeams(afmachine) {
   return [
     "/teams/all",
     // backend service
     async (context, next) => {
-      context.res = await this.services.backend.listTeams(context.req.payload);
+      context.res = await afmachine.services.backend.listTeams(context.req.payload);
       await next();
     },
     // generic backend response parser
-    this.middleware.parseResponse,
+    afmachine.middleware.parseResponse,
   ];
 }
 

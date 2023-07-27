@@ -1,15 +1,15 @@
-function removePackage() {
+function removePackage(afmachine) {
   return [
     "/team/package/delete",
     // backend service
     async (context, next) => {
-      context.res = await this.services.backend.removePackage(
+      context.res = await afmachine.services.backend.removePackage(
         context.req.payload,
       );
       await next();
     },
     // generic backend response parser
-    this.middleware.parseResponse,
+    afmachine.middleware.parseResponse,
   ];
 }
 
