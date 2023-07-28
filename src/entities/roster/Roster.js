@@ -5,12 +5,14 @@ import { Player } from "../player/index.js";
 
 class Roster {
   constructor(roster, createPlayer) {
-    if (isObject(roster)) {
+    if (roster instanceof Roster) {
+      roster = roster.asArray();
+    } else if (isObject(roster)) {
       roster = roster.roster || [];
-    } else if (!isArray(roster)) {
-      roster = [];
+    } else {
+      roster = isArray(roster) ? roster : [];
     }
-    roster ??= [];
+
     this.roster = new Map();
     this.createPlayer =
       createPlayer ||

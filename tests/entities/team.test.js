@@ -26,6 +26,84 @@ describe("Entity team", () => {
     const r = new Roster();
     expect(r).toBeInstanceOf(Roster);
   });
+
+  it.only("Should be able to take a team in any representation and normalize it into FRONTEND form", () => {
+    // no arguments
+    let r = new Roster();
+    expect(r.asArray()).toEqual([]);
+
+    // an empty array
+    r = new Roster([]);
+    expect(r.asArray()).toEqual([]);
+
+    // an empty object
+    r = new Roster({});
+    expect(r.asArray()).toEqual([]);
+
+    // an array of players
+    r = new Roster([
+      {
+        username: "1",
+      },
+      {
+        username: "2",
+      },
+    ]);
+
+    expect(r.get()).toEqual(
+      expect.arrayContaining([
+        new Player({ username: "1" }),
+        new Player({ username: "2" }),
+      ]),
+    );
+
+    expect(r.asArray()).toEqual(
+      expect.arrayContaining([
+        new Player({ username: "1" }).asObject(),
+        new Player({ username: "2" }).asObject(),
+      ]),
+    );
+
+    // a team object with an empty roster
+    r = new Roster({
+      roster: [],
+    });
+
+    expect(r.get()).toEqual([]);
+
+    // a team object with a partial roster
+    r = new Roster({
+      roster: [
+        {
+          username: "1",
+        },
+        {
+          username: "2",
+        },
+      ],
+    });
+
+    expect(r.get()).toEqual(
+      expect.arrayContaining([
+        new Player({ username: "1" }),
+        new Player({ username: "2" }),
+      ]),
+    );
+
+    // a Team Instance
+    // r = new Roster(new Team());
+
+    console.log(new Team());
+    // expect(r.get()).toEqual([]);
+
+    // expect(r.asArray()).toEqual(
+    //   expect.arrayContaining([
+    //     new Player({ username: 1 }),
+    //     new Player({ username: 2 }),
+    //   ]),
+    // );
+  });
+
   it("Should take two argumenst, a roster array and a player factory function", () => {
     const r = new Roster([], (player) => new Player(player));
     expect(r.createPlayer).toBeTypeOf("function");
@@ -94,9 +172,7 @@ describe("Entity team", () => {
     expect(r.size).toEqual(6);
     logs.logRoster(r);
   });
-  it('Should be able to take a team in any representation and normalize it into FRONTEND form', () => {
-    expect(Team.normalize({})).toMatchObject({
-
-    })
-  })
+  it("Should be able to take a team in any representation and normalize it into FRONTEND form", () => {
+    expect(Team.normalize({})).toMatchObject({});
+  });
 });

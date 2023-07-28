@@ -46,7 +46,7 @@ function __normalize(team, state = "") {
   const __team = {
     name: team.name || "",
     points: team.points ?? 0,
-    roster: new Roster(team).asArray(),
+    roster: new Roster(team.roster).asArray(),
   };
 
   let __state = "";

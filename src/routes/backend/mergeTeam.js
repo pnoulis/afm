@@ -1,5 +1,34 @@
 import { Team } from "../../entities/team/index.js";
+import { Roster } from "../../entities/roster/index.js";
 
+/**
+ * @example
+ * Input:
+ * ```
+ * {
+ * name: "string",
+ * roster: [ "string", "string" ],
+ * }
+ *`
+ * @example
+ * Input:
+ *```
+ *{
+ * name: "string",
+ * roster: [ { username: "string" }, { username: "string"}]
+ *}
+ *`
+ *
+ * @example
+ * Input:
+ *```
+ * Team{
+ * roster: Roster{
+ * get()
+ *}
+ *}
+ *`
+ */
 function mergeTeam(afmachine) {
   return [
     "/team/merge",
@@ -9,16 +38,19 @@ function mergeTeam(afmachine) {
       context.req = {
         timestamp: Date.now(),
         teamName: context.team.name,
-        usernames: context.team.roster.get().map((p) => p.username),
+        usernames:
+          context.team.roster instanceof Roster
+            ? context.team.roster.get().map((p) => p.username)
+            : context.team.roster.map((p) =>
+                typeof p === "string" ? p : p.username,
+              ),
       };
       await next();
     },
 
     // Merge team
     async (context, next) => {
-      console.log(context);
       context.res = await afmachine.services.backend.mergeTeam(context.req);
-      console.log(context);
       await next();
     },
     // generic backend response parser
@@ -34,10 +66,12 @@ function mergeTeam(afmachine) {
         throw err;
       }
 
+      const data = Team.normalize(context.team);
+      data.state = "registered";
       context.res.payload = {
         ok: true,
         msg: `Merged team ${context.team.name}`,
-        data: context.res.message,
+        data: data,
       };
       await next();
     },

@@ -11,6 +11,7 @@ import { random } from "./random.js";
 import { normalize } from "./normalize.js";
 import { mapftob } from "./mapftob.js";
 import { MIN_TEAM_SIZE } from "agent_factory.shared/constants.js";
+import { AsyncAction } from "../async_action/index.js";
 import * as aferrs from "agent_factory.shared/errors.js";
 
 class Team {
@@ -27,7 +28,8 @@ class Team {
     this.Afmachine = Afmachine;
     // Team initialization
     this.name = team.name || "";
-    this.roster = roster ?? new Roster(team);
+    this.roster = roster ?? new Roster(team.roster);
+    this.merging = new AsyncAction(this.Afmachine.listPackages);
   }
 }
 
@@ -85,9 +87,10 @@ Team.prototype.merge = function () {
 };
 
 Team.prototype.__merge = function () {
-  return new Promise((resolve, reject) => {
-    this.state.merge(resolve, reject);
-  });
+  this.merging.run();
+  // return new Promise((resolve, reject) => {
+  //   this.state.merge(resolve, reject);
+  // });
 };
 
 Team.prototype.fill = function (source, { state = "", depth = 0 } = {}) {
