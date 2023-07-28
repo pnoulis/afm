@@ -37,9 +37,10 @@ class Player {
 }
 
 Player.prototype.fill = function fill(
-  source = {},
+  source,
   { state = "", depth = 0 } = {},
 ) {
+  source ||= {};
   const player = Player.random(source);
   this.name ||= player.name;
   this.username ||= player.username;
@@ -47,7 +48,7 @@ Player.prototype.fill = function fill(
   this.email ||= player.email;
   this.password ||= player.password;
   if (depth) {
-    this.wristband.fill();
+    this.wristband.fill(source.wristband);
   }
   this.bootstrap(state);
   this.emit("change");
@@ -60,6 +61,18 @@ Player.prototype.bootstrap = function bootstrap(state) {
 
 Player.prototype.mapftob = function () {
   return Player.mapftob(this);
+};
+
+Player.prototype.asObject = function () {
+  return {
+    name: this.name,
+    username: this.username,
+    surname: this.surname,
+    email: this.email,
+    password: this.password,
+    wristband: this.wristband.asObject(),
+    state: this.getState().name,
+  };
 };
 
 // Stateful

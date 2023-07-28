@@ -72,7 +72,7 @@ function __normalize(player, state = "") {
   } else if (player instanceof Player) {
     __player.state = player.getState().name;
     return __player;
-  } else if (typeof player.state === "string") {
+  } else if (typeof player.state === "string" && player.state) {
     __state = player.state;
   } else if (state) {
     __state = state;

@@ -14,6 +14,7 @@ import {
 } from "./entities/wristband/index.js";
 import { Player, PersistentPlayer } from "./entities/player/index.js";
 import { Team, RegularTeam, GroupTeam } from "./entities/team/index.js";
+import { Roster } from './entities/roster/index.js';
 import { AsyncAction } from "./entities/async_action/AsyncAction.js";
 import {
   createTeam,
@@ -76,6 +77,7 @@ function Afmachine() {
   });
 
   // Entities
+  this.Roster = Roster;
   this.Team = Team;
   this.RegularTeam = RegularTeam;
   this.GroupTeam = GroupTeam;
@@ -117,7 +119,9 @@ function Afmachine() {
   this.verifyWristband = this.pipeline.route(...routes.verifyWristband(this));
 }
 
+Afmachine.prototype.createTeam = createTeam;
 Afmachine.prototype.createWristband = createWristband;
+Afmachine.prototype.createRegularTeam = createRegularTeam;
 Afmachine.prototype.createLiveWristband = createLiveWristband;
 Afmachine.prototype.createPlayerWristband = createPlayerWristband;
 Afmachine.prototype.createGroupPlayerWristband = createGroupPlayerWristband;

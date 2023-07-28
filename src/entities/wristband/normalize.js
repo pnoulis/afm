@@ -61,7 +61,7 @@ function __normalize(wristband, state = "") {
   } else if (wristband instanceof Wristband) {
     __wristband.state = wristband.getState().name;
     return __wristband;
-  } else if (typeof wristband.state === 'string') {
+  } else if (typeof wristband.state === "string" && wristband.state) {
     __state = wristband.state;
   } else if (state) {
     __state = state;

@@ -64,6 +64,14 @@ Wristband.prototype.mapftob = function () {
   return Wristband.mapftob(this);
 };
 
+Wristband.prototype.asObject = function () {
+  return {
+    id: this.id,
+    color: this.color,
+    state: this.getState().name,
+  };
+};
+
 // Stateful
 stateful(Wristband, [
   Unpaired,

@@ -1,9 +1,16 @@
-function createTeam() {
-  return new this.Team(this);
+import { Roster } from "../entities/roster/index.js";
+
+function createTeam(team) {
+  return new this.Team(this, this.Team.normalize(team));
 }
 
-function createRegularTeam() {
-  return new this.RegularTeam(this);
+function createRegularTeam(team) {
+  let __team = this.Team.normalize(team);
+  let __roster = new this.Roster(
+    __team.roster,
+    this.createPersistentPlayer.bind(this),
+  );
+  return new this.Team(this, __team, __roster);
 }
 
 function createGroupTeam() {
