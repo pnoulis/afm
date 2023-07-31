@@ -11,7 +11,7 @@ import { random } from "./random.js";
 import { normalize } from "./normalize.js";
 import { mapftob } from "./mapftob.js";
 import { MIN_TEAM_SIZE } from "agent_factory.shared/constants.js";
-import { AsyncAction } from "../async_action/index.js";
+import { Scheduler } from "../async_action/index.js";
 import * as aferrs from "agent_factory.shared/errors.js";
 
 class Team {
@@ -29,7 +29,6 @@ class Team {
     // Team initialization
     this.name = team.name || "";
     this.roster = roster ?? new Roster(team.roster);
-    this.merging = new AsyncAction(this.Afmachine.listPackages);
   }
 }
 
@@ -86,12 +85,60 @@ Team.prototype.merge = function () {
   }
 };
 
-Team.prototype.__merge = function () {
-  this.merging.run();
-  // return new Promise((resolve, reject) => {
-  //   this.state.merge(resolve, reject);
-  // });
-};
+Team.prototype.__merge = (function () {
+  const schedule = new Scheduler();
+  const __action = function () {
+    return new Promise((resolve, reject) => {
+      if (!this.name) {
+        return reject(new aferrs.ERR_TEAM_MERGE_MISSING_NAME());
+      }
+
+      const paired = this.roster.find(function (player) {
+        return player.inState("registered");
+      });
+
+      if (!paired || paired.length < MIN_TEAM_SIZE) {
+        return reject(new aferrs.ERR_TEAM_MERGE_INSUFFICIENT_PLAYERS());
+      }
+
+      const unpaired = this.roster.find(function (player) {
+        return player.wristband.compareStates(function (states, current) {
+          return current < states.registered;
+        });
+      });
+
+      if (unpaired) {
+        return reject(
+          new aferrs.ERR_TEAM_MERGE_UNPAIRED_PLAYERS(
+            unpaired.map((p) => p.username),
+          ),
+        );
+      }
+
+      let duplicateColor = null;
+      if (
+        !areMembersUniqueCb(this.roster.asArray(false), function (car, cdr) {
+          if (car.wristband.getColorCode() === cdr.wristband.getColorCode()) {
+            duplicateColor = car.wristband.getColor();
+            return true;
+          }
+          return false;
+        })
+      ) {
+        return reject(
+          new aferrs.ERR_TEAM_MERGE_DUPLICATE_COLORS(duplicateColor),
+        );
+      }
+
+      schedule
+        .run(() => this.Afmachine.mergeTeam(this))
+        .then(resolve)
+        .catch(reject);
+    });
+  };
+  Object.setPrototypeOf(__action, schedule);
+  return __action;
+})();
 
 Team.prototype.fill = function (source, { state = "", depth = 0 } = {}) {
   source ||= {};
