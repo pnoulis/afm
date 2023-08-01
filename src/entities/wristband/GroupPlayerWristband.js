@@ -12,10 +12,9 @@ class GroupPlayerWristband extends LiveWristband {
       .then(this.verify.bind(this))
       .then((wristband) => {
         if (wristband.state === "paired") {
-          throw new aferrs.ERR_WRISTBAND_BOUND(wristband.number);
+          throw new aferrs.ERR_WRISTBAND_BOUND(wristband.id);
         }
-        this.fill(wristband);
-        this.setState(this.getPairedState);
+        this.fill(wristband, { state: "paired" });
       });
   }
   unpair() {

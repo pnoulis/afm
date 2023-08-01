@@ -13,13 +13,12 @@ import {
   PlayerWristband,
 } from "./entities/wristband/index.js";
 import { Player, PersistentPlayer } from "./entities/player/index.js";
-import { Team, RegularTeam, GroupTeam } from "./entities/team/index.js";
-import { Roster } from './entities/roster/index.js';
+import { Team, RegularTeam} from "./entities/team/index.js";
+import { Roster } from "./entities/roster/index.js";
 import { AsyncAction } from "./entities/async_action/AsyncAction.js";
 import {
   createTeam,
   createRegularTeam,
-  createGroupTeam,
   createWristband,
   createLiveWristband,
   createPlayerWristband,
@@ -80,7 +79,6 @@ function Afmachine() {
   this.Roster = Roster;
   this.Team = Team;
   this.RegularTeam = RegularTeam;
-  this.GroupTeam = GroupTeam;
   this.Wristband = Wristband;
   this.LiveWristband = LiveWristband;
   this.GroupPlayerWristband = GroupPlayerWristband;
@@ -100,6 +98,7 @@ function Afmachine() {
   this.loginPlayer = this.pipeline.route(...routes.loginPlayer(this));
   this.mergeGroupTeam = this.pipeline.route(...routes.mergeGroupTeam(this));
   this.mergeTeam = this.pipeline.route(...routes.mergeTeam(this));
+  this.onMergeTeam = this.pipeline.route(...routes.onMergeTeam(this));
   this.registerPlayer = this.pipeline.route(...routes.registerPlayer(this));
   this.registerWristband = this.pipeline.route(
     ...routes.registerWristband(this),
@@ -131,4 +130,4 @@ Afmachine.prototype.lockWristbandScan = lockWristbandScan;
 
 const afmachine = new Afmachine();
 export { afmachine, AsyncAction };
-export * from './misc/log.js';
+export * from "./misc/log.js";

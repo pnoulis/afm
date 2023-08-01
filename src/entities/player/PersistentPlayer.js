@@ -3,7 +3,7 @@ import { AsyncAction } from "../async_action/index.js";
 import { PlayerWristband } from "../wristband/index.js";
 
 class PersistentPlayer extends Player {
-  constructor(Afmachine, player = {}, wristband) {
+  constructor(Afmachine, player = {}, wristband = {}) {
     super(player, { deep: false });
     this.wristband = new PlayerWristband(Afmachine, this, player.wristband);
     this.Afmachine = Afmachine;

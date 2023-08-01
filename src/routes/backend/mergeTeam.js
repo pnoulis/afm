@@ -78,4 +78,40 @@ function mergeTeam(afmachine) {
   ];
 }
 
-export { mergeTeam };
+function onMergeTeam(afmachine) {
+  return [
+    "/team/merge",
+    // argument parsing and validation
+    async function (context, next) {
+      // listener
+      context.req = context.args.listener;
+      if (typeof context.req !== "function") {
+        throw new TypeError("onMergeTeam listener function missing");
+      }
+      await next();
+    },
+    // subscribe merge team message
+    async (context, next) => {
+      context.res = afmachine.services.backend.onMergeTeam(context.req);
+      await next();
+    },
+    async function (context, next, err) {
+      if (err) {
+        context.res.payload = {
+          ok: false,
+          msg: "Failed to subscribe to team merge topic",
+          reason: err.message,
+        };
+        throw err;
+      }
+      context.res.payload = {
+        ok: true,
+        // unsubscribe function
+        data: context.res,
+      };
+      await next();
+    },
+  ];
+}
+
+export { mergeTeam, onMergeTeam };

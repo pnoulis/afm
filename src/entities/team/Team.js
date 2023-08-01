@@ -46,46 +46,7 @@ Team.prototype.addPlayer = function (player) {
   }
 };
 
-Team.prototype.merge = function () {
-  if (!this.name) {
-    throw new aferrs.ERR_TEAM_MERGE_MISSING_NAME();
-  }
-
-  const paired = this.roster.find(function (player) {
-    return player.inState("registered");
-  });
-
-  if (!paired || paired.length < MIN_TEAM_SIZE) {
-    throw new aferrs.ERR_TEAM_MERGE_INSUFFICIENT_PLAYERS();
-  }
-
-  const unpaired = this.roster.find(function (player) {
-    return player.wristband.compareStates(function (states, current) {
-      return current < states.registered;
-    });
-  });
-
-  if (unpaired) {
-    throw new aferrs.ERR_TEAM_MERGE_UNPAIRED_PLAYERS(
-      unpaired.map((p) => p.username),
-    );
-  }
-
-  let duplicateColor = null;
-  if (
-    !areMembersUniqueCb(this.roster.asArray(false), function (car, cdr) {
-      if (car.wristband.getColorCode() === cdr.wristband.getColorCode()) {
-        duplicateColor = car.wristband.getColor();
-        return true;
-      }
-      return false;
-    })
-  ) {
-    throw new aferrs.ERR_TEAM_MERGE_DUPLICATE_COLORS(duplicateColor);
-  }
-};
-
-Team.prototype.__merge = (function () {
+Team.prototype.merge = (function () {
   const schedule = new Scheduler();
   const __action = function () {
     return new Promise((resolve, reject) => {
@@ -132,6 +93,7 @@ Team.prototype.__merge = (function () {
 
       schedule
         .run(() => this.Afmachine.mergeTeam(this))
+        .then(() => this.setState(this.getRegisteredState))
         .then(resolve)
         .catch(reject);
     });
