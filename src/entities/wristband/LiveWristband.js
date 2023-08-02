@@ -140,6 +140,7 @@ LiveWristband.prototype.bootstrap = function () {
 (() => {
   let extended = false;
   return () => {
+    if (extended) return;
     extended = true;
     stateful(LiveWristband, [
       Unpaired,
@@ -158,6 +159,7 @@ LiveWristband.prototype.bootstrap = function () {
 (() => {
   let extended = false;
   return () => {
+    if (extended) return;
     extended = true;
     eventful(LiveWristband, ["stateChange", "change"]);
   };

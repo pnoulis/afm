@@ -9,12 +9,12 @@ class RegistableWristband extends LiveWristband {
   pair() {
     return this.scan()
       .then(this.verify.bind(this))
-      .then((wristband) =>
-        this.register({
+      .then((wristband) => {
+        return this.register({
           wristband: wristband,
           player: this.player,
-        }),
-      )
+        });
+      })
       .then((player) => {
         this.fill(player.wristband, { state: "registered" });
       });

@@ -19,11 +19,13 @@ class Player {
     this.surname = player.surname || "";
     this.email = player.email || "";
     this.password = player.password || "";
-    this.state = player.state || "";
     this.wristband =
       player.wristband instanceof Wristband
         ? player.wristband
         : new Wristband(player.wristband);
+    if (player.state) {
+      this.setState(player.state);
+    }
   }
 }
 Player.prototype.fill = function (
@@ -53,7 +55,7 @@ Player.prototype.asObject = function () {
     email: this.email,
     password: this.password,
     wristband: this.wristband.asObject(),
-    state: isObject(this.state) ? this.state.name : this.state,
+    state: this.state.name,
   };
 };
 Player.prototype.log = function () {
@@ -63,7 +65,7 @@ Player.prototype.log = function () {
   console.log("surname: ", this.surname);
   console.log("email: ", this.email);
   console.log("password: ", this.password);
-  console.log("state: ", isObject(this.state) ? this.state.name : this.state);
+  console.log("state: ", this.state.name);
   this.wristband.log();
   console.log("------------------------------");
 };
@@ -74,7 +76,7 @@ class State {
   }
 }
 
-class New extends State {
+class Unregistered extends State {
   constructor(wristband) {
     super(wristband);
   }
@@ -84,8 +86,9 @@ class New extends State {
 (() => {
   let extended = false;
   return () => {
+    if (extended) return;
     extended = true;
-    stateful(Player, [New, "new"]);
+    stateful(Player, [Unregistered, "unregistered"]);
   };
 })()();
 
@@ -93,6 +96,7 @@ class New extends State {
 (() => {
   let extended = false;
   return () => {
+    if (extended) return;
     extended = true;
     eventful(Player, ["stateChange", "change"]);
   };

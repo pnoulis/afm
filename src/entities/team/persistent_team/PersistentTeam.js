@@ -60,9 +60,9 @@ PersistentTeam.prototype.blockState = function (action, async = false) {
   }
 };
 PersistentTeam.prototype.merge = (function () {
-  return function () {
-    this.state.merge(() => {
-      const schedule = new Scheduler();
+  const schedule = new Scheduler();
+  const action = function () {
+    return this.state.merge(() => {
       return new Promise((resolve, reject) => {
         if (!this.name) {
           return reject(new aferrs.ERR_TEAM_MERGE_MISSING_NAME());
@@ -92,7 +92,7 @@ PersistentTeam.prototype.merge = (function () {
 
         let duplicateColor = null;
         if (
-          !areMembersUniqueCb(this.roster.asArray(false), function (car, cdr) {
+          !areMembersUniqueCb(this.roster.get(), function (car, cdr) {
             if (car.wristband.getColorCode() === cdr.wristband.getColorCode()) {
               duplicateColor = car.wristband.getColor();
               return true;
@@ -113,6 +113,8 @@ PersistentTeam.prototype.merge = (function () {
       });
     });
   };
+  Object.setPrototypeOf(action, schedule);
+  return action;
 })();
 
 PersistentTeam.prototype.removePlayer = function (player) {
@@ -131,6 +133,7 @@ PersistentTeam.prototype.addPlayer = function (player) {
 (() => {
   let extended = false;
   return () => {
+    if (extended) return;
     extended = true;
     stateful(PersistentTeam, [
       Unregistered,
@@ -149,6 +152,7 @@ PersistentTeam.prototype.addPlayer = function (player) {
 (() => {
   let extended = false;
   return () => {
+    if (extended) return;
     extended = true;
     eventful(PersistentTeam, ["stateChange", "change"]);
   };

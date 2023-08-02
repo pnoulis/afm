@@ -16,9 +16,11 @@ class Team {
     stateful.construct.call(this);
     this.name = team.name || "";
     this.points = team.points ?? 0;
-    this.state = team.state || "";
     this.roster =
       team.roster instanceof Roster ? team.roster : new Roster(team.roster);
+    if (team.state) {
+      this.setState(team.state);
+    }
   }
 
   get size() {
@@ -67,7 +69,7 @@ class State {
   }
 }
 
-class New extends State {
+class Unregistered extends State {
   constructor(wristband) {
     super(wristband);
   }
@@ -77,8 +79,9 @@ class New extends State {
 (() => {
   let extended = false;
   return () => {
+    if (extended) return;
     extended = true;
-    stateful(Team, [New, "new"]);
+    stateful(Team, [Unregistered, "unregistered"]);
   };
 })()();
 
@@ -86,6 +89,7 @@ class New extends State {
 (() => {
   let extended = false;
   return () => {
+    if (extended) return;
     extended = true;
     eventful(Team, ["stateChange", "change"]);
   };

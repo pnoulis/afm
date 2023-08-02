@@ -15,6 +15,7 @@ class TemporaryPlayer extends Player {
       ...player,
       wristband: new VerifiableWristband(afmachine, player.wristband),
     });
+    this.wristband.player = this;
     // afmachine
     this.afmachine = afmachine;
     if (player.state) {
@@ -76,6 +77,7 @@ TemporaryPlayer.prototype.unpairWristband = function () {
 (() => {
   let extended = false;
   return () => {
+    if (extended) return;
     extended = true;
     stateful(TemporaryPlayer, [
       Unregistered,
@@ -92,6 +94,7 @@ TemporaryPlayer.prototype.unpairWristband = function () {
 (() => {
   let extended = false;
   return () => {
+    if (extended) return;
     extended = true;
     eventful(TemporaryPlayer, ["stateChange", "change"]);
   };

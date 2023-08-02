@@ -21,7 +21,9 @@ class Wristband {
     stateful.construct.call(this);
     this.id = wristband.id ?? null;
     this.color = wristband.color ?? null;
-    this.state = wristband.state || "";
+    if (wristband.state) {
+      this.setState(wristband.state);
+    }
   }
 }
 Wristband.prototype.getColorCode = function () {
@@ -59,7 +61,7 @@ Wristband.prototype.asObject = function () {
 Wristband.prototype.log = function () {
   console.log("id: ", this.id);
   console.log("color: ", this.color);
-  console.log("state: ", isObject(this.state) ? this.state.name : this.state);
+  console.log("state: ", this.state.name);
 };
 
 class State {
@@ -68,7 +70,7 @@ class State {
   }
 }
 
-class New extends State {
+class Unpaired extends State {
   constructor(wristband) {
     super(wristband);
   }
@@ -78,8 +80,9 @@ class New extends State {
 (() => {
   let extended = false;
   return () => {
+    if (extended) return;
     extended = true;
-    stateful(Wristband, [New, "new"]);
+    stateful(Wristband, [Unpaired, "unpaired"]);
   };
 })()();
 
@@ -87,6 +90,7 @@ class New extends State {
 (() => {
   let extended = false;
   return () => {
+    if (extended) return;
     extended = true;
     eventful(Wristband, ["stateChange", "change"]);
   };

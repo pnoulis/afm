@@ -29,8 +29,8 @@ function createRegistableWristband(wristband) {
 function createPlayer(player) {
   return new Player(Player.normalize(player));
 }
-function createPersistentPlayer(player) {
-  return new PersistentPlayer(this, Player.normalize(player));
+function createPersistentPlayer(player, options) {
+  return new PersistentPlayer(this, Player.normalize(player, options));
 }
 function createTemporaryPlayer(player) {
   return new TemporaryPlayer(this, Player.normalize(player));

@@ -16,6 +16,7 @@ class PersistentPlayer extends Player {
       ...player,
       wristband: new RegistableWristband(afmachine, player.wristband),
     });
+    this.wristband.player = this;
     // afmachine
     this.afmachine = afmachine;
     if (player.state) {
@@ -62,9 +63,7 @@ PersistentPlayer.prototype.pairWristband = function () {
   return this.state.pairWristband(
     () =>
       new Promise((resolve, reject) =>
-        this.player.wristband.toggle((err) =>
-          err ? reject(err) : resolve(this),
-        ),
+        this.wristband.toggle((err) => (err ? reject(err) : resolve(this))),
       ),
   );
 };
@@ -72,9 +71,7 @@ PersistentPlayer.prototype.unpairWristband = function () {
   return this.state.unpairWristband(
     () =>
       new Promise((resolve, reject) =>
-        this.player.wristband.toggle((err) =>
-          err ? reject(err) : resolve(this),
-        ),
+        this.wristband.toggle((err) => (err ? reject(err) : resolve(this))),
       ),
   );
 };
@@ -83,6 +80,7 @@ PersistentPlayer.prototype.unpairWristband = function () {
 (() => {
   let extended = false;
   return () => {
+    if (extended) return;
     extended = true;
     stateful(PersistentPlayer, [
       Unregistered,
@@ -101,6 +99,7 @@ PersistentPlayer.prototype.unpairWristband = function () {
 (() => {
   let extended = false;
   return () => {
+    if (extended) return;
     extended = true;
     eventful(PersistentPlayer, ["stateChange", "change"]);
   };

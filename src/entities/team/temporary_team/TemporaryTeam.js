@@ -70,9 +70,9 @@ TemporaryTeam.prototype.addPlayer = function (player) {
   });
 };
 TemporaryTeam.prototype.merge = (function () {
-  return function merge() {
+  const schedule = new Scheduler();
+  const action = function () {
     return this.state.merge(() => {
-      const schedule = new Scheduler();
       return new Promise((resolve, reject) => {
         if (!this.name) {
           return reject(new aferrs.ERR_TEAM_MERGE_MISSING_NAME());
@@ -109,12 +109,15 @@ TemporaryTeam.prototype.merge = (function () {
       });
     });
   };
+  Object.setPrototypeOf(action, schedule);
+  return action;
 })();
 
 // Stateful
 (() => {
   let extended = false;
   return () => {
+    if (extended) return;
     extended = true;
     stateful(TemporaryTeam, [
       Unregistered,
@@ -133,6 +136,7 @@ TemporaryTeam.prototype.merge = (function () {
 (() => {
   let extended = false;
   return () => {
+    if (extended) return;
     extended = true;
     eventful(TemporaryTeam, ["stateChange", "change"]);
   };

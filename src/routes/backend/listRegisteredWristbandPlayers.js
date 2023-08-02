@@ -32,13 +32,10 @@ function listRegisteredWristbandPlayers(afmachine) {
         throw err;
       }
       const { players = [] } = context.res;
-      const lnPlayers = players.length;
-      for (let i = 0; i < lnPlayers; i++) {
-        players[i].wristband = Wristband.normalize(players[i].wristband);
+      for (let i = 0; i < players.length; i++) {
+        players[i] = Player.normalize(players[i], { state: "registered" });
         players[i].wristband.state = "registered";
-        players[i] = new Player(Player.normalize(players[i], "registered"));
       }
-
       context.res.payload = {
         ok: true,
         data: players,

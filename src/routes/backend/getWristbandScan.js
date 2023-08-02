@@ -14,7 +14,7 @@ function getWristbandScan(afmachine) {
     "/wristband/scan",
     // argument parsing and validation
     async function (context, next) {
-      context.req = context.args;
+      context.req = context.args.unsubcb;
       await next();
     },
     // backend service

@@ -89,24 +89,14 @@ Roster.prototype.fill = function (
     } else if (this.size < size) {
       this.set(
         depth > 0
-          ? createPlayer(
-              Player.normalize([
-                {
-                  username: "player_#" + (i + 1),
-                },
-                source[i],
-              ]),
-            ).fill(null, { state, defaultState, nulls, depth: depth - 1 })
+          ? createPlayer(Player.normalize([source[i]])).fill(null, {
+              state,
+              defaultState,
+              nulls,
+              depth: depth - 1,
+            })
           : createPlayer(
-              Player.normalize(
-                [
-                  {
-                    username: "player_#" + (i + 1),
-                  },
-                  source[i],
-                ],
-                { state, defaultState, nulls },
-              ),
+              Player.normalize([source[i]], { state, defaultState, nulls }),
             ),
       );
     } else {
@@ -120,29 +110,14 @@ Roster.prototype.fill = function (
   for (let i = 0; i < remainderSeats; i++) {
     this.set(
       depth > 0
-        ? createPlayer(
-            Player.normalize([
-              {
-                username: "player_#" + (i + 1),
-              },
-              values[i],
-            ]),
-          ).fill(null, {
+        ? createPlayer(Player.normalize([values[i]])).fill(null, {
             state,
             defaultState,
             nulls,
             depth: depth - 1,
           })
         : createPlayer(
-            Player.normalize(
-              [
-                {
-                  username: "player_#" + (i + 1),
-                },
-                values[i],
-              ],
-              { state, defaultState, nulls },
-            ),
+            Player.normalize([values[i]], { state, defaultState, nulls }),
           ),
     );
   }
@@ -153,7 +128,7 @@ Roster.prototype.set = function (...players) {
   players = players.flat();
   const ln = players.length;
   for (let i = 0; i < ln; i++) {
-    if (this.has(players[i]).username) {
+    if (this.has(players[i])) {
       this.roster.set(
         players[i].username,
         this.createPlayer(Player.normalize(players[i])),

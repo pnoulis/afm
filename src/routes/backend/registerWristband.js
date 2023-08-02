@@ -28,12 +28,12 @@ function registerWristband(afmachine) {
           ? { username: context.player }
           : context.player,
       );
-      context.player.wristband = Wristband.normalize(
+      context.player.wristband = Wristband.normalize([
         context.player.wristband,
         typeof context.wristband === "number"
           ? { id: context.wristband }
           : context.wristband,
-      );
+      ]);
       context.req = {
         timestamp: Date.now(),
         username: context.player.username,
@@ -43,7 +43,9 @@ function registerWristband(afmachine) {
     },
     // register wristband
     async (context, next) => {
-      context.res = await afmachine.services.backend.registerWristband(context.req);
+      context.res = await afmachine.services.backend.registerWristband(
+        context.req,
+      );
       await next();
     },
     // generic backend response parser

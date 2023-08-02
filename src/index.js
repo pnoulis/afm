@@ -50,10 +50,10 @@ function Afmachine() {
   });
   this.pipeline.setGlobalLast((context, next, err) => {
     if (err) {
-      this.services.logger.error(err);
+      // this.services.logger.error(err);
       throw err;
     }
-    this.services.logger.debug(context);
+    // this.services.logger.debug(context);
     next();
   });
 
@@ -89,6 +89,7 @@ function Afmachine() {
   this.verifyWristband = this.pipeline.route(...routes.verifyWristband(this));
 }
 
+Afmachine.prototype.lockWristbandScan = lockWristbandScan;
 Afmachine.prototype.createWristband = creates.createWristband;
 Afmachine.prototype.createScanableWristband = creates.createScannableWristband;
 Afmachine.prototype.createVerifiableWristband =
