@@ -1,3 +1,5 @@
+import { stateful } from "js_utils/stateful";
+import { eventful } from "js_utils/eventful";
 import { Wristband } from "../wristband/index.js";
 import { normalize } from "./normalize.js";
 import { random } from "./random.js";
@@ -8,6 +10,10 @@ class Player {
   static normalize = normalize;
   constructor(player) {
     player ??= {};
+    // Eventful initialization
+    eventful.construct.call(this);
+    // Stateful initialization
+    stateful.construct.call(this);
     this.name = player.name || "";
     this.username = player.username || "";
     this.surname = player.surname || "";
@@ -61,5 +67,35 @@ Player.prototype.log = function () {
   this.wristband.log();
   console.log("------------------------------");
 };
+
+class State {
+  constructor(wristband) {
+    this.wristband = wristband;
+  }
+}
+
+class New extends State {
+  constructor(wristband) {
+    super(wristband);
+  }
+}
+
+// Stateful
+(() => {
+  let extended = false;
+  return () => {
+    extended = true;
+    stateful(Player, [New, "new"]);
+  };
+})()();
+
+// Eventful
+(() => {
+  let extended = false;
+  return () => {
+    extended = true;
+    eventful(Player, ["stateChange", "change"]);
+  };
+})()();
 
 export { Player };

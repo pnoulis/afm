@@ -13,11 +13,14 @@ function normalize(sources, options) {
     return __normalize(sources[0], options);
   }
 
-  let target = {
-    id: null,
-    color: null,
-    state: "unpaired",
-  };
+  let target = __normalize(
+    {
+      id: null,
+      color: null,
+      state: "unpaired",
+    },
+    options,
+  );
 
   if (options.nulls) {
     while (sources.length) {

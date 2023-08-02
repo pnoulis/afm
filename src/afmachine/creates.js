@@ -1,71 +1,67 @@
+import {
+  Wristband,
+  LiveWristband,
+  ScannableWristband,
+  VerifiableWristband,
+  RegistableWristband,
+} from "../entities/wristband/index.js";
+import {
+  Player,
+  PersistentPlayer,
+  TemporaryPlayer,
+} from "../entities/player/index.js";
+import { Team, TemporaryTeam, PersistentTeam } from "../entities/team/index.js";
+import { GroupParty } from "../entities/group_party/index.js";
 import { Roster } from "../entities/roster/index.js";
 
-function createTeam(team) {
-  return new this.Team(this, this.Team.normalize(team));
-}
-
-function createRegularTeam(team) {
-  let __team = this.Team.normalize(team);
-  let __roster = new this.Roster(
-    __team.roster,
-    this.createPersistentPlayer.bind(this),
-  );
-  return new this.Team(this, __team, __roster);
-}
-
-function createGroupTeam() {
-  return new this.GroupTeam(this);
-}
-
 function createWristband(wristband) {
-  return new this.Wristband(wristband);
+  return new Wristband(Wristband.normalize(wristband));
 }
-
-function createLiveWristband(wristband) {
-  return new this.LiveWristband(this, wristband);
+function createScannableWristband(wristband) {
+  return new ScannableWristband(this, Wristband.normalize(wristband));
 }
-
-function createGroupPlayerWristband(player, wristband) {
-  return new this.GroupPlayerWristband(this, player, wristband);
+function createVerifiableWristband(wristband) {
+  return new VerifiableWristband(this, Wristband.normalize(wristband));
 }
-
-function createPlayerWristband(player, wristband) {
-  return new this.PlayerWristband(
-    this,
-    player && player instanceof this.Player
-      ? this.Player.normalize(player)
-      : player,
-    wristband && wristband instanceof this.Wristband
-      ? this.Wristband.normalize(wristband)
-      : wristband,
-  );
+function createRegistableWristband(wristband) {
+  return new RegistableWristband(this, Wristband.normalize(wristband));
 }
-
 function createPlayer(player) {
-  return new this.Player(
-    player && player instanceof this.Player
-      ? this.Player.normalize(player)
-      : player,
-  );
+  return new Player(Player.normalize(player));
 }
-
 function createPersistentPlayer(player) {
-  return new this.PersistentPlayer(
-    this,
-    player && player instanceof this.Player
-      ? this.Player.normalize(player)
-      : player,
-  );
+  return new PersistentPlayer(this, Player.normalize(player));
+}
+function createTemporaryPlayer(player) {
+  return new TemporaryPlayer(this, Player.normalize(player));
+}
+function createTeam(team) {
+  return new Team(Team.normalize(team));
+}
+function createPersistentTeam(team) {
+  return new PersistentTeam(this, Team.normalize(team));
+}
+function createTemporaryTeam(team) {
+  return new TemporaryTeam(this, Team.normalize(team));
+}
+function createRoster(roster) {
+  return new Roster(Roster.normalize(roster));
+}
+function createGroupParty(groupParty) {
+  return new GroupParty(this, GroupParty.normalize(groupParty));
 }
 
 export {
-  createTeam,
-  createRegularTeam,
-  createGroupTeam,
   createWristband,
-  createLiveWristband,
-  createPlayerWristband,
-  createGroupPlayerWristband,
+  createScannableWristband,
+  createVerifiableWristband,
+  createRegistableWristband,
   createPlayer,
   createPersistentPlayer,
+  createTemporaryPlayer,
+  createTeam,
+  createPersistentTeam,
+  createTemporaryTeam,
+  createRoster,
+  createGroupParty,
 };

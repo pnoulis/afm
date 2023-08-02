@@ -13,7 +13,10 @@ function random(source, { depth = 0 } = {}) {
     name: source.name || name,
     surname: source.surname || surname,
     password: source.password || password,
-    wristband: depth > 0 ? Wristband.random(source.wristband) : null,
+    wristband:
+      depth > 0
+        ? Wristband.random(source.wristband)
+        : Wristband.normalize(source.wristband),
     state: source.state || "unregistered",
   };
 }

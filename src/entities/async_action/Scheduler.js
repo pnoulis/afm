@@ -46,18 +46,30 @@ class Scheduler {
 }
 
 // Stateful
-stateful(Scheduler, [
-  Idle,
-  "idle",
-  Pending,
-  "pending",
-  Resolved,
-  "resolved",
-  Rejected,
-  "rejected",
-]);
+(() => {
+  let extended = false;
+  return () => {
+    extended = true;
+    stateful(Scheduler, [
+      Idle,
+      "idle",
+      Pending,
+      "pending",
+      Resolved,
+      "resolved",
+      Rejected,
+      "rejected",
+    ]);
+  };
+})()();
 
 // Eventful
-eventful(Scheduler, ["stateChange"]);
+(() => {
+  let extended = false;
+  return () => {
+    extended = true;
+    eventful(Scheduler, ["stateChange"]);
+  };
+})()();
 
 export { Scheduler };

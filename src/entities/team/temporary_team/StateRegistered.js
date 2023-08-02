@@ -4,6 +4,9 @@ class Registered extends State {
   constructor(team) {
     super(team);
   }
+  merge(merge) {
+    return this.team.blockState('merge', true);
+  }
   addPlayer(add) {
     return add();
   }

@@ -12,12 +12,11 @@ class LiveWristband extends Wristband {
     wristband ??= {};
     // initialize ancestor
     super(wristband);
-    // Eventful initialization
-    eventful.construct.call(this);
-    // Stateful initialization
-    stateful.construct.call(this);
     // afmachine
     this.afmachine = afmachine;
+    if (wristband.state) {
+      this.setState(wristband.state);
+    }
     this.unsubscribeWristbandScan = null;
     this.releaseScanHandle = null;
     this.togglers = 0;
@@ -138,18 +137,30 @@ LiveWristband.prototype.bootstrap = function () {
 };
 
 // Stateful
-stateful(LiveWristband, [
-  Unpaired,
-  "unpaired",
-  Pairing,
-  "pairing",
-  Paired,
-  "paired",
-  Registered,
-  "registered",
-]);
+(() => {
+  let extended = false;
+  return () => {
+    extended = true;
+    stateful(LiveWristband, [
+      Unpaired,
+      "unpaired",
+      Pairing,
+      "pairing",
+      Paired,
+      "paired",
+      Registered,
+      "registered",
+    ]);
+  };
+})()();
 
 // Eventful
-eventful(LiveWristband, ["stateChange", "change"]);
+(() => {
+  let extended = false;
+  return () => {
+    extended = true;
+    eventful(LiveWristband, ["stateChange", "change"]);
+  };
+})()();
 
 export { LiveWristband };

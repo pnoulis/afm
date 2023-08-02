@@ -8,6 +8,9 @@ import { Registered } from "./StateRegistered.js";
 import { Merged } from "./StateMerged.js";
 import { Playing } from "./StatePlaying.js";
 import * as aferrs from "agent_factory.shared/errors.js";
+import { Scheduler } from "../../async_action/index.js";
+import { MIN_TEAM_SIZE } from "agent_factory.shared/constants.js";
+import { areMembersUniqueCb } from "js_utils/misc";
 
 class TemporaryTeam extends Team {
   // Redefined to ensure constructor.name does not get
@@ -21,12 +24,11 @@ class TemporaryTeam extends Team {
         return new TemporaryPlayer(afmachine, player);
       }),
     });
-    // Eventful initialization
-    eventful.construct.call(this);
-    // Stateful initialization
-    stateful.construct.call(this);
     // afmachine
     this.afmachine = afmachine;
+    if (team.state) {
+      this.setState(team.state);
+    }
   }
 
   fill(...args) {
@@ -67,20 +69,73 @@ TemporaryTeam.prototype.addPlayer = function (player) {
     this.emit("change", this);
   });
 };
+TemporaryTeam.prototype.merge = (function () {
+  return function merge() {
+    return this.state.merge(() => {
+      const schedule = new Scheduler();
+      return new Promise((resolve, reject) => {
+        if (!this.name) {
+          return reject(new aferrs.ERR_TEAM_MERGE_MISSING_NAME());
+        }
+
+        const paired = this.roster.find(function (player) {
+          return player.wristband.inState("paired");
+        });
+
+        if (!paired || paired.length < MIN_TEAM_SIZE) {
+          return reject(new aferrs.ERR_TEAM_MERGE_INSUFFICIENT_PLAYERS());
+        }
+
+        let duplicateColor = null;
+        if (
+          !areMembersUniqueCb(this.roster.get(), function (car, cdr) {
+            if (car.wristband.getColorCode() === cdr.wristband.getColorCode()) {
+              duplicateColor = car.wristband.getColor();
+              return true;
+            }
+            return false;
+          })
+        ) {
+          return reject(
+            new aferrs.ERR_TEAM_MERGE_DUPLICATE_COLORS(duplicateColor),
+          );
+        }
+
+        schedule
+          .run(() => this.afmachine.mergeGroupTeam(this))
+          .then(() => this.setState(this.getMergedState))
+          .then(resolve)
+          .catch(reject);
+      });
+    });
+  };
+})();
 
 // Stateful
-stateful(TemporaryTeam, [
-  Unregistered,
-  "unregistered",
-  Registered,
-  "registered",
-  Merged,
-  "merged",
-  Playing,
-  "playing",
-]);
+(() => {
+  let extended = false;
+  return () => {
+    extended = true;
+    stateful(TemporaryTeam, [
+      Unregistered,
+      "unregistered",
+      Registered,
+      "registered",
+      Merged,
+      "merged",
+      Playing,
+      "playing",
+    ]);
+  };
+})()();
 
 // Eventful
-eventful(TemporaryTeam, ["stateChange", "change"]);
+(() => {
+  let extended = false;
+  return () => {
+    extended = true;
+    eventful(TemporaryTeam, ["stateChange", "change"]);
+  };
+})()();
 
 export { TemporaryTeam };

@@ -1,3 +1,5 @@
+import { stateful } from "js_utils/stateful";
+import { eventful } from "js_utils/eventful";
 import { random } from "./random.js";
 import { normalize } from "./normalize.js";
 import { mapftob } from "./mapftob.js";
@@ -11,7 +13,12 @@ class Wristband {
   static mapftob = mapftob;
   static colors = WRISTBAND_COLORS;
 
-  constructor(wristband = {}) {
+  constructor(wristband) {
+    wristband ??= {};
+    // Eventful initialization
+    eventful.construct.call(this);
+    // Stateful initialization
+    stateful.construct.call(this);
     this.id = wristband.id ?? null;
     this.color = wristband.color ?? null;
     this.state = wristband.state || "";
@@ -54,5 +61,35 @@ Wristband.prototype.log = function () {
   console.log("color: ", this.color);
   console.log("state: ", isObject(this.state) ? this.state.name : this.state);
 };
+
+class State {
+  constructor(wristband) {
+    this.wristband = wristband;
+  }
+}
+
+class New extends State {
+  constructor(wristband) {
+    super(wristband);
+  }
+}
+
+// Stateful
+(() => {
+  let extended = false;
+  return () => {
+    extended = true;
+    stateful(Wristband, [New, "new"]);
+  };
+})()();
+
+// Eventful
+(() => {
+  let extended = false;
+  return () => {
+    extended = true;
+    eventful(Wristband, ["stateChange", "change"]);
+  };
+})()();
 
 export { Wristband };

@@ -66,8 +66,7 @@ function mergeTeam(afmachine) {
         throw err;
       }
 
-      const data = Team.normalize(context.team);
-      data.state = "registered";
+      const data = Team.normalize(context.team, { state: "merged" });
       context.res.payload = {
         ok: true,
         msg: `Merged team ${context.team.name}`,

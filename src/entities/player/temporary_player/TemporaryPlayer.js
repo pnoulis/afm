@@ -15,12 +15,11 @@ class TemporaryPlayer extends Player {
       ...player,
       wristband: new VerifiableWristband(afmachine, player.wristband),
     });
-    // Eventful initialization
-    eventful.construct.call(this);
-    // Stateful initialization
-    stateful.construct.call(this);
     // afmachine
     this.afmachine = afmachine;
+    if (player.state) {
+      this.setState(player.state);
+    }
   }
 
   fill(...args) {
@@ -74,16 +73,28 @@ TemporaryPlayer.prototype.unpairWristband = function () {
 };
 
 // Stateful
-stateful(TemporaryPlayer, [
-  Unregistered,
-  "unregistered",
-  InTeam,
-  "inTeam",
-  Playing,
-  "playing",
-]);
+(() => {
+  let extended = false;
+  return () => {
+    extended = true;
+    stateful(TemporaryPlayer, [
+      Unregistered,
+      "unregistered",
+      InTeam,
+      "inTeam",
+      Playing,
+      "playing",
+    ]);
+  };
+})()();
 
 // Eventful
-eventful(TemporaryPlayer, ["stateChange", "change"]);
+(() => {
+  let extended = false;
+  return () => {
+    extended = true;
+    eventful(TemporaryPlayer, ["stateChange", "change"]);
+  };
+})()();
 
 export { TemporaryPlayer };

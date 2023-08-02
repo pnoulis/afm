@@ -16,12 +16,11 @@ class PersistentPlayer extends Player {
       ...player,
       wristband: new RegistableWristband(afmachine, player.wristband),
     });
-    // Eventful initialization
-    eventful.construct.call(this);
-    // Stateful initialization
-    stateful.construct.call(this);
     // afmachine
     this.afmachine = afmachine;
+    if (player.state) {
+      this.setState(player.state);
+    }
   }
 
   fill(...args) {
@@ -81,18 +80,30 @@ PersistentPlayer.prototype.unpairWristband = function () {
 };
 
 // Stateful
-stateful(PersistentPlayer, [
-  Unregistered,
-  "unregistered",
-  Registered,
-  "registered",
-  InTeam,
-  "inTeam",
-  Playing,
-  "playing",
-]);
+(() => {
+  let extended = false;
+  return () => {
+    extended = true;
+    stateful(PersistentPlayer, [
+      Unregistered,
+      "unregistered",
+      Registered,
+      "registered",
+      InTeam,
+      "inTeam",
+      Playing,
+      "playing",
+    ]);
+  };
+})()();
 
 // Eventful
-eventful(PersistentPlayer, ["stateChange", "change"]);
+(() => {
+  let extended = false;
+  return () => {
+    extended = true;
+    eventful(PersistentPlayer, ["stateChange", "change"]);
+  };
+})()();
 
 export { PersistentPlayer };

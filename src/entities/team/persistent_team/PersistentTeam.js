@@ -24,12 +24,11 @@ class PersistentTeam extends Team {
         return new PersistentPlayer(afmachine, player);
       }),
     });
-    // Eventful initialization
-    eventful.construct.call(this);
-    // Stateful initialization
-    stateful.construct.call(this);
     // afmachine
     this.afmachine = afmachine;
+    if (team.state) {
+      this.setState(team.state);
+    }
   }
 
   fill(...args) {
@@ -108,7 +107,7 @@ PersistentTeam.prototype.merge = (function () {
 
         schedule
           .run(() => this.afmachine.mergeTeam(this))
-          .then(() => this.setState(this.getRegisteredState))
+          .then(() => this.setState(this.getMergedState))
           .then(resolve)
           .catch(reject);
       });
@@ -129,18 +128,30 @@ PersistentTeam.prototype.addPlayer = function (player) {
 };
 
 // Stateful
-stateful(PersistentTeam, [
-  Unregistered,
-  "unregistered",
-  Registered,
-  "registered",
-  Merged,
-  "merged",
-  Playing,
-  "playing",
-]);
+(() => {
+  let extended = false;
+  return () => {
+    extended = true;
+    stateful(PersistentTeam, [
+      Unregistered,
+      "unregistered",
+      Registered,
+      "registered",
+      Merged,
+      "merged",
+      Playing,
+      "playing",
+    ]);
+  };
+})()();
 
 // Eventful
-eventful(PersistentTeam, ["stateChange", "change"]);
+(() => {
+  let extended = false;
+  return () => {
+    extended = true;
+    eventful(PersistentTeam, ["stateChange", "change"]);
+  };
+})()();
 
 export { PersistentTeam };

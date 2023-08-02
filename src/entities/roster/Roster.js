@@ -7,21 +7,24 @@ class Roster {
   static normalize(source, options) {
     if (source instanceof Roster) {
       source = source.asObject();
+    } else if (isArray(source)) {
     } else if (isObject(source)) {
       source = source.roster || [];
     } else {
-      source = isArray(source) ? source : [];
+      source = [];
     }
     const target = [];
-    for (let i = 0; i < source.length; i++) {
-      target[i] = Player.normalize(source[i], options);
+    for (let i = 0; i < MAX_TEAM_SIZE; i++) {
+      target.push(Player.normalize(source[i], options));
     }
     return target;
   }
 
   static random(source, options) {
+    source ??= [];
+    options ??= {};
     const target = [];
-    for (let i = 0; i < source.length; i++) {
+    for (let i = 0; i < MAX_TEAM_SIZE; i++) {
       target[i] = Player.random(source[i], options);
     }
     return target;
@@ -30,12 +33,12 @@ class Roster {
   constructor(roster, createPlayer) {
     if (roster instanceof Roster) {
       roster = roster.asObject();
+    } else if (isArray(roster)) {
     } else if (isObject(roster)) {
       roster = roster.roster || [];
     } else {
-      roster = isArray(roster) ? roster : [];
+      roster = [];
     }
-
     this.roster = new Map();
     this.createPlayer =
       createPlayer ||
@@ -46,7 +49,7 @@ class Roster {
     for (let i = 0; i < roster.length; i++) {
       roster[i] = this.createPlayer(Player.normalize(roster[i]));
     }
-    this.set(roster);
+    this.set(...roster);
   }
 
   get size() {
@@ -57,6 +60,7 @@ class Roster {
 Roster.prototype.fill = function (
   source = [],
   {
+    size = MAX_TEAM_SIZE,
     state = "",
     defaultState = "",
     nulls = false,
@@ -64,6 +68,7 @@ Roster.prototype.fill = function (
     createPlayer,
   } = {},
 ) {
+  size ??= MAX_TEAM_SIZE;
   createPlayer ??= this.createPlayer;
   if (!createPlayer) {
     throw new Error("createPlayer missing");
@@ -81,7 +86,7 @@ Roster.prototype.fill = function (
         nulls,
         depth: depth - 1,
       });
-    } else if (this.size < MAX_TEAM_SIZE) {
+    } else if (this.size < size) {
       this.set(
         depth > 0
           ? createPlayer(
@@ -108,7 +113,10 @@ Roster.prototype.fill = function (
       continue;
     }
   }
-  const remainderSeats = MAX_TEAM_SIZE - this.size;
+
+  const values = this.asObject();
+  const remainderSeats =
+    size < this.size || MAX_TEAM_SIZE ? size : this.size || MAX_TEAM_SIZE;
   for (let i = 0; i < remainderSeats; i++) {
     this.set(
       depth > 0
@@ -117,7 +125,7 @@ Roster.prototype.fill = function (
               {
                 username: "player_#" + (i + 1),
               },
-              source[i],
+              values[i],
             ]),
           ).fill(null, {
             state,
@@ -131,7 +139,7 @@ Roster.prototype.fill = function (
                 {
                   username: "player_#" + (i + 1),
                 },
-                source[i],
+                values[i],
               ],
               { state, defaultState, nulls },
             ),
@@ -219,7 +227,16 @@ Roster.prototype.find = function (clause) {
 Roster.prototype.asObject = function () {
   return Array.from(this.roster.values()).map((p) => p?.asObject());
 };
-
+Roster.prototype.forEachAsync = async function (cb) {
+  for (const v of this.roster.values()) {
+    await cb(v);
+  }
+};
+Roster.prototype.forEach = function (cb) {
+  for (const v of this.roster.values()) {
+    cb(v);
+  }
+};
 Roster.prototype.log = function () {
   for (const player of this.roster.values()) {
     player.log();

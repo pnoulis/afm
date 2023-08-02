@@ -15,15 +15,18 @@ function normalize(sources, options) {
     return __normalize(sources[0], options);
   }
 
-  let target = {
-    name: "",
-    username: "",
-    surname: "",
-    email: "",
-    password: "",
-    wristband: null,
-    state: "unregistered",
-  };
+  let target = __normalize(
+    {
+      name: "",
+      username: "",
+      surname: "",
+      email: "",
+      password: "",
+      wristband: Wristband.normalize(),
+      state: "unregistered",
+    },
+    options,
+  );
 
   if (options.nulls) {
     while (sources.length) {
@@ -57,6 +60,7 @@ function __normalize(source, { state = "", defaultState = "" }) {
     password: source.password ?? "",
     wristband: Wristband.normalize(source.wristband),
   };
+
   if (state) {
     target.state = state;
   } else if (source.wristbandMerged) {
@@ -78,6 +82,7 @@ function __normalize(source, { state = "", defaultState = "" }) {
     }
     throw new Error(`Unrecognized player state ${target.state}`);
   }
+
   return target;
 }
 
