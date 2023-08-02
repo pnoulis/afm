@@ -19,7 +19,9 @@ function getWristbandScan(afmachine) {
     },
     // backend service
     async (context, next) => {
-      context.res = await afmachine.services.backend.getWristbandScan(context.req);
+      context.res = await afmachine.services.backend.getWristbandScan(
+        context.req,
+      );
       await next();
     },
     // generic backend response parser

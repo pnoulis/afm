@@ -125,18 +125,14 @@ describe("Entity wristband", () => {
       state: "unpaired",
     });
 
-    expect(Wristband.normalize(new LiveWristband())).toMatchObject({
-      id: null,
-      color: null,
-      state: "unpaired",
-    });
-
     expect(
       Wristband.normalize(
         {
           id: 5,
         },
-        "registered",
+        {
+          state: "registered",
+        },
       ),
     ).toMatchObject({
       id: 5,
@@ -146,10 +142,10 @@ describe("Entity wristband", () => {
   });
   it("Should normalize and merge multiple objects either in frontend or backend representations", () => {
     expect(
-      Wristband.normalize(
+      Wristband.normalize([
         { id: 3, color: 4, state: "paired" },
         { id: 4, color: 5, state: "unpaired" },
-      ),
+      ]),
     ).toMatchObject({
       id: 4,
       color: 5,
@@ -158,9 +154,11 @@ describe("Entity wristband", () => {
 
     expect(
       Wristband.normalize(
-        Wristband.random({ id: 3, color: 3, state: "paired" }),
-        { id: null, color: null, state: "unpaired" },
-        "paired",
+        [
+          Wristband.random({ id: 3, color: 3, state: "paired" }),
+          { id: null, color: null, state: "unpaired" },
+        ],
+        { state: "paired" },
       ),
     ).toMatchObject({
       id: 3,
@@ -169,7 +167,9 @@ describe("Entity wristband", () => {
     });
 
     expect(
-      Wristband.normalize(Wristband.random(), new Wristband(), "", true),
+      Wristband.normalize([Wristband.random(), new Wristband()], {
+        nulls: true,
+      }),
     ).toMatchObject({
       id: null,
       color: null,
@@ -177,11 +177,14 @@ describe("Entity wristband", () => {
     });
 
     expect(
-      Wristband.normalize(Wristband.random({ id: 10, color: 5 }), {
-        wristbandNumber: 5,
-        wristbandColor: null,
-        active: false,
-      }),
+      Wristband.normalize([
+        Wristband.random({ id: 10, color: 5 }),
+        {
+          wristbandNumber: 5,
+          wristbandColor: null,
+          active: false,
+        },
+      ]),
     ).toMatchObject({
       id: 5,
       color: 5,

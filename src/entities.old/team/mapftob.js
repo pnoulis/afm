@@ -1,5 +1,0 @@
-function mapftob() {
-
-}
-
-export { mapftob };

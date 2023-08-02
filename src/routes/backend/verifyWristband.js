@@ -23,6 +23,7 @@ function verifyWristband(afmachine) {
           : context.wristband,
       );
 
+
       context.req = {
         timestamp: Date.now(),
         wristbandNumber: context.wristband.id,
