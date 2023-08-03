@@ -8,24 +8,20 @@ import { isObject } from "js_utils/misc";
 class Player {
   static random = random;
   static normalize = normalize;
-  constructor(player) {
+  constructor(player, { createWristband } = {}) {
     player ??= {};
-    // Eventful initialization
-    eventful.construct.call(this);
-    // Stateful initialization
-    stateful.construct.call(this);
+    this.createWristband =
+      createWristband ||
+      function (wristband) {
+        return new Wristband(wristband);
+      };
     this.name = player.name || "";
     this.username = player.username || "";
     this.surname = player.surname || "";
     this.email = player.email || "";
     this.password = player.password || "";
-    this.wristband =
-      player.wristband instanceof Wristband
-        ? player.wristband
-        : new Wristband(player.wristband);
-    if (player.state) {
-      this.setState(player.state);
-    }
+    this.wristband = this.createWristband(player.wristband);
+    this.state = player.state || "";
   }
 }
 Player.prototype.fill = function (
@@ -42,7 +38,7 @@ Player.prototype.fill = function (
   this.email = target.email;
   this.password = target.password;
   this.state = target.state;
-  if (depth > 0) {
+  if (depth) {
     this.wristband.fill(source.wristband);
   }
   return this;
@@ -55,7 +51,7 @@ Player.prototype.asObject = function () {
     email: this.email,
     password: this.password,
     wristband: this.wristband.asObject(),
-    state: this.state.name,
+    state: isObject(this.state) ? this.state.name : this.state,
   };
 };
 Player.prototype.log = function () {
@@ -65,41 +61,9 @@ Player.prototype.log = function () {
   console.log("surname: ", this.surname);
   console.log("email: ", this.email);
   console.log("password: ", this.password);
-  console.log("state: ", this.state.name);
+  console.log("state: ", isObject(this.state) ? this.state.name : this.state);
   this.wristband.log();
   console.log("------------------------------");
 };
-
-class State {
-  constructor(wristband) {
-    this.wristband = wristband;
-  }
-}
-
-class Unregistered extends State {
-  constructor(wristband) {
-    super(wristband);
-  }
-}
-
-// Stateful
-(() => {
-  let extended = false;
-  return () => {
-    if (extended) return;
-    extended = true;
-    stateful(Player, [Unregistered, "unregistered"]);
-  };
-})()();
-
-// Eventful
-(() => {
-  let extended = false;
-  return () => {
-    if (extended) return;
-    extended = true;
-    eventful(Player, ["stateChange", "change"]);
-  };
-})()();
 
 export { Player };

@@ -1,5 +1,3 @@
-import { stateful } from "js_utils/stateful";
-import { eventful } from "js_utils/eventful";
 import { random } from "./random.js";
 import { normalize } from "./normalize.js";
 import { mapftob } from "./mapftob.js";
@@ -15,15 +13,9 @@ class Wristband {
 
   constructor(wristband) {
     wristband ??= {};
-    // Eventful initialization
-    eventful.construct.call(this);
-    // Stateful initialization
-    stateful.construct.call(this);
     this.id = wristband.id ?? null;
     this.color = wristband.color ?? null;
-    if (wristband.state) {
-      this.setState(wristband.state);
-    }
+    this.state = wristband.state || "";
   }
 }
 Wristband.prototype.getColorCode = function () {
@@ -61,39 +53,7 @@ Wristband.prototype.asObject = function () {
 Wristband.prototype.log = function () {
   console.log("id: ", this.id);
   console.log("color: ", this.color);
-  console.log("state: ", this.state.name);
+  console.log("state: ", isObject(this.state) ? this.state.name : this.state);
 };
-
-class State {
-  constructor(wristband) {
-    this.wristband = wristband;
-  }
-}
-
-class Unpaired extends State {
-  constructor(wristband) {
-    super(wristband);
-  }
-}
-
-// Stateful
-(() => {
-  let extended = false;
-  return () => {
-    if (extended) return;
-    extended = true;
-    stateful(Wristband, [Unpaired, "unpaired"]);
-  };
-})()();
-
-// Eventful
-(() => {
-  let extended = false;
-  return () => {
-    if (extended) return;
-    extended = true;
-    eventful(Wristband, ["stateChange", "change"]);
-  };
-})()();
 
 export { Wristband };

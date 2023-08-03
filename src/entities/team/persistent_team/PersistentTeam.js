@@ -24,6 +24,10 @@ class PersistentTeam extends Team {
         return new PersistentPlayer(afmachine, player);
       }),
     });
+    // Eventful initialization
+    eventful.construct.call(this);
+    // Stateful initialization
+    stateful.construct.call(this);
     // afmachine
     this.afmachine = afmachine;
     if (team.state) {

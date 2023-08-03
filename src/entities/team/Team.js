@@ -4,23 +4,18 @@ import { normalize } from "./normalize.js";
 import { random } from "./random.js";
 import { isObject } from "js_utils/misc";
 import { Roster } from "../roster/index.js";
+import { MAX_TEAM_SIZE } from "agent_factory.shared/constants.js";
 
 class Team {
   static random = random;
   static normalize = normalize;
-  constructor(team) {
+  constructor(team, { createRoster } = {}) {
     team ??= {};
-    // Eventful initialization
-    eventful.construct.call(this);
-    // Stateful initialization
-    stateful.construct.call(this);
     this.name = team.name || "";
     this.points = team.points ?? 0;
     this.roster =
       team.roster instanceof Roster ? team.roster : new Roster(team.roster);
-    if (team.state) {
-      this.setState(team.state);
-    }
+    this.state = team.state || "";
   }
 
   get size() {
@@ -30,17 +25,24 @@ class Team {
 
 Team.prototype.fill = function (
   source,
-  { state = "", defaultState = "", nulls = false, size, depth = 0 } = {},
+  {
+    state = "",
+    defaultState = "",
+    nulls = false,
+    size = MAX_TEAM_SIZE,
+    depth = 0,
+  } = {},
 ) {
   source ??= {};
   const target = Team.random(
     Team.normalize([this, source], { state, defaultState, nulls }),
+    { size, depth: depth - 1 },
   );
   this.name = target.name;
   this.points = target.points;
   this.state = target.state;
-  if (depth > 0) {
-    this.roster.fill(source.roster, { depth: depth - 1, size, nulls });
+  if (depth) {
+    this.roster.fill(target.roster, { size, depth: depth - 1 });
   }
   return this;
 };
@@ -62,37 +64,5 @@ Team.prototype.log = function () {
   this.roster.log();
   console.log("------------------------------");
 };
-
-class State {
-  constructor(wristband) {
-    this.wristband = wristband;
-  }
-}
-
-class Unregistered extends State {
-  constructor(wristband) {
-    super(wristband);
-  }
-}
-
-// Stateful
-(() => {
-  let extended = false;
-  return () => {
-    if (extended) return;
-    extended = true;
-    stateful(Team, [Unregistered, "unregistered"]);
-  };
-})()();
-
-// Eventful
-(() => {
-  let extended = false;
-  return () => {
-    if (extended) return;
-    extended = true;
-    eventful(Team, ["stateChange", "change"]);
-  };
-})()();
 
 export { Team };

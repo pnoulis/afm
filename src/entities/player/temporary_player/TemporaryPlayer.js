@@ -10,12 +10,15 @@ import * as aferrs from "agent_factory.shared/errors.js";
 class TemporaryPlayer extends Player {
   constructor(afmachine, player) {
     player ??= {};
+    const createWristband = function (wristband) {
+      return new VerifiableWristband(afmachine, wristband);
+    };
     // initialize ancestor
-    super({
-      ...player,
-      wristband: new VerifiableWristband(afmachine, player.wristband),
-    });
-    this.wristband.player = this;
+    super(player, { createWristband });
+    // Eventful initialization
+    eventful.construct.call(this);
+    // Stateful initialization
+    stateful.construct.call(this);
     // afmachine
     this.afmachine = afmachine;
     if (player.state) {

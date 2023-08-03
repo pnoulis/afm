@@ -1,8 +1,9 @@
 import { Wristband } from "../wristband/index.js";
+import { isArray } from "js_utils/misc";
 
 function normalize(sources, options) {
   sources ??= [];
-  if (!Array.isArray(sources)) {
+  if (!isArray(sources)) {
     sources = [sources];
   }
   options ??= {
@@ -22,7 +23,7 @@ function normalize(sources, options) {
       surname: "",
       email: "",
       password: "",
-      wristband: Wristband.normalize(),
+      wristband: null,
       state: "unregistered",
     },
     options,

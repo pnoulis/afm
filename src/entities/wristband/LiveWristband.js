@@ -12,6 +12,10 @@ class LiveWristband extends Wristband {
     wristband ??= {};
     // initialize ancestor
     super(wristband);
+    // Eventful initialization
+    eventful.construct.call(this);
+    // Stateful initialization
+    stateful.construct.call(this);
     // afmachine
     this.afmachine = afmachine;
     if (wristband.state) {

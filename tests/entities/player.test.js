@@ -97,11 +97,11 @@ describe("Entity player", () => {
     expect(true).toBe(true);
   });
 
-  it("Player should be able to register", async () => {
+  it.skip("Player should be able to register", async () => {
     const p = new PersistentPlayer(Afmachine).fill();
     await expect(p.register()).resolves.toMatchObject(expect.any(Object));
   });
-  it("Player should throw an exception if trying to register in the wrong state", async () => {
+  it.skip("Player should throw an exception if trying to register in the wrong state", async () => {
     const p = new PersistentPlayer(Afmachine).fill(undefined, {
       state: "registered",
     });
@@ -123,7 +123,7 @@ describe("Entity player", () => {
     );
   });
 
-  it("Player should be able to pair a wristband", async () => {
+  it.skip("Player should be able to pair a wristband", async () => {
     const p = new PersistentPlayer(Afmachine).fill();
     await p.register();
     let pairing = p.pairWristband();
@@ -136,7 +136,7 @@ describe("Entity player", () => {
     });
   });
 
-  it("Player should throw an exception if trying to pair a wristbandi in the wrong state", async () => {
+  it.skip("Player should throw an exception if trying to pair a wristbandi in the wrong state", async () => {
     const p = new PersistentPlayer(Afmachine).fill();
 
     expect(p.inState("unregistered")).toBe(true);

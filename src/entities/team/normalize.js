@@ -1,35 +1,43 @@
 import { Roster } from "../roster/Roster.js";
+import { isArray } from "js_utils/misc";
+import { extractTeams } from "../../utils/extractTeams.js";
 
+/**
+ * @example
+ * [ { name, roster }, { name, roster } ]
+ * @example
+ * [ Team, Team ]
+ */
 function normalize(sources, options) {
-  sources ??= [];
-  if (!Array.isArray(sources)) {
-    sources = [sources];
-  }
   options ??= {
     state: "",
     defaultState: "",
     nulls: false,
   };
+  const teams = extractTeams(sources);
 
-  if (sources.length === 1) {
-    return __normalize(sources[0], options);
+  if (teams.length === 1) {
+    return __normalize(teams[0], options);
   }
 
-  let target = {
-    name: "",
-    points: 0,
-    roster: [],
-    state: "unregistered",
-  };
+  let target = __normalize(
+    {
+      name: "",
+      points: 0,
+      roster: null,
+      state: "unregistered",
+    },
+    options,
+  );
 
   if (options.nulls) {
-    while (sources.length) {
-      Object.assign(target, __normalize(sources.shift()));
+    while (teams.length) {
+      Object.assign(target, __normalize(teams.shift()));
     }
   } else {
     let source = undefined;
-    while (sources.length) {
-      source = __normalize(sources.shift(), options);
+    while (teams.length) {
+      source = __normalize(teams.shift(), options);
       target = {
         name: source.name || target.name,
         points: source.points ?? target.points,
@@ -44,9 +52,9 @@ function normalize(sources, options) {
 function __normalize(source, { state = "", defaultState = "" }) {
   source ??= {};
   const target = {
-    name: source.name || "",
-    points: source.points ?? 0,
-    roster: Roster.normalize(source.roster),
+    name: source.name || source.teamName || "",
+    points: source.points ?? source.totalPoints ?? 0,
+    roster: Roster.normalize(source.roster || source.currentRoster),
   };
 
   if (state) {

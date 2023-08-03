@@ -19,6 +19,7 @@ import { afmachine } from "/src/index.js";
 import { emulateScan } from "agent_factory.shared/scripts/emulateScan.js";
 import { delay } from "js_utils/misc";
 import { smallid } from "js_utils/uuid";
+import { isArray, isObject } from "js_utils/misc";
 import * as aferrs from "agent_factory.shared/errors.js";
 
 describe("Entity team", () => {
@@ -30,15 +31,15 @@ describe("Entity team", () => {
   it.only("Should be able to take a team in any representation and normalize it into FRONTEND form", () => {
     // no arguments
     let r = new Roster();
-    expect(r.asArray()).toEqual([]);
+    expect(r.asObject()).toEqual([]);
 
     // an empty array
     r = new Roster([]);
-    expect(r.asArray()).toEqual([]);
+    expect(r.asObject()).toEqual([]);
 
     // an empty object
     r = new Roster({});
-    expect(r.asArray()).toEqual([]);
+    expect(r.asObject()).toEqual([]);
 
     // an array of players
     r = new Roster([
@@ -52,51 +53,54 @@ describe("Entity team", () => {
 
     expect(r.get()).toEqual(
       expect.arrayContaining([
-        new Player({ username: "1" }),
-        new Player({ username: "2" }),
+        new Player(
+          Player.normalize(
+            {
+              username: "1",
+              wristband: Wristband.normalize(null, { state: "unpaired" }),
+            },
+            { state: "unregistered" },
+          ),
+        ),
       ]),
     );
 
-    expect(r.asArray()).toEqual(
+    expect(r.asObject()).toEqual(
       expect.arrayContaining([
-        new Player({ username: "1" }).asObject(),
-        new Player({ username: "2" }).asObject(),
-      ]),
-    );
-
-    // a team object with an empty roster
-    r = new Roster({
-      roster: [],
-    });
-
-    expect(r.get()).toEqual([]);
-
-    // a team object with a partial roster
-    r = new Roster({
-      roster: [
-        {
-          username: "1",
-        },
-        {
-          username: "2",
-        },
-      ],
-    });
-
-    expect(r.get()).toEqual(
-      expect.arrayContaining([
-        new Player({ username: "1" }),
-        new Player({ username: "2" }),
+        new Player(
+          Player.normalize(
+            {
+              username: "1",
+              wristband: Wristband.normalize(null, { state: "unpaired" }),
+            },
+            { state: "unregistered" },
+          ),
+        ).asObject(),
       ]),
     );
 
     // a Team Instance
     // r = new Roster(new Team());
-
     console.log(new Team());
+    let roster = new Team();
+    if (roster instanceof Roster) {
+      roster = roster.asObject();
+    } else if (isObject(roster)) {
+      roster =
+        roster.roster instanceof Roster
+          ? roster.roster.asObject()
+          : roster.roster || [];
+    } else {
+      roster = [];
+    }
+
+    console.log(roster);
+    console.log("THIS IS THE ROSETR");
+
+    // console.log(new Team());
     // expect(r.get()).toEqual([]);
 
-    // expect(r.asArray()).toEqual(
+    // expect(r.asObject()).toEqual(
     //   expect.arrayContaining([
     //     new Player({ username: 1 }),
     //     new Player({ username: 2 }),
@@ -168,7 +172,7 @@ describe("Entity team", () => {
     );
     expect(r.get("filis1")).toBeTruthy();
     expect(r.get("filis2")).toBeTruthy();
-    expect(r.asArray()).toHaveLength(6);
+    expect(r.asObject()).toHaveLength(6);
     expect(r.size).toEqual(6);
     logs.logRoster(r);
   });

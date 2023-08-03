@@ -2,43 +2,16 @@ import { MAX_TEAM_SIZE } from "agent_factory.shared/constants.js";
 import * as aferrs from "agent_factory.shared/errors.js";
 import { isArray, isObject } from "js_utils/misc";
 import { Player } from "../player/index.js";
+import { smallid } from "js_utils/uuid";
+import { normalize } from "./normalize.js";
+import { random } from "./random.js";
 
 class Roster {
-  static normalize(source, options) {
-    if (source instanceof Roster) {
-      source = source.asObject();
-    } else if (isArray(source)) {
-    } else if (isObject(source)) {
-      source = source.roster || [];
-    } else {
-      source = [];
-    }
-    const target = [];
-    for (let i = 0; i < MAX_TEAM_SIZE; i++) {
-      target.push(Player.normalize(source[i], options));
-    }
-    return target;
-  }
-
-  static random(source, options) {
-    source ??= [];
-    options ??= {};
-    const target = [];
-    for (let i = 0; i < MAX_TEAM_SIZE; i++) {
-      target[i] = Player.random(source[i], options);
-    }
-    return target;
-  }
+  static normalize = normalize;
+  static random = random;
 
   constructor(roster, createPlayer) {
-    if (roster instanceof Roster) {
-      roster = roster.asObject();
-    } else if (isArray(roster)) {
-    } else if (isObject(roster)) {
-      roster = roster.roster || [];
-    } else {
-      roster = [];
-    }
+    roster ??= [];
     this.roster = new Map();
     this.createPlayer =
       createPlayer ||
@@ -46,10 +19,14 @@ class Roster {
         return new Player(player);
       };
 
-    for (let i = 0; i < roster.length; i++) {
-      roster[i] = this.createPlayer(Player.normalize(roster[i]));
+    roster = Roster.normalize(roster);
+    this.roster = new Map(
+      roster.map((player) => [player.username, this.createPlayer(player)]),
+    );
+    if (this.roster.size > MAX_TEAM_SIZE) {
+      this.rm();
+      throw new aferrs.ERR_MAX_ROSTER_SIZE();
     }
-    this.set(...roster);
   }
 
   get size() {
@@ -58,7 +35,7 @@ class Roster {
 }
 
 Roster.prototype.fill = function (
-  source = [],
+  source,
   {
     size = MAX_TEAM_SIZE,
     state = "",
@@ -68,58 +45,26 @@ Roster.prototype.fill = function (
     createPlayer,
   } = {},
 ) {
-  size ??= MAX_TEAM_SIZE;
-  createPlayer ??= this.createPlayer;
-  if (!createPlayer) {
-    throw new Error("createPlayer missing");
+  source ??= [];
+  if (size < source.length) {
+    size = source.length;
   }
-  source = isArray(source) ? source : source?.roster || [];
-  let occupiedSeat = null;
+  const target = Roster.random(
+    Roster.normalize([this, source], {
+      state,
+      defaultState,
+      nulls,
+      depth,
+    }),
+    { depth, size },
+  );
 
-  for (let i = 0; i < source.length; i++) {
-    occupiedSeat = this.get(source[i]?.username);
-
-    if (occupiedSeat) {
-      occupiedSeat.fill(Player.normalize(source[i]), {
-        state,
-        defaultState,
-        nulls,
-        depth: depth - 1,
-      });
-    } else if (this.size < size) {
-      this.set(
-        depth > 0
-          ? createPlayer(Player.normalize([source[i]])).fill(null, {
-              state,
-              defaultState,
-              nulls,
-              depth: depth - 1,
-            })
-          : createPlayer(
-              Player.normalize([source[i]], { state, defaultState, nulls }),
-            ),
-      );
-    } else {
-      continue;
-    }
-  }
-
-  const values = this.asObject();
-  const remainderSeats =
-    size < this.size || MAX_TEAM_SIZE ? size : this.size || MAX_TEAM_SIZE;
-  for (let i = 0; i < remainderSeats; i++) {
-    this.set(
-      depth > 0
-        ? createPlayer(Player.normalize([values[i]])).fill(null, {
-            state,
-            defaultState,
-            nulls,
-            depth: depth - 1,
-          })
-        : createPlayer(
-            Player.normalize([values[i]], { state, defaultState, nulls }),
-          ),
-    );
+  this.roster = new Map(
+    target.map((player) => [player.username, this.createPlayer(player)]),
+  );
+  if (this.roster.size > MAX_TEAM_SIZE) {
+    this.rm();
+    throw new aferrs.ERR_MAX_ROSTER_SIZE();
   }
   return this;
 };
@@ -131,16 +76,17 @@ Roster.prototype.set = function (...players) {
     if (this.has(players[i])) {
       this.roster.set(
         players[i].username,
-        this.createPlayer(Player.normalize(players[i])),
+        this.createPlayer(Player.normalize([players[i]])),
       );
       continue;
     }
     if (this.roster.size === MAX_TEAM_SIZE) {
       throw new aferrs.ERR_MAX_ROSTER_SIZE();
     }
+
     this.roster.set(
       players[i].username,
-      this.createPlayer(Player.normalize(players[i])),
+      this.createPlayer(Player.normalize([players[i]])),
     );
   }
   return this;

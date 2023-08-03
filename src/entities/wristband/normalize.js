@@ -1,6 +1,8 @@
+import { isArray } from "js_utils/misc";
+
 function normalize(sources, options) {
   sources ??= [];
-  if (!Array.isArray(sources)) {
+  if (!isArray(sources)) {
     sources = [sources];
   }
   options ??= {

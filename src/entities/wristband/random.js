@@ -9,7 +9,7 @@ function random(source) {
   return {
     id: source.id ?? randomInteger(1, MAX_WRISTBAND_ID),
     color: source.color ?? randomInteger(0, WRISTBAND_COLORS.length - 1),
-    state: source.state ?? "unpaired",
+    state: source.state || "unpaired",
   };
 }
 export { random };

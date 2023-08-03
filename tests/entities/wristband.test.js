@@ -190,6 +190,12 @@ describe("Entity wristband", () => {
       color: 5,
       state: "unpaired",
     });
+
+    expect(
+      new Wristband(new Wristband().fill(null, { state: "paired" })),
+    ).toMatchObject({
+      state: "paired",
+    });
   });
   it("Should map colorCodes to colors", () => {
     const w = new Wristband().fill({ color: 5 });

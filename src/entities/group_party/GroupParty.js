@@ -1,3 +1,5 @@
+import { eventful } from "js_utils/eventful";
+import { Roster } from "../roster/Roster.js";
 import { Team, TemporaryTeam } from "../team/index.js";
 import {
   distributePlayers,
@@ -5,35 +7,72 @@ import {
 } from "agent_factory.shared/utils/misc.js";
 import { smallid } from "js_utils/uuid";
 import { isObject, isArray } from "js_utils/misc";
+import { normalize } from "./normalize.js";
+import { random } from "./random.js";
 
 class GroupParty {
-  static normalize(source, options) {
-    if (source instanceof GroupParty) {
-      source = source.asObject().teams;
-    } else if (isArray(source)) {
-      source = source;
-    } else if (isObject(source)) {
-      source = source.source || [];
-    } else {
-      source = [];
-    }
-    const target = [];
-    for (let i = 0; i < source.length; i++) {
-      target.push(Team.normalize(source[i], options));
-    }
-    return target;
-  }
+  static normalize = normalize;
+  static random = random;
   constructor(afmachine, groupParty) {
     groupParty ??= {};
+    // Eventful initialization
+    eventful.construct.call(this);
     this.afmachine = afmachine;
-    this.teams = groupParty;
-    this.size = 0;
-    for (let i = 0; i < this.teams.length; i++) {
-      this.size += this.teams[i].size;
-    }
+    this.teams = [];
+    // this.teams = new Array(5)
+    //   .fill(null)
+    //   .map((_) => new Team({ name: smallid() }));
+    // this.teams = groupParty.teams ?? isArray(groupParty) ? groupParty : [];
+    // this.size = 0;
+    // for (let i = 0; i < this.teams.length; i++) {
+    //   this.size += this.teams[i].size;
+    // }
   }
 }
 
+GroupParty.prototype.newFill = function (
+  source,
+  { size = 2, state = "", defaultState = "", nulls = false, depth = 0 } = {},
+) {
+  source ??= [];
+  size = size > source.length ? size : source.length;
+  const target = [];
+
+  for (let i = 0; i < source.length; i++) {
+    target.push(
+      Team.normalize(source[i], { state, defaultState, nulls, depth }),
+    );
+  }
+
+  const teamNames = [];
+  const players = [];
+  for (let i = 0; i < source.length; i++) {
+    if (source[i].name) {
+      teamNames.push(source[i].name);
+      players.push(
+        ...(source[i].roster instanceof Roster
+          ? source[i].roster.asObject()
+          : source[i].roster || []),
+      );
+    } else if (source[i].teamName) {
+      teamNames.push(source[i].teamName);
+      players.push(
+        ...(source[i].roster instanceof Roster
+          ? source[i].roster.asObject()
+          : source[i].roster || []),
+      );
+    } else {
+      players.push(source[i]);
+    }
+  }
+};
+
+/**
+ * Fill group party
+ * @param {Array} source
+ * @param {Object} source.team
+ * @param {Array} source.team.roster
+ */
 GroupParty.prototype.fill = function (
   source,
   { state = "", defaultState = "", nulls = false, size = 2, depth = 0 } = {},
@@ -71,7 +110,7 @@ GroupParty.prototype.fill = function (
           nulls,
         },
       ),
-    ).fill(null, { depth, size: team.length });
+    ).fill(null, { depth, size: team.length - 1 });
   });
   this.teams = target;
 
@@ -111,5 +150,15 @@ GroupParty.prototype.log = function ({ depth = 3 } = {}) {
   }
   console.log("------------------------------");
 };
+
+// Eventful
+(() => {
+  let extended = false;
+  return () => {
+    if (extended) return;
+    extended = true;
+    eventful(GroupParty, ["change"]);
+  };
+})()();
 
 export { GroupParty };

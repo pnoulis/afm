@@ -11,12 +11,15 @@ import * as aferrs from "agent_factory.shared/errors.js";
 class PersistentPlayer extends Player {
   constructor(afmachine, player) {
     player ??= {};
+    const createWristband = function (wristband) {
+      return new RegistableWristband(afmachine, wristband, this);
+    };
     // initialize ancestor
-    super({
-      ...player,
-      wristband: new RegistableWristband(afmachine, player.wristband),
-    });
-    this.wristband.player = this;
+    super(player.wristband, { createWristband });
+    // Eventful initialization
+    eventful.construct.call(this);
+    // Stateful initialization
+    stateful.construct.call(this);
     // afmachine
     this.afmachine = afmachine;
     if (player.state) {
