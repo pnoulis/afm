@@ -13,7 +13,7 @@ import {
 import { Team, TemporaryTeam, PersistentTeam } from "../entities/team/index.js";
 import { GroupParty } from "../entities/group_party/index.js";
 import { Roster } from "../entities/roster/index.js";
-import { AFPkg } from "../entities/package/index.js";
+import { Package } from "../entities/package/index.js";
 
 function createWristband(wristband) {
   return new Wristband(Wristband.normalize(wristband));
@@ -52,7 +52,7 @@ function createGroupParty(groupParty) {
   return new GroupParty(this, GroupParty.normalize(groupParty));
 }
 function createPkg(source, options) {
-  return new AFPkg(AFPkg.normalize(source, options));
+  return new Package(Package.normalize(source, options));
 }
 
 export {

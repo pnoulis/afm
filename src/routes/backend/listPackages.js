@@ -1,4 +1,4 @@
-import { AFPkg } from "../../entities/package/index.js";
+import { Package } from "../../entities/package/index.js";
 
 function listPackages(afmachine) {
   return [
@@ -29,7 +29,7 @@ function listPackages(afmachine) {
       }
       context.res.payload = {
         ok: true,
-        data: context.res.packages.map((p) => new AFPkg(AFPkg.normalize(p))),
+        data: context.res.packages.map((p) => Package.normalize(p)),
       };
       await next();
     },

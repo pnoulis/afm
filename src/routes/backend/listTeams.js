@@ -1,4 +1,6 @@
 import { Team } from "../../entities/team/index.js";
+import { Wristband } from "../../entities/wristband/index.js";
+import { extractPlayers, extractTeams } from "../../utils/index.js";
 
 function listTeams(afmachine) {
   return [
@@ -27,9 +29,19 @@ function listTeams(afmachine) {
         };
         throw err;
       }
+
+      // const teams = extractTeams(context.res.teams);
+      // for (let i = 0; i < teams.length; i++) {
+      //   const players = extractPlayers(teams[i]);
+      //   for (let y = 0; y < players.length; y++) {
+      //     players[y].wristband.state = 'paired';
+      //     players[y].state = 'registered';
+      //   }
+      // }
+
       context.res.payload = {
         ok: true,
-        data: context.res.teams.map((t) => new Team(Team.normalize(t))),
+        data: context.res.teams.map((t) => Team.normalize(t)),
       };
       await next();
     },

@@ -24,6 +24,15 @@ class Team {
   }
 }
 
+Team.prototype.addPlayer = function() {};
+Team.prototype.removePlayer = function() {};
+Team.prototype.startPackage = function() {};
+Team.prototype.stopPackage = function() {};
+Team.prototype.unregisterPackage = function() {};
+Team.prototype.registerPackage = function() {};
+Team.prototype.payPackage = function() {};
+Team.prototype.merge = function() {};
+
 Team.prototype.fill = function (
   source,
   {

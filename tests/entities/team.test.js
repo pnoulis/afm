@@ -23,10 +23,66 @@ import { isArray, isObject } from "js_utils/misc";
 import * as aferrs from "agent_factory.shared/errors.js";
 
 describe("Entity team", () => {
-  it("Should return a roster instance", () => {
-    const r = new Roster();
-    expect(r).toBeInstanceOf(Roster);
-  });
+  it("Should normalize representations", () => {
+    // returned by listTeams
+    const team = {
+      name: "gracious_Finrod",
+      totalPoints: 0,
+      teamState: null,
+      currentRoster: {
+        version: 1,
+        players: [
+          {
+            username: "naughty_Fingolfin_462",
+            wristbandNumber: 478,
+            wristbandColor: null,
+          },
+          {
+            username: "stoic_Saruman_672",
+            wristbandNumber: 185,
+            wristbandColor: null,
+          },
+          {
+            username: "serene_Merry_839",
+            wristbandNumber: 845,
+            wristbandColor: null,
+          },
+          {
+            username: "elated_Radagast_668",
+            wristbandNumber: 177,
+            wristbandColor: null,
+          },
+          {
+            username: "hopeful_Galadriel_699",
+            wristbandNumber: 682,
+            wristbandColor: null,
+          },
+          {
+            username: "nice_Gimli_1",
+            wristbandNumber: 424,
+            wristbandColor: null,
+          },
+        ],
+      },
+      roomType: null,
+      packages: [
+        {
+          id: 3,
+          name: "Per Time 60",
+          cost: null,
+          started: null,
+          ended: null,
+          duration: 3600,
+          paused: false,
+          active: false,
+        },
+      ],
+    };
+  }),
+    it("Should return a roster instance", () => {
+      const r = new Roster();
+      expect(r).toBeInstanceOf(Roster);
+    });
 
   it.only("Should be able to take a team in any representation and normalize it into FRONTEND form", () => {
     // no arguments

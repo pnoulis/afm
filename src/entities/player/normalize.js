@@ -12,26 +12,14 @@ function normalize(sources, options) {
     nulls: false,
   };
 
-  if (sources.length === 1) {
+  if (sources.length < 2) {
     return __normalize(sources[0], options);
   }
 
-  let target = __normalize(
-    {
-      name: "",
-      username: "",
-      surname: "",
-      email: "",
-      password: "",
-      wristband: null,
-      state: "unregistered",
-    },
-    options,
-  );
-
+  let target;
   if (options.nulls) {
     while (sources.length) {
-      Object.assign(target, __normalize(sources.shift()));
+      Object.assign(target, __normalize(sources.shift(), options));
     }
   } else {
     let source = undefined;
@@ -51,7 +39,7 @@ function normalize(sources, options) {
   return target;
 }
 
-function __normalize(source, { state = "", defaultState = "" }) {
+function __normalize(source, { state = "", defaultState = "" } = {}) {
   source ??= {};
   const target = {
     name: source.name || "",

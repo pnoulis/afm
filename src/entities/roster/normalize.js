@@ -1,4 +1,5 @@
 import { Player } from "../player/index.js";
+import { isArray } from "js_utils/misc";
 import { extractPlayers } from "../../utils/extractPlayers.js";
 /**
  * @example
@@ -10,7 +11,7 @@ import { extractPlayers } from "../../utils/extractPlayers.js";
  * @example
  * [ { roster: Roster }]
  */
-function normalize(sources, options = {}) {
+function normalize(sources, options) {
   sources ??= [];
   options ??= {
     state: "",

@@ -1,4 +1,4 @@
-import { AFPkg } from "../package/index.js";
+import { Package } from "../package/index.js";
 import { Roster } from "../roster/Roster.js";
 import { isArray } from "js_utils/misc";
 import { extractTeams } from "../../utils/extractTeams.js";
@@ -17,20 +17,10 @@ function normalize(sources, options) {
   };
   const teams = extractTeams(sources);
 
-  if (teams.length === 1) {
-    return __normalize(teams[0], options);
+  if (sources.length < 2) {
+    return __normalize(sources[0], options);
   }
-
-  let target = __normalize(
-    {
-      name: "",
-      points: 0,
-      roster: null,
-      state: "unregistered",
-    },
-    options,
-  );
-
+  let target;
   if (options.nulls) {
     while (teams.length) {
       Object.assign(target, __normalize(teams.shift()));
@@ -44,6 +34,7 @@ function normalize(sources, options) {
         points: source.points ?? target.points,
         state: source.state || target.state,
         roster: source.roster || target.roster,
+        packages: source.packages || target.packages,
       };
     }
   }
@@ -56,7 +47,7 @@ function __normalize(source, { state = "", defaultState = "" }) {
     name: source.name || source.teamName || "",
     points: source.points ?? source.totalPoints ?? 0,
     roster: Roster.normalize(source.roster || source?.currentRoster?.players),
-    packages: source.packages?.map?.((p) => AFPkg.normalize(p)) || [],
+    packages: source.packages?.map?.((p) => Package.normalize(p)) || [],
   };
 
   if (state) {
