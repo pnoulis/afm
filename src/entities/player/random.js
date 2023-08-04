@@ -8,7 +8,7 @@ function random(source, { depth = 0 } = {}) {
   const username = `${generateRandomName()}_${smallid()}`;
   const [name, surname, password = ""] = username.split("_");
   return {
-    username: source.username || username,
+    username: source.username || smallid(),
     email: source.email || `${surname}@gmail.com`,
     name: source.name || name,
     surname: source.surname || surname,

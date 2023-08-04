@@ -1,15 +1,23 @@
+import { AFPkg } from "../../entities/package/index.js";
+
 function listPackages(afmachine) {
   return [
     "/packages/list",
-    // backend service
+    // Argument parsing, validation and request builder
+    async function (context, next) {
+      context.req = {
+        timestamp: Date.now(),
+      };
+      await next();
+    },
+    // list packages
     async (context, next) => {
-      context.res = await afmachine.services.backend.listPackages(
-        context.req.payload,
-      );
+      context.res = await afmachine.services.backend.listPackages(context.req);
       await next();
     },
     // generic backend response parser
     afmachine.middleware.parseResponse,
+    // request parsing and response builder
     async function (context, next, err) {
       if (err) {
         context.res.payload = {
@@ -19,10 +27,9 @@ function listPackages(afmachine) {
         };
         throw err;
       }
-
       context.res.payload = {
         ok: true,
-        data: context.res.packages,
+        data: context.res.packages.map((p) => new AFPkg(AFPkg.normalize(p))),
       };
       await next();
     },

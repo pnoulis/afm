@@ -15,7 +15,7 @@ class PersistentPlayer extends Player {
       return new RegistableWristband(afmachine, wristband, this);
     };
     // initialize ancestor
-    super(player.wristband, { createWristband });
+    super(player, { createWristband });
     // Eventful initialization
     eventful.construct.call(this);
     // Stateful initialization

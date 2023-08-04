@@ -14,6 +14,12 @@ class Unregistered extends State {
   removePlayer(remove) {
     return remove();
   }
+  registerPackage(register) {
+    return this.team.blockState("registerPackage");
+  }
+  startPackage(start) {
+    return this.team.blockState("startPackage");
+  }
 }
 
 export { Unregistered };

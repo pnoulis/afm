@@ -9,6 +9,8 @@ import { smallid } from "js_utils/uuid";
 import { isObject, isArray } from "js_utils/misc";
 import { normalize } from "./normalize.js";
 import { random } from "./random.js";
+import { extractPlayers } from "../../utils/extractPlayers.js";
+import * as aferrs from "agent_factory.shared/errors.js";
 
 class GroupParty {
   static normalize = normalize;
@@ -18,102 +20,31 @@ class GroupParty {
     // Eventful initialization
     eventful.construct.call(this);
     this.afmachine = afmachine;
-    this.teams = [];
-    // this.teams = new Array(5)
-    //   .fill(null)
-    //   .map((_) => new Team({ name: smallid() }));
-    // this.teams = groupParty.teams ?? isArray(groupParty) ? groupParty : [];
-    // this.size = 0;
-    // for (let i = 0; i < this.teams.length; i++) {
-    //   this.size += this.teams[i].size;
-    // }
+    this.teams = GroupParty.normalize(groupParty).map(
+      (team) => new TemporaryTeam(this.afmachine, team),
+    );
+    this.size = 0;
+    for (let i = 0; i < this.teams.length; i++) {
+      this.size += this.teams[i].size;
+    }
   }
 }
 
-GroupParty.prototype.newFill = function (
+GroupParty.prototype.fill = function (
   source,
   { size = 2, state = "", defaultState = "", nulls = false, depth = 0 } = {},
 ) {
   source ??= [];
-  size = size > source.length ? size : source.length;
-  const target = [];
-
-  for (let i = 0; i < source.length; i++) {
-    target.push(
-      Team.normalize(source[i], { state, defaultState, nulls, depth }),
-    );
-  }
-
-  const teamNames = [];
-  const players = [];
-  for (let i = 0; i < source.length; i++) {
-    if (source[i].name) {
-      teamNames.push(source[i].name);
-      players.push(
-        ...(source[i].roster instanceof Roster
-          ? source[i].roster.asObject()
-          : source[i].roster || []),
-      );
-    } else if (source[i].teamName) {
-      teamNames.push(source[i].teamName);
-      players.push(
-        ...(source[i].roster instanceof Roster
-          ? source[i].roster.asObject()
-          : source[i].roster || []),
-      );
-    } else {
-      players.push(source[i]);
-    }
-  }
-};
-
-/**
- * Fill group party
- * @param {Array} source
- * @param {Object} source.team
- * @param {Array} source.team.roster
- */
-GroupParty.prototype.fill = function (
-  source,
-  { state = "", defaultState = "", nulls = false, size = 2, depth = 0 } = {},
-) {
-  source ??= [];
-  let target = [];
-  const players = [];
-  for (let i = 0; i < source.length; i++) {
-    if (Array.isArray(source[i].roster)) {
-      players.push(...source[i].roster);
-    }
-  }
-  this.size = players.length > size ? players.length : size;
-  if (this.size < 2) {
-    this.size = 2;
-  }
-
-  target = distributePlayers(this.size).map((team, i) => {
-    return new TemporaryTeam(
-      this.afmachine,
-      Team.normalize(
-        [
-          this.teams[i],
-          {
-            ...source[i],
-            roster: new Array(team.length).fill(null).map((_) => ({
-              username: smallid(),
-              ...players.shift(),
-            })),
-          },
-        ],
-        {
-          state,
-          defaultState,
-          nulls,
-        },
-      ),
-    ).fill(null, { depth, size: team.length - 1 });
-  });
-  this.teams = target;
-
+  const target = GroupParty.random(
+    GroupParty.normalize([this, source], {
+      state,
+      defaultState,
+      nulls,
+      depth,
+    }),
+    { depth, size },
+  );
+  this.teams = target.map((team) => new TemporaryTeam(this.afmachine, team));
   this.size = 0;
   for (let i = 0; i < this.teams.length; i++) {
     this.size += this.teams[i].size;
@@ -124,11 +55,30 @@ GroupParty.prototype.fill = function (
       }
     });
   }
+  this.emit("change");
   return this;
 };
 
 GroupParty.prototype.distribute = function () {
-  this.fill(this.teams.map((t) => t.asObject()));
+  const distributionMap = distributePlayers(this.size);
+  const players = Roster.normalize(extractPlayers(this.teams));
+  for (let i = 0; i < distributionMap.length; i++) {
+    this.teams[i] = new TemporaryTeam(this.afmachine).fill();
+    this.teams[i].on("change", () => {
+      this.size = 0;
+      for (let i = 0; i < this.teams.length; i++) {
+        this.size += this.teams[i].size;
+      }
+    });
+    for (let y = 0; y < distributionMap[i].length; y++) {
+      this.teams[i].roster.set(players.shift());
+    }
+  }
+  this.size = 0;
+  for (let i = 0; i < this.teams.length; i++) {
+    this.size += this.teams[i].size;
+  }
+  this.emit("change");
   return this;
 };
 
@@ -137,6 +87,49 @@ GroupParty.prototype.asObject = function () {
     size: this.size,
     teams: this.teams.map((t) => t.asObject()),
   };
+};
+
+GroupParty.prototype.forEachAsync = async function (cb) {
+  for (let i = 0; i < this.teams.length; i++) {
+    await cb(this.teams[i]);
+  }
+};
+
+GroupParty.prototype.removeTeam = function (team) {
+  let teamIndex = -1;
+  for (let i = 0; i < this.teams.length; i++) {
+    if (this.teams[i].name === team.name) {
+      teamIndex = i;
+    }
+  }
+  if (teamIndex > -1) {
+    this.teams.splice(teamIndex, 1);
+  }
+  this.size = 0;
+  for (let i = 0; i < this.teams.length; i++) {
+    this.size += this.teams[i].size;
+  }
+  this.emit("change");
+};
+
+GroupParty.prototype.addTeam = function (team) {
+  this.teams.push(
+    new TemporaryTeam(this.afmachine, team).fill(null, { depth: 1 }),
+  );
+  this.size = 0;
+  for (let i = 0; i < this.teams.length; i++) {
+    this.size += this.teams[i].size;
+  }
+  this.emit("change");
+};
+
+GroupParty.prototype.register = async function () {
+  if (this.teams.length < 1) {
+    return Promise.reject(new aferrs.ERR_GP_EMPTY());
+  }
+  for (let i = 0; i < this.teams.length; i++) {
+    await this.teams[i].merge();
+  }
 };
 
 GroupParty.prototype.log = function ({ depth = 3 } = {}) {

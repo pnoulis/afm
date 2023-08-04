@@ -133,6 +133,30 @@ PersistentTeam.prototype.addPlayer = function (player) {
   });
 };
 
+// * @param { Object } payload
+//  * @param { string } payload.teamName
+//    * @param { string } payload.name - The name of a registered package
+PersistentTeam.prototype.registerPackage = (function () {
+  const schedule = new Scheduler();
+  const action = function (pkg) {
+    return this.state.registerPackage(() => {
+      return new Promise((resolve, reject) => {
+        schedule
+          .run(() =>
+            this.afmachine.addPackage({
+              team: this,
+              pkg,
+            }),
+          )
+          .then(resolve)
+          .catch(reject);
+      });
+    });
+  };
+  Object.setPrototypeOf(action, schedule);
+  return action;
+})();
+
 // Stateful
 (() => {
   let extended = false;
@@ -158,7 +182,7 @@ PersistentTeam.prototype.addPlayer = function (player) {
   return () => {
     if (extended) return;
     extended = true;
-    eventful(PersistentTeam, ["stateChange", "change"]);
+    eventful(PersistentTeam, ["stateChange", "change", "drop"]);
   };
 })()();
 

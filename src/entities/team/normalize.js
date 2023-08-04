@@ -1,3 +1,4 @@
+import { AFPkg } from "../package/index.js";
 import { Roster } from "../roster/Roster.js";
 import { isArray } from "js_utils/misc";
 import { extractTeams } from "../../utils/extractTeams.js";
@@ -54,7 +55,8 @@ function __normalize(source, { state = "", defaultState = "" }) {
   const target = {
     name: source.name || source.teamName || "",
     points: source.points ?? source.totalPoints ?? 0,
-    roster: Roster.normalize(source.roster || source.currentRoster),
+    roster: Roster.normalize(source.roster || source?.currentRoster?.players),
+    packages: source.packages?.map?.((p) => AFPkg.normalize(p)) || [],
   };
 
   if (state) {

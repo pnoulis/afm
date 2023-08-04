@@ -59,7 +59,12 @@ function __normalize(source, { state = "", defaultState = "" }) {
     surname: source.surname || "",
     email: source.email || "",
     password: source.password ?? "",
-    wristband: Wristband.normalize(source.wristband),
+    wristband: Wristband.normalize(
+      source.wristband || {
+        wristbandNumber: source.wristbandNumber,
+        wristbandColor: source.wristbandColor,
+      },
+    ),
   };
 
   if (state) {

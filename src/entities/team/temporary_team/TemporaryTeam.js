@@ -67,12 +67,14 @@ TemporaryTeam.prototype.removePlayer = function (player) {
     this.roster.rm(player.username) && this.emit("change", this);
   });
 };
+
 TemporaryTeam.prototype.addPlayer = function (player) {
   this.state.addPlayer(() => {
-    this.roster.set(player); // throws error
+    this.roster.set(new TemporaryPlayer(this.afmachine, player).fill()); // throws error
     this.emit("change", this);
   });
 };
+
 TemporaryTeam.prototype.merge = (function () {
   const schedule = new Scheduler();
   const action = function () {
@@ -142,7 +144,7 @@ TemporaryTeam.prototype.merge = (function () {
   return () => {
     if (extended) return;
     extended = true;
-    eventful(TemporaryTeam, ["stateChange", "change"]);
+    eventful(TemporaryTeam, ["stateChange", "change", "drop"]);
   };
 })()();
 

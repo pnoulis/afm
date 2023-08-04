@@ -13,6 +13,12 @@ class Playing extends State {
   removePlayer(remove) {
     return this.team.blockState("removePlayer");
   }
+  registerPackage(register) {
+    return this.team.blockState("registerPackage");
+  }
+  startPackage(start) {
+    return this.team.blockState("startPackage");
+  }
 }
 
 export { Playing };

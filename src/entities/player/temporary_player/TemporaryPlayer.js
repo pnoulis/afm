@@ -58,7 +58,7 @@ TemporaryPlayer.prototype.pairWristband = function () {
   return this.state.pairWristband(
     () =>
       new Promise((resolve, reject) =>
-        this.player.wristband.toggle((err) =>
+        this.wristband.toggle((err) =>
           err ? reject(err) : resolve(this),
         ),
       ),
@@ -69,7 +69,7 @@ TemporaryPlayer.prototype.unpairWristband = function () {
   return this.state.unpairWristband(
     () =>
       new Promise((resolve, reject) =>
-        this.player.wristband.toggle((err) =>
+        this.wristband.toggle((err) =>
           err ? reject(err) : resolve(this),
         ),
       ),

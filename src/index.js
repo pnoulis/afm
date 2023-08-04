@@ -104,6 +104,7 @@ Afmachine.prototype.createPersistentTeam = creates.createPersistentTeam;
 Afmachine.prototype.createTemporaryTeam = creates.createTemporaryTeam;
 Afmachine.prototype.createRoster = creates.createRoster;
 Afmachine.prototype.createGroupParty = creates.createGroupParty;
+Afmachine.prototype.createPkg = creates.createPkg;
 
 const afmachine = new Afmachine();
 export { afmachine, AsyncAction };

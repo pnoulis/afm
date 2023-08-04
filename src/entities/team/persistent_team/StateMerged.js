@@ -14,6 +14,12 @@ class Merged extends State {
   removePlayer(remove) {
     return this.team.blockState("removePlayer");
   }
+  registerPackage(register) {
+    return register();
+  }
+  startPackage(start) {
+    return start();
+  }
 }
 
 export { Merged };

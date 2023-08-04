@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeAll } from "vitest";
   TESTING COMPONENTS
 */
 
-import { Afmachine } from "../../../src/index.js";
+import { afmachine } from "../../../src/index.js";
 
 /*
   DEPENDENCIES
@@ -20,11 +20,11 @@ beforeAll(async () => {
 describe("searchPlayers", () => {
   it("Should search for players", async () => {
     await expect(
-      Afmachine.searchPlayer({ searchTerm: "test" }),
+      afmachine.searchPlayer({ searchTerm: "test" }),
     ).resolves.toMatchObject(expect.any(Array));
   });
   it("Should resolve with", async () => {
-    const response = await Afmachine.searchPlayer({ searchTerm: "test" });
+    const response = await afmachine.searchPlayer({ searchTerm: "test" });
 
     expect(response).toBeInstanceOf(Array);
     expect(response).toHaveLength(2);

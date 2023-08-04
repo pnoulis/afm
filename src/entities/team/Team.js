@@ -15,6 +15,7 @@ class Team {
     this.points = team.points ?? 0;
     this.roster =
       team.roster instanceof Roster ? team.roster : new Roster(team.roster);
+    this.packages = team.packages || [];
     this.state = team.state || "";
   }
 
