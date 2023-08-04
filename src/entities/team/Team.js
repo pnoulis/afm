@@ -5,6 +5,7 @@ import { random } from "./random.js";
 import { isObject } from "js_utils/misc";
 import { Roster } from "../roster/index.js";
 import { MAX_TEAM_SIZE } from "agent_factory.shared/constants.js";
+import { Package } from '../package/index.js';
 
 class Team {
   static random = random;

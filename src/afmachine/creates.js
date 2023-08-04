@@ -51,8 +51,8 @@ function createRoster(roster) {
 function createGroupParty(groupParty) {
   return new GroupParty(this, GroupParty.normalize(groupParty));
 }
-function createPkg(source, options) {
-  return new Package(Package.normalize(source, options));
+function createPkg(source, team, options) {
+  return new Package(this, Package.normalize(source, options), team);
 }
 
 export {

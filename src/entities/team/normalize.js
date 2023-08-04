@@ -10,6 +10,7 @@ import { extractTeams } from "../../utils/extractTeams.js";
  * [ Team, Team ]
  */
 function normalize(sources, options) {
+  sources ??= [];
   options ??= {
     state: "",
     defaultState: "",
@@ -20,7 +21,7 @@ function normalize(sources, options) {
   if (sources.length < 2) {
     return __normalize(sources[0], options);
   }
-  let target;
+  let target = {};
   if (options.nulls) {
     while (teams.length) {
       Object.assign(target, __normalize(teams.shift()));

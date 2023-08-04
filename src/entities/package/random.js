@@ -48,7 +48,7 @@ function random(source) {
       }
     }
   }
-  return target;
+  return normalize(target);
 }
 
 export { random };

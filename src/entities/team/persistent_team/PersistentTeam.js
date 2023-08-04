@@ -11,6 +11,8 @@ import * as aferrs from "agent_factory.shared/errors.js";
 import { Scheduler } from "../../async_action/index.js";
 import { MIN_TEAM_SIZE } from "agent_factory.shared/constants.js";
 import { areMembersUniqueCb } from "js_utils/misc";
+import { Package } from "../../package/index.js";
+import { isObject } from "js_utils/misc";
 
 class PersistentTeam extends Team {
   // Redefined to ensure constructor.name does not get
@@ -140,6 +142,20 @@ PersistentTeam.prototype.registerPackage = (function () {
   const schedule = new Scheduler();
   const action = function (pkg) {
     return this.state.registerPackage(() => {
+      if (this.packages.length > 0) {
+        return Promise.reject(new aferrs.ERR_UNIQUE_ACTIVE_PKG());
+      } else if (pkg instanceof Package) {
+        if (
+          pkg.compareStates((states, current) => {
+            return current >= states.registered;
+          })
+        ) {
+          return Promise.reject(new aferrs.ERR_PKG_IS_REGISTERED(pkg, this));
+        }
+      } else if (pkg.state !== "new") {
+        return Promise.reject(new aferrs.ERR_PKG_IS_REGISTERED(pkg, this));
+      }
+
       return new Promise((resolve, reject) => {
         schedule
           .run(() =>
@@ -148,7 +164,84 @@ PersistentTeam.prototype.registerPackage = (function () {
               pkg,
             }),
           )
+          .then((pkgs) => {
+            this.packages = [...pkgs];
+            return pkgs.at(-1);
+          })
           .then(resolve)
+          .then(() => this.emit("change"))
+          .catch(reject);
+      });
+    });
+  };
+  Object.setPrototypeOf(action, schedule);
+  return action;
+})();
+
+PersistentTeam.prototype.removePackage = (function () {
+  const schedule = new Scheduler();
+  const action = function (pkg) {
+    return this.state.removePackage(() => {
+      if (pkg.active) {
+        return Promise.reject(new aferrs.ERR_RM_ACTIVE_PKG(pkg));
+      } else if (
+        isObject(pkg.state) ? pkg.inState("new") : pkg.state === "new"
+      ) {
+        return this.blockState("removePackage", true);
+      }
+
+      return new Promise((resolve, reject) => {
+        schedule
+          .run(() =>
+            this.afmachine.removePackage({
+              team: this,
+              pkg,
+            }),
+          )
+          .then((pkgs) => {
+            this.packages = pkgs.map((p) => new Package(p));
+            return pkgs.at(-1);
+          })
+          .then(resolve)
+          .then(() => this.emit("change"))
+          .catch(reject);
+      });
+    });
+  };
+  Object.setPrototypeOf(action, schedule);
+  return action;
+})();
+
+PersistentTeam.prototype.activate = (function () {
+  const schedule = new Scheduler();
+  const action = function () {
+    return this.state.activate(() => {
+      if (!this.packages.length) {
+        return Promise.reject(
+          new aferrs.ERR_TEAM_ACTIVATE("Cannot activate team with no packages"),
+        );
+      } else if (this.packages.length > 1) {
+        return Promise.reject(
+          new aferrs.ERR_TEAM_ACTIVATE(
+            `Cannot activate team with more than 1 package.`,
+          ),
+        );
+      } else if (!this.packages.find((pkg) => pkg.state === "registered")) {
+        return Promise.reject(
+          new aferrs.ERR_TEAM_ACTIVATE(
+            "Cannot activate team with no registered packages",
+          ),
+        );
+      }
+      return new Promise((resolve, reject) => {
+        schedule
+          .run(() => this.afmachine.startTeam(this))
+          .then((team) => {
+            this.setState(this.getPlayingState);
+            return team;
+          })
+          .then(resolve)
+          .then(() => this.emit("change"))
           .catch(reject);
       });
     });

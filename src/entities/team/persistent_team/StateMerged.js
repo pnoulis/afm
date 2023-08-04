@@ -17,8 +17,15 @@ class Merged extends State {
   registerPackage(register) {
     return register();
   }
-  startPackage(start) {
-    return start();
+  removePackage(remove) {
+    return remove();
+  }
+
+  activate(activate) {
+    return activate();
+  }
+  pause(pause) {
+    return this.team.blockState("pause");
   }
 }
 

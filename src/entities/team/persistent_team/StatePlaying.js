@@ -16,8 +16,14 @@ class Playing extends State {
   registerPackage(register) {
     return this.team.blockState("registerPackage");
   }
-  startPackage(start) {
+  removePackage(remove) {
+    return this.team.blockState("removePackage");
+  }
+  activate(activate) {
     return this.team.blockState("startPackage");
+  }
+  pause(pause) {
+    return pause();
   }
 }
 

@@ -17,8 +17,15 @@ class Registered extends State {
   registerPackage(register) {
     return register();
   }
-  startPackage(start) {
-    return this.team.blockState("startPackage");
+  removePackage(remove) {
+    return remove();
+  }
+
+  activate(activate) {
+    return this.team.blockState("activate");
+  }
+  pause(pause) {
+    return this.team.blockState("pause");
   }
 
 }

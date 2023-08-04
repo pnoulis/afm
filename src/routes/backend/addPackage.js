@@ -1,3 +1,7 @@
+import { AF_PACKAGES } from "agent_factory.shared/constants.js";
+import { Package } from "../../entities/package/index.js";
+import { Team } from "../../entities/team/index.js";
+
 function addPackage(afmachine) {
   return [
     "/team/package/add",
@@ -29,10 +33,19 @@ function addPackage(afmachine) {
         };
         throw err;
       }
+
+      const data = [];
+      for (let i = 0; i < context.res.team.packages.length; i++) {
+        data.push(
+          Package.normalize(context.res.team.packages[i], {
+            pkgs: AF_PACKAGES,
+          }),
+        );
+      }
       context.res.payload = {
         ok: true,
         msg: `Successfuly added ${context.pkg.name} package to ${context.team.name}`,
-        data: context.res,
+        data,
       };
       await next();
     },

@@ -9,6 +9,29 @@ import { CreateBackendService } from "agent_factory.shared/services/backend/Crea
 import { lockWristbandScan } from "./afmachine/lockWristbandScan.js";
 import * as creates from "./afmachine/creates.js";
 import { AsyncAction } from "./entities/async_action/index.js";
+import {
+  Wristband,
+  LiveWristband,
+  ScannableWristband,
+  VerifiableWristband,
+  RegistableWristband,
+} from "./entities/wristband/index.js";
+import {
+  Player,
+  PersistentPlayer,
+  TemporaryPlayer,
+} from "./entities/player/index.js";
+import { Roster } from "./entities/roster/index.js";
+import {
+  Team,
+  TemporaryTeam,
+  PersistentTeam,
+} from "./entities/team/index.js";
+import {
+  GroupParty,
+} from "./entities/group_party/index.js";
+import { Package } from "./entities/package/index.js";
+
 
 function Afmachine() {
   this.clientId = "001";
@@ -56,6 +79,23 @@ function Afmachine() {
     // this.services.logger.debug(context);
     next();
   });
+
+  // entities
+  this.Wristband = Wristband;
+  this.LiveWristband = LiveWristband;
+  this.ScannableWristband = ScannableWristband;
+  this.VerifiableWristband = VerifiableWristband;
+  this.RegistableWristband = RegistableWristband;
+  this.Player = Player;
+  this.PersistentPlayer = PersistentPlayer;
+  this.TemporaryPlayer = TemporaryPlayer;
+  this.Roster = Roster;
+  this.Team = Team;
+  this.TemporaryTeam = TemporaryTeam;
+  this.PersistentTeam = PersistentTeam;
+  this.GroupParty = GroupParty;
+  this.Package = Package;
+
 
   // Routes
   this.addPackage = this.pipeline.route(...routes.addPackage(this));
