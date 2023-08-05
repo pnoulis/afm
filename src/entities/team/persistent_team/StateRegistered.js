@@ -22,12 +22,11 @@ class Registered extends State {
   }
 
   activate(activate) {
-    return this.team.blockState("activate");
+    return this.team.blockState("activate", true);
   }
   pause(pause) {
-    return this.team.blockState("pause");
+    return this.team.blockState("pause", true);
   }
-
 }
 
 export { Registered };

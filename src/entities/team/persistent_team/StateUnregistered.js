@@ -15,16 +15,16 @@ class Unregistered extends State {
     return remove();
   }
   registerPackage(register) {
-    return this.team.blockState("registerPackage");
+    return this.team.blockState("register package", true);
   }
   removePackage(remove) {
-    return this.team.blockState("removePackage");
+    return this.team.blockState("remove package", true);
   }
   activate(activate) {
-    return this.team.blockState("activate");
+    return this.team.blockState("activate", true);
   }
   pause(pause) {
-    return this.team.blockState("pause");
+    return this.team.blockState("pause", true);
   }
 }
 

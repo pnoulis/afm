@@ -8,19 +8,19 @@ class Playing extends State {
     return this.team.blockState("merge", true);
   }
   addPlayer(add) {
-    return this.team.blockState("addPlayer");
+    return this.team.blockState("add player");
   }
   removePlayer(remove) {
-    return this.team.blockState("removePlayer");
+    return this.team.blockState("remove player");
   }
   registerPackage(register) {
-    return this.team.blockState("registerPackage");
+    return this.team.blockState("register package", true);
   }
   removePackage(remove) {
-    return this.team.blockState("removePackage");
+    return this.team.blockState("remove package", true);
   }
   activate(activate) {
-    return this.team.blockState("startPackage");
+    return this.team.blockState("start package", true);
   }
   pause(pause) {
     return pause();

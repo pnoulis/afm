@@ -47,15 +47,17 @@ function __normalize(source, { state = "", defaultState = "" }) {
   const target = {
     name: source.name || source.teamName || "",
     points: source.points ?? source.totalPoints ?? 0,
-    roster: Roster.normalize(source.roster || source?.currentRoster?.players),
+    roster: [],
     packages: source.packages?.map?.((p) => Package.normalize(p)) || [],
   };
 
   if (state) {
     target.state = state;
-  } else if (source.teamState && /PACKAGE/.test(source.teamState)) {
+  } else if (source.teamState === "PACKAGE_RUNNING") {
+    target.state = "playing";
+  } else if (/PACKAGE/.test(source.teamState)) {
     target.state = "merged";
-  } else if (source.teamState) {
+  } else if (Object.hasOwn(source, "teamState")) {
     target.state = "registered";
   } else if ("getState" in source) {
     target.state = source.getState().name;
@@ -75,6 +77,18 @@ function __normalize(source, { state = "", defaultState = "" }) {
     }
     throw new Error(`Unrecognized team state ${target.state}`);
   }
+  if (target.state === "playing") {
+    target.roster = Roster.normalize(
+      source.roster || source?.currentRoster?.players,
+      { state: "playing" },
+    );
+  } else {
+    target.roster = Roster.normalize(
+      source.roster || source?.currentRoster?.players,
+      { state: "inTeam" },
+    );
+  }
+
   return target;
 }
 

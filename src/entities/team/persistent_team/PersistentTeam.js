@@ -51,18 +51,10 @@ PersistentTeam.prototype.bootstrap = function () {
 PersistentTeam.prototype.blockState = function (action, async = false) {
   if (async) {
     return Promise.reject(
-      new aferrs.ERR_STATE_ACTION_BLOCK(
-        this.state.name,
-        this.constructor.name,
-        action,
-      ),
+      new aferrs.ERR_STATE_ACTION_BLOCK(this.state.name, "team", action),
     );
   } else {
-    throw new aferrs.ERR_STATE_ACTION_BLOCK(
-      this.state.name,
-      this.constructor.name,
-      action,
-    );
+    throw new aferrs.ERR_STATE_ACTION_BLOCK(this.state.name, "team", action);
   }
 };
 PersistentTeam.prototype.merge = (function () {
@@ -84,7 +76,7 @@ PersistentTeam.prototype.merge = (function () {
 
         const unpaired = this.roster.find(function (player) {
           return player.wristband.compareStates(function (states, current) {
-            return current < states.registered;
+            return current < states.paired;
           });
         });
 
@@ -232,6 +224,33 @@ PersistentTeam.prototype.activate = (function () {
             "Cannot activate team with no registered packages",
           ),
         );
+      }
+      return new Promise((resolve, reject) => {
+        schedule
+          .run(() => this.afmachine.startTeam(this))
+          .then((team) => {
+            this.setState(this.getPlayingState);
+            return team;
+          })
+          .then(resolve)
+          .then(() => this.emit("change"))
+          .catch(reject);
+      });
+    });
+  };
+  Object.setPrototypeOf(action, schedule);
+  return action;
+})();
+
+PersistentTeam.prototype.pause = (function () {
+  const schedule = new Scheduler();
+  const action = function () {
+    return this.state.pause(() => {
+      if (!this.packages.length) {
+        throw new Error("no packages");
+      } else if (this.packages.length > 1) {
+      } else if (!this.packages.find((pkg) => pkg.state === "registered")) {
+        throw new Error("package is not active");
       }
       return new Promise((resolve, reject) => {
         schedule

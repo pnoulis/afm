@@ -9,10 +9,10 @@ class Merged extends State {
     return this.team.blockState("merge", true);
   }
   addPlayer(add) {
-    return this.team.blockState("addPlayer");
+    return this.team.blockState("add player");
   }
   removePlayer(remove) {
-    return this.team.blockState("removePlayer");
+    return this.team.blockState("remove player");
   }
   registerPackage(register) {
     return register();
@@ -25,7 +25,7 @@ class Merged extends State {
     return activate();
   }
   pause(pause) {
-    return this.team.blockState("pause");
+    return this.team.blockState("pause", true);
   }
 }
 

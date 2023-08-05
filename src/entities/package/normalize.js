@@ -1,5 +1,6 @@
 import { isArray } from "js_utils/misc";
 import { stoms } from "../../utils/misc.js";
+import { AF_PACKAGES_MAP } from "agent_factory.shared/constants.js";
 
 function normalize(sources, options) {
   sources ??= [];
@@ -43,16 +44,18 @@ function __normalize(source, { state = "", defaultState = "", pkgs } = {}) {
     name: source.name || "",
     t_start: source.t_start ?? source.started ?? null,
     t_end: source.t_end ?? source.ended ?? null,
+    cost:
+      source.cost ?? (source.name ? AF_PACKAGES_MAP[source.name].cost : null),
   };
 
-  // calculate cost
-  if (source.cost) {
-    target.cost = source.cost ?? null;
-  } else if (pkgs?.length > 0 && source.name) {
-    target.cost = pkgs.find((p) => p.name === source.name)?.cost || null;
-  } else {
-    target.cost = source.cost ?? null;
-  }
+  // // calculate cost
+  // if (source.cost) {
+  //   target.cost = source.cost ?? null;
+  // } else if (pkgs?.length > 0 && source.name) {
+  //   target.cost = pkgs.find((p) => p.name === source.name)?.cost || null;
+  // } else {
+  //   target.cost = source.cost ?? null;
+  // }
 
   // The missions or durations property mean this source
   // is coming from the backend

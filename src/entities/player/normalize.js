@@ -47,12 +47,6 @@ function __normalize(source, { state = "", defaultState = "" } = {}) {
     surname: source.surname || "",
     email: source.email || "",
     password: source.password ?? "",
-    wristband: Wristband.normalize(
-      source.wristband || {
-        wristbandNumber: source.wristbandNumber,
-        wristbandColor: source.wristbandColor,
-      },
-    ),
   };
 
   if (state) {
@@ -75,6 +69,27 @@ function __normalize(source, { state = "", defaultState = "" } = {}) {
       }
     }
     throw new Error(`Unrecognized player state ${target.state}`);
+  }
+
+  if (target.state !== "unregistered") {
+    target.wristband = Wristband.normalize(
+      source.wristband || {
+        wristbandNumber: source.wristbandNumber,
+        wristbandColor: source.wristbandColor,
+      },
+      { state: "paired" },
+    );
+    if (target.wristband.id === null) {
+      target.wristband.state = "unpaired";
+    }
+  } else {
+    target.wristband = Wristband.normalize(
+      source.wristband || {
+        wristbandNumber: source.wristbandNumber,
+        wristbandColor: source.wristbandColor,
+      },
+      { state: "unpaired" },
+    );
   }
 
   return target;
