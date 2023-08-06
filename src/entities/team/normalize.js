@@ -69,14 +69,6 @@ function __normalize(source, { state = "", defaultState = "" }) {
     target.state = "unregistered";
   }
 
-  if (source.constructor?.states) {
-    for (let i = 0; i < source.constructor.states.length; i++) {
-      if (source.constructor.states[i] === target.state) {
-        return target;
-      }
-    }
-    throw new Error(`Unrecognized team state ${target.state}`);
-  }
   if (target.state === "playing") {
     target.roster = Roster.normalize(
       source.roster || source?.currentRoster?.players,
@@ -89,6 +81,14 @@ function __normalize(source, { state = "", defaultState = "" }) {
     );
   }
 
+  if (source.constructor?.states) {
+    for (let i = 0; i < source.constructor.states.length; i++) {
+      if (source.constructor.states[i] === target.state) {
+        return target;
+      }
+    }
+    throw new Error(`Unrecognized team state ${target.state}`);
+  }
   return target;
 }
 

@@ -29,6 +29,7 @@ function startTeam(afmachine) {
         throw err;
       }
 
+      context.pkg = context.team.packages[0];
       context.res.payload = {
         ok: true,
         msg: `Successfuly activated team ${context.team.name}`,
@@ -36,6 +37,8 @@ function startTeam(afmachine) {
       };
       await next();
     },
+    afmachine.middleware.statisticActivatedPackages,
+    afmachine.middleware.statisticProfits,
   ];
 }
 

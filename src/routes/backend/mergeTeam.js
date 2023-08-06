@@ -74,6 +74,7 @@ function mergeTeam(afmachine) {
       };
       await next();
     },
+    afmachine.middleware.statisticMergedTeams,
   ];
 }
 

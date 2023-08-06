@@ -57,6 +57,8 @@ PersistentTeam.prototype.blockState = function (action, async = false) {
     throw new aferrs.ERR_STATE_ACTION_BLOCK(this.state.name, "team", action);
   }
 };
+
+
 PersistentTeam.prototype.merge = (function () {
   const schedule = new Scheduler();
   const action = function () {

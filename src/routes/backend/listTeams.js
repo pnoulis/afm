@@ -30,15 +30,6 @@ function listTeams(afmachine) {
         throw err;
       }
 
-      // const teams = extractTeams(context.res.teams);
-      // for (let i = 0; i < teams.length; i++) {
-      //   for (let y = 0; y < teams[i].packages.length; y++) {
-      //     teams[i].packages[y].cost =
-      //       AF_PACKAGES.find((pkg) => pkg.name === teams[i].packages[y].name)
-      //         ?.cost ?? null;
-      //   }
-      // }
-
       context.res.payload = {
         ok: true,
         data: context.res.teams.map((t) => Team.normalize(t)),

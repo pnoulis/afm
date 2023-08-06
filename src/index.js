@@ -1,6 +1,13 @@
 import { ENVIRONMENT } from "agent_factory.shared/config.js";
 import { Pipeline } from "js_utils/pipeline";
-import { parseResponse } from "./middleware/backend/parseResponse.js";
+import {
+  parseResponse,
+  statisticLogins,
+  statisticRegisteredPlayers,
+  statisticMergedTeams,
+  statisticActivatedPackages,
+  statisticProfits,
+} from "./middleware/index.js";
 import * as routes from "./routes/backend/index.js";
 import * as aferrs from "agent_factory.shared/errors.js";
 import { LoggerService } from "agent_factory.shared/services/logger/LoggerService.js";
@@ -8,7 +15,7 @@ import { LocalStorageService } from "agent_factory.shared/services/client_storag
 import { CreateBackendService } from "agent_factory.shared/services/backend/CreateBackendService.js";
 import { lockWristbandScan } from "./afmachine/lockWristbandScan.js";
 import * as creates from "./afmachine/creates.js";
-import { AsyncAction } from "./entities/async_action/index.js";
+import { AsyncAction, Scheduler } from "./entities/async_action/index.js";
 import {
   Wristband,
   LiveWristband,
@@ -22,16 +29,11 @@ import {
   TemporaryPlayer,
 } from "./entities/player/index.js";
 import { Roster } from "./entities/roster/index.js";
-import {
-  Team,
-  TemporaryTeam,
-  PersistentTeam,
-} from "./entities/team/index.js";
-import {
-  GroupParty,
-} from "./entities/group_party/index.js";
+import { Team, TemporaryTeam, PersistentTeam } from "./entities/team/index.js";
+import { GroupParty } from "./entities/group_party/index.js";
 import { Package } from "./entities/package/index.js";
-
+import * as stubRoutes from "./routes/stubs/index.js";
+import { checkSession } from "./routes/checkSession.js";
 
 function Afmachine() {
   this.clientId = "001";
@@ -41,9 +43,7 @@ function Afmachine() {
   this.services = {};
   // cache storage
   if (ENVIRONMENT.RUNTIME === "browser") {
-    this.services.storage = new LocalStorageService(this.clientId);
-    this.services.storage.start();
-    this.clientId = this.services.storage.sessionId;
+    // this.services.storage = new LocalStorageService
   } else {
     this.clientId = "001";
   }
@@ -55,10 +55,22 @@ function Afmachine() {
   // Middleware
   this.middleware = {
     parseResponse,
+    statisticLogins,
+    statisticRegisteredPlayers,
+    statisticMergedTeams,
+    statisticActivatedPackages,
+    statisticProfits,
   };
 
   // Pipeline
   this.pipeline = new Pipeline();
+
+  this.pipeline.setBeforeAll(async (context, next) => {
+    context.afmachine = this;
+    context.session = context.afmachine.services.storage;
+    await next();
+  });
+
   this.pipeline.setAfterAll(async (context, next, err) => {
     if (err) {
       if (/timeout/.test(err.message)) {
@@ -96,7 +108,6 @@ function Afmachine() {
   this.GroupParty = GroupParty;
   this.Package = Package;
 
-
   // Routes
   this.addPackage = this.pipeline.route(...routes.addPackage(this));
   this.boot = this.pipeline.route(...routes.boot(this));
@@ -127,6 +138,10 @@ function Afmachine() {
   this.searchPlayer = this.pipeline.route(...routes.searchPlayer(this));
   this.startTeam = this.pipeline.route(...routes.startTeam(this));
   this.verifyWristband = this.pipeline.route(...routes.verifyWristband(this));
+  this.loginCashier = this.pipeline.route(...stubRoutes.loginCashier(this));
+  this.logoutCashier = this.pipeline.route(...stubRoutes.logoutCashier(this));
+  this.checkSession = this.pipeline.route(...checkSession());
+  this.cashout = this.pipeline.route(...stubRoutes.cashout(this));
 }
 
 Afmachine.prototype.lockWristbandScan = lockWristbandScan;
@@ -147,5 +162,5 @@ Afmachine.prototype.createGroupParty = creates.createGroupParty;
 Afmachine.prototype.createPkg = creates.createPkg;
 
 const afmachine = new Afmachine();
-export { afmachine, AsyncAction };
+export { afmachine, AsyncAction, Scheduler };
 export * from "./misc/log.js";

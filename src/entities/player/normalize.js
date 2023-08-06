@@ -62,14 +62,6 @@ function __normalize(source, { state = "", defaultState = "" } = {}) {
   } else {
     target.state = "unregistered";
   }
-  if (source.constructor?.states) {
-    for (let i = 0; i < source.constructor.states.length; i++) {
-      if (source.constructor.states[i] === target.state) {
-        return target;
-      }
-    }
-    throw new Error(`Unrecognized player state ${target.state}`);
-  }
 
   if (target.state !== "unregistered") {
     target.wristband = Wristband.normalize(
@@ -90,6 +82,15 @@ function __normalize(source, { state = "", defaultState = "" } = {}) {
       },
       { state: "unpaired" },
     );
+  }
+
+  if (source.constructor?.states) {
+    for (let i = 0; i < source.constructor.states.length; i++) {
+      if (source.constructor.states[i] === target.state) {
+        return target;
+      }
+    }
+    throw new Error(`Unrecognized player state ${target.state}`);
   }
 
   return target;

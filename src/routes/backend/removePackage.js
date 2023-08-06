@@ -1,4 +1,4 @@
-import { AF_PACKAGES } from "agent_factory.shared/constants";
+import { AF_PACKAGES } from "agent_factory.shared/constants.js";
 import { Package } from "../../entities/package/index.js";
 import { Team } from "../../entities/team/index.js";
 

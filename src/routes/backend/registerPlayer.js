@@ -57,6 +57,7 @@ function registerPlayer(afmachine) {
       };
       await next();
     },
+    afmachine.middleware.statisticRegisteredPlayers,
   ];
 }
 
