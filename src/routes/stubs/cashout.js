@@ -15,6 +15,7 @@ function cashout(afmachine) {
         userStats: context.userStats,
         globalStats: context.globalStats,
       };
+      console.log(context.req);
       await next();
     },
     // cashout

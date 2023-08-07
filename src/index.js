@@ -11,7 +11,6 @@ import {
 import * as routes from "./routes/backend/index.js";
 import * as aferrs from "agent_factory.shared/errors.js";
 import { LoggerService } from "agent_factory.shared/services/logger/LoggerService.js";
-import { LocalStorageService } from "agent_factory.shared/services/client_storage/local_storage/index.js";
 import { CreateBackendService } from "agent_factory.shared/services/backend/CreateBackendService.js";
 import { lockWristbandScan } from "./afmachine/lockWristbandScan.js";
 import * as creates from "./afmachine/creates.js";
@@ -33,7 +32,6 @@ import { Team, TemporaryTeam, PersistentTeam } from "./entities/team/index.js";
 import { GroupParty } from "./entities/group_party/index.js";
 import { Package } from "./entities/package/index.js";
 import * as stubRoutes from "./routes/stubs/index.js";
-import { checkSession } from "./routes/checkSession.js";
 
 function Afmachine() {
   this.clientId = "001";
@@ -43,7 +41,7 @@ function Afmachine() {
   this.services = {};
   // cache storage
   if (ENVIRONMENT.RUNTIME === "browser") {
-    // this.services.storage = new LocalStorageService
+    // this.services.storage = new LocalStorageService();
   } else {
     this.clientId = "001";
   }
@@ -140,7 +138,6 @@ function Afmachine() {
   this.verifyWristband = this.pipeline.route(...routes.verifyWristband(this));
   this.loginCashier = this.pipeline.route(...stubRoutes.loginCashier(this));
   this.logoutCashier = this.pipeline.route(...stubRoutes.logoutCashier(this));
-  this.checkSession = this.pipeline.route(...checkSession());
   this.cashout = this.pipeline.route(...stubRoutes.cashout(this));
 }
 
