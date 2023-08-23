@@ -16,7 +16,7 @@ function normalize(sources, options) {
     return __normalize(sources[0], options);
   }
 
-  let target;
+  let target = {};
   if (options.nulls) {
     while (sources.length) {
       Object.assign(target, __normalize(sources.shift(), options));

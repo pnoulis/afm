@@ -1,5 +1,3 @@
-import { stateful } from "js_utils/stateful";
-import { eventful } from "js_utils/eventful";
 import { Wristband } from "../wristband/index.js";
 import { normalize } from "./normalize.js";
 import { random } from "./random.js";

@@ -47,8 +47,12 @@ run: env
 	| $(PRETTY_OUTPUT)
 
 .PHONY: scratch
-mode ?= 'development'
-scratch: env
+scratch: mode ?= 'development'
+scratch: RUNTIME ?= 'node'
+scratch: envars ?= 'SCRATCH=true;RUNTIME=node;BUNDLED=false;'
+scratch: mqtt
+	$(DOTENV) --mode=$(mode) --environment=$(envars) \
+	$(ENVDIRS) | $(SORT) > $(SRCDIR)/.env
 	set -a; source ./.env && \
 	$(INTERPRETER) ./tmp/scratch.js | $(PRETTY_OUTPUT)
 
@@ -117,3 +121,6 @@ env:
 	$(DOTENV) --mode=$(mode) $(ENVDIRS) | $(SORT) > $(SRCDIR)/.env
 
 # ------------------------------ VARIOUS ------------------------------ #
+
+mqtt:
+	m4 -D RUNTIME=$(RUNTIME) $(SHARED)/utils/macros.m4 $(SHARED)/clients/mqtt.js.m4 > $(SHARED)/clients/mqtt.js

@@ -10,13 +10,6 @@ import { Player, PersistentPlayer } from "/src/entities/player/index.js";
   DEPENDENCIES
  */
 
-import { Wristband } from "/src/entities/wristband/index.js";
-import { flushBackendDB } from "agent_factory.shared/scripts/flushBackendDB.js";
-import { Afmachine } from "/src/index.js";
-import { emulateScan } from "agent_factory.shared/scripts/emulateScan.js";
-import { delay } from "js_utils/misc";
-import * as aferrs from "agent_factory.shared/errors.js";
-
 beforeAll(async () => {
   // await flushBackendDB();
 });

@@ -32,6 +32,7 @@ import { Team, TemporaryTeam, PersistentTeam } from "./entities/team/index.js";
 import { GroupParty } from "./entities/group_party/index.js";
 import { Package } from "./entities/package/index.js";
 import * as stubRoutes from "./routes/stubs/index.js";
+import { delay } from "js_utils/misc";
 
 function Afmachine() {
   this.clientId = "001";
@@ -139,6 +140,26 @@ function Afmachine() {
   this.loginCashier = this.pipeline.route(...stubRoutes.loginCashier(this));
   this.logoutCashier = this.pipeline.route(...stubRoutes.logoutCashier(this));
   this.cashout = this.pipeline.route(...stubRoutes.cashout(this));
+  this.test = this.pipeline.route(
+    ...[
+      async function (context, next) {
+        context.res = await (async () => {
+          setTimeout(() => {
+            Promise.reject(new Error("some error"));
+          }, 1000);
+        })();
+        await next();
+      },
+      async function (context, next) {
+        context.res.payload = {
+          ok: false,
+          msg: "something",
+        };
+        throw new Error("yolo");
+        await next();
+      },
+    ],
+  );
 }
 
 Afmachine.prototype.lockWristbandScan = lockWristbandScan;

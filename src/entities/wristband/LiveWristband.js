@@ -55,6 +55,8 @@ class LiveWristband extends Wristband {
   async scan() {
     try {
       this.releaseScanHandle = this.afmachine.lockWristbandScan();
+      console.log("AFTER LOCKWRISTBANDSCAN");
+      console.log(this.releaseScanHandle);
       const response = await this.afmachine.getWristbandScan({
         unsubcb: (unsub) => {
           if (this.inState("pairing")) {
@@ -99,7 +101,7 @@ class LiveWristband extends Wristband {
   unregister(wristband, state = true) {
     console.log(this);
     console.log(wristband);
-    console.log('WILL UNREGISTER WRISTBAND');
+    console.log("WILL UNREGISTER WRISTBAND");
     return state
       ? this.afmachine
           .unregisterWristband(wristband || this)
@@ -113,7 +115,9 @@ class LiveWristband extends Wristband {
     Where cb signature: (err, pairing, wristband) => {}
    */
   toggle(cb) {
-    this.togglers += 1;
+    if (this.inState("unpaired")) {
+      this.togglers += 1;
+    }
     let error;
     this.state
       .toggle()

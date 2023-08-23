@@ -21,11 +21,11 @@ function createWristband(wristband) {
 function createScannableWristband(wristband) {
   return new ScannableWristband(this, Wristband.normalize(wristband));
 }
-function createVerifiableWristband(wristband) {
-  return new VerifiableWristband(this, Wristband.normalize(wristband));
+function createVerifiableWristband(wristband, player) {
+  return new VerifiableWristband(this, Wristband.normalize(wristband), player);
 }
-function createRegistableWristband(wristband) {
-  return new RegistableWristband(this, Wristband.normalize(wristband));
+function createRegistableWristband(wristband, player) {
+  return new RegistableWristband(this, Wristband.normalize(wristband), player);
 }
 function createPlayer(player) {
   return new Player(Player.normalize(player));
