@@ -99,9 +99,6 @@ class LiveWristband extends Wristband {
   }
 
   unregister(wristband, state = true) {
-    console.log(this);
-    console.log(wristband);
-    console.log("WILL UNREGISTER WRISTBAND");
     return state
       ? this.afmachine
           .unregisterWristband(wristband || this)

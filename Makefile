@@ -78,9 +78,13 @@ build: env
 
 # ------------------------------ TEST ------------------------------ #
 .PHONY: test
-mode ?= 'testing'
-suite ?= '*'
-test: env
+test: suite ?= '*'
+test: mode ?= 'development'
+test: RUNTIME ?= 'node'
+test: envars ?= 'SCRATCH=true;RUNTIME=node;BUNDLED=false;'
+test: mqtt
+	$(DOTENV) --mode=$(mode) --environment=$(envars) \
+	$(ENVDIRS) | $(SORT) > $(SRCDIR)/.env
 	set -a; source ./.env && \
 	$(TESTER) run --reporter verbose --mode=$(mode) $(suite)
 

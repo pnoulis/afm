@@ -69,7 +69,7 @@ function __normalize(source, { state = "", defaultState = "" } = {}) {
         wristbandNumber: source.wristbandNumber,
         wristbandColor: source.wristbandColor,
       },
-      { state: "paired" },
+      { defaultState: "paired" },
     );
     if (target.wristband.id === null) {
       target.wristband.state = "unpaired";
@@ -80,7 +80,7 @@ function __normalize(source, { state = "", defaultState = "" } = {}) {
         wristbandNumber: source.wristbandNumber,
         wristbandColor: source.wristbandColor,
       },
-      { state: "unpaired" },
+      { defaultState: "unpaired" },
     );
   }
 

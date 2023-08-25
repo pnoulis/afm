@@ -1,4 +1,7 @@
 async function statisticRegisteredPlayers(context, next) {
+  if (!context.session) {
+    return await next();
+  }
   let stats = context.session.global.get("stats") || {};
   stats.registeredPlayers = parseInt(stats.registeredPlayers ?? 0) + 1;
   context.session.global.set("stats", stats);

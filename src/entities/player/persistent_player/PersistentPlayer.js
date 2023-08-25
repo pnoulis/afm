@@ -57,9 +57,9 @@ PersistentPlayer.prototype.blockState = function (action, async = false) {
 };
 PersistentPlayer.prototype.register = function () {
   return this.state.register(() =>
-    this.afmachine.registerPlayer(this).then((player) => {
-      this.fill(player, { state: "registered" });
-    }),
+    this.afmachine
+      .registerPlayer(this)
+      .then((player) => this.fill(player, { state: "registered" })),
   );
 };
 PersistentPlayer.prototype.pairWristband = function () {

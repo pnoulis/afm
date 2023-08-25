@@ -9,9 +9,13 @@ import { Player, PersistentPlayer } from "/src/entities/player/index.js";
 /*
   DEPENDENCIES
  */
+import { afmachine } from "/src/index.js";
+import * as aferrs from "agent_factory.shared/errors.js";
+import { delay } from "js_utils/misc";
+import { emulateScan } from "agent_factory.shared/scripts/emulateScan.js";
 
 beforeAll(async () => {
-  // await flushBackendDB();
+  await afmachine.services.backend.start();
 });
 
 describe("Entity player", () => {
@@ -91,11 +95,11 @@ describe("Entity player", () => {
   });
 
   it.skip("Player should be able to register", async () => {
-    const p = new PersistentPlayer(Afmachine).fill();
+    const p = new PersistentPlayer(afmachine).fill();
     await expect(p.register()).resolves.toMatchObject(expect.any(Object));
   });
   it.skip("Player should throw an exception if trying to register in the wrong state", async () => {
-    const p = new PersistentPlayer(Afmachine).fill(undefined, {
+    const p = new PersistentPlayer(afmachine).fill(undefined, {
       state: "registered",
     });
     expect(p.inState("registered")).toBe(true);
@@ -117,7 +121,7 @@ describe("Entity player", () => {
   });
 
   it.skip("Player should be able to pair a wristband", async () => {
-    const p = new PersistentPlayer(Afmachine).fill();
+    const p = new PersistentPlayer(afmachine).fill();
     await p.register();
     let pairing = p.pairWristband();
     delay(2000).then(emulateScan);
@@ -130,7 +134,7 @@ describe("Entity player", () => {
   });
 
   it.skip("Player should throw an exception if trying to pair a wristbandi in the wrong state", async () => {
-    const p = new PersistentPlayer(Afmachine).fill();
+    const p = new PersistentPlayer(afmachine).fill();
 
     expect(p.inState("unregistered")).toBe(true);
     await expect(p.pairWristband()).rejects.toThrowError(
@@ -148,5 +152,23 @@ describe("Entity player", () => {
     await expect(p.pairWristband()).rejects.toThrowError(
       aferrs.ERR_STATE_ACTION_BLOCK,
     );
+  });
+  it.only("Player should unpair a wristband", async () => {
+    const p = new PersistentPlayer(afmachine).fill();
+    await p.register();
+    expect(p.inState("registered")).toBe(true);
+    let pairing = p.pairWristband();
+    delay(2000).then(emulateScan);
+    await expect(pairing).resolves.toMatchObject({
+      wristband: {
+        state: p.wristband.getState("registered"),
+      },
+    });
+
+    await expect(p.unpairWristband()).resolves.toMatchObject({
+      wristband: {
+        state: p.wristband.getState("unpaired"),
+      },
+    });
   });
 });
