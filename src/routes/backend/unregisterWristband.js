@@ -7,6 +7,8 @@ function unregisterWristband(afmachine) {
     "/wristband/unregister",
     // argument parsing and validation
     async function (context, next) {
+      console.log(context);
+      console.log('CONTENT UNREGISTER WRITBAND');
       context.player = Object.hasOwn(context.args, "player")
         ? context.args.player
         : context.args;

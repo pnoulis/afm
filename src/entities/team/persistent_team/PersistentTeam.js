@@ -58,7 +58,6 @@ PersistentTeam.prototype.blockState = function (action, async = false) {
   }
 };
 
-
 PersistentTeam.prototype.merge = (function () {
   const schedule = new Scheduler();
   const action = function () {
@@ -119,13 +118,22 @@ PersistentTeam.prototype.merge = (function () {
 
 PersistentTeam.prototype.removePlayer = function (player) {
   this.state.removePlayer(() => {
-    this.roster.rm(player.username) && this.emit("change", this);
+    this.roster.rm(player.username) && this.emit("change");
   });
 };
 PersistentTeam.prototype.addPlayer = function (player) {
   this.state.addPlayer(() => {
+    // Ensure player uniqueness
+    // Ensure player wristband color uniqueness
+    this.roster.forEach((seat) => {
+      if (seat.username === player.username) {
+        throw new aferrs.ERR_TEAM_DUPLICATE_PLAYER(player.username);
+      } else if (seat.wristband.color === player.wristband?.color) {
+        throw new aferrs.ERR_TEAM_DUPLICATE_WCOLOR(seat.wristband.getColor());
+      }
+    });
     this.roster.set(player); // throws error
-    this.emit("change", this);
+    this.emit("change");
   });
 };
 

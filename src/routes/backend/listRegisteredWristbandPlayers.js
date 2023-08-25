@@ -32,6 +32,7 @@ function listRegisteredWristbandPlayers(afmachine) {
         throw err;
       }
       const { players = [] } = context.res;
+      console.log(players);
       for (let i = 0; i < players.length; i++) {
         players[i] = Player.normalize(players[i], { state: "registered" });
         players[i].wristband.state = "registered";

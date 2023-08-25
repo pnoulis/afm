@@ -38,6 +38,7 @@ class LiveWristband extends Wristband {
   }
 
   unscan() {
+    console.log('UNSCANNING');
     this.id = null;
     this.color = null;
     if (typeof this.unsubscribeWristbandScan === "function") {
@@ -99,12 +100,20 @@ class LiveWristband extends Wristband {
   }
 
   unregister(wristband, state = true) {
+    console.log(this.player.asObject());
+    console.log("FROM WITHIN UNREGISTER");
     return state
       ? this.afmachine
-          .unregisterWristband(wristband || this)
+          .unregisterWristband({
+            wristband: this,
+            player: this.player,
+          })
           .then(this.state.unregistered.bind(wristband || this, null))
           .catch(this.state.unregistered.bind(wristband || this))
-      : this.afmachine.unregisterWristband(wristband || this);
+      : this.afmachine.unregisterWristband({
+          wristband: this,
+          player: this.player,
+        });
   }
 
   // interface

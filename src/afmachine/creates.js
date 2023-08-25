@@ -39,8 +39,8 @@ function createTemporaryPlayer(player) {
 function createTeam(team) {
   return new Team(Team.normalize(team));
 }
-function createPersistentTeam(team) {
-  return new PersistentTeam(this, Team.normalize(team));
+function createPersistentTeam(team, options) {
+  return new PersistentTeam(this, Team.normalize(team, options));
 }
 function createTemporaryTeam(team, options) {
   return new TemporaryTeam(this, Team.normalize(team, options));
