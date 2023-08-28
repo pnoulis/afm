@@ -21,8 +21,6 @@ class RegistableWristband extends LiveWristband {
   }
 
   unpair() {
-    console.log(this.player.asObject());
-    console.log("UNPAIR REGISTABLE WRISTBAND");
     return this.inState("registered")
       ? this.unregister().then(() => this.unscan())
       : this.unscan();

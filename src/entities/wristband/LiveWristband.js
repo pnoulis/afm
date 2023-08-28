@@ -38,7 +38,6 @@ class LiveWristband extends Wristband {
   }
 
   unscan() {
-    console.log('UNSCANNING');
     this.id = null;
     this.color = null;
     if (typeof this.unsubscribeWristbandScan === "function") {
@@ -56,8 +55,6 @@ class LiveWristband extends Wristband {
   async scan() {
     try {
       this.releaseScanHandle = this.afmachine.lockWristbandScan();
-      console.log("AFTER LOCKWRISTBANDSCAN");
-      console.log(this.releaseScanHandle);
       const response = await this.afmachine.getWristbandScan({
         unsubcb: (unsub) => {
           if (this.inState("pairing")) {
@@ -100,8 +97,6 @@ class LiveWristband extends Wristband {
   }
 
   unregister(wristband, state = true) {
-    console.log(this.player.asObject());
-    console.log("FROM WITHIN UNREGISTER");
     return state
       ? this.afmachine
           .unregisterWristband({
