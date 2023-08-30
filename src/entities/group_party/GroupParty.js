@@ -3,10 +3,11 @@ import { Roster } from "../roster/Roster.js";
 import { Team, TemporaryTeam } from "../team/index.js";
 import {
   distributePlayers,
+  distributePlayersRatio,
   calcTeamSize,
 } from "agent_factory.shared/utils/misc.js";
 import { smallid } from "js_utils/uuid";
-import { isObject, isArray } from "js_utils/misc";
+import { isObject, isArray, isObjectEmpty } from "js_utils/misc";
 import { normalize } from "./normalize.js";
 import { random } from "./random.js";
 import { extractPlayers } from "../../utils/extractPlayers.js";
@@ -16,13 +17,13 @@ class GroupParty {
   static normalize = normalize;
   static random = random;
   constructor(afmachine, groupParty) {
-    groupParty ??= {};
     // Eventful initialization
     eventful.construct.call(this);
     this.afmachine = afmachine;
-    this.teams = GroupParty.normalize(groupParty).map(
-      (team) => new TemporaryTeam(this.afmachine, team),
-    );
+    this.teams = groupParty;
+    // this.teams = GroupParty.normalize(groupParty).map(
+    //   (team) => new TemporaryTeam(this.afmachine, team),
+    // );
     this.size = 0;
     for (let i = 0; i < this.teams.length; i++) {
       this.size += this.teams[i].size;
@@ -59,9 +60,13 @@ GroupParty.prototype.fill = function (
   return this;
 };
 
-GroupParty.prototype.distribute = function () {
-  const distributionMap = distributePlayers(this.size);
+GroupParty.prototype.distribute = function (ratio = 2) {
+  if (this.size === 0) {
+    throw new aferrs.ERR_GP_EMPTY("distribute players");
+  }
+  const distributionMap = distributePlayersRatio(this.size, parseInt(ratio));
   const players = Roster.normalize(extractPlayers(this.teams));
+  const oldTeams = this.teams.map((t) => t.name);
   for (let i = 0; i < distributionMap.length; i++) {
     this.teams[i] = new TemporaryTeam(this.afmachine).fill();
     this.teams[i].on("change", () => {
@@ -70,6 +75,10 @@ GroupParty.prototype.distribute = function () {
         this.size += this.teams[i].size;
       }
     });
+    if (oldTeams[i]) {
+      this.teams[i].name = oldTeams[i];
+    }
+    // this.teams[i].roster.rm();
     for (let y = 0; y < distributionMap[i].length; y++) {
       this.teams[i].roster.set(players.shift());
     }
@@ -77,6 +86,7 @@ GroupParty.prototype.distribute = function () {
   this.size = 0;
   for (let i = 0; i < this.teams.length; i++) {
     this.size += this.teams[i].size;
+    this.teams[i].emit("change");
   }
   this.emit("change");
   return this;
@@ -96,19 +106,21 @@ GroupParty.prototype.forEachAsync = async function (cb) {
 };
 
 GroupParty.prototype.removeTeam = function (team) {
-  let teamIndex = -1;
+  const newTeams = [];
   for (let i = 0; i < this.teams.length; i++) {
     if (this.teams[i].name === team.name) {
-      teamIndex = i;
+      continue;
+    } else {
+      newTeams.push(this.teams[i]);
     }
   }
-  if (teamIndex > -1) {
-    this.teams.splice(teamIndex, 1);
-  }
+  this.teams = newTeams;
   this.size = 0;
   for (let i = 0; i < this.teams.length; i++) {
     this.size += this.teams[i].size;
   }
+  console.log(this.teams);
+  console.log('before emit change');
   this.emit("change");
 };
 

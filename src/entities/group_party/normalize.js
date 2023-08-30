@@ -17,9 +17,10 @@ function normalize(sources, options = {}) {
     nulls: false,
   };
   const teams = extractTeams(sources);
+  console.log(sources);
+  console.log('NORMALIZE GROUP PARTY');
 
   const matchingTeams = new Map();
-  let team;
   for (let i = 0; i < teams.length; i++) {
     if (!(teams[i].name || teams[i].username)) {
       teams[i].name = generateRandomName();
