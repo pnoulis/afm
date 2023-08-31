@@ -1,5 +1,6 @@
 import { Team } from "../team/index.js";
 import { generateRandomName } from "js_utils/misc";
+import { smallid } from "js_utils/uuid";
 import { extractTeams } from "../../utils/extractTeams.js";
 
 /**
@@ -17,13 +18,11 @@ function normalize(sources, options = {}) {
     nulls: false,
   };
   const teams = extractTeams(sources);
-  console.log(sources);
-  console.log('NORMALIZE GROUP PARTY');
 
   const matchingTeams = new Map();
   for (let i = 0; i < teams.length; i++) {
     if (!(teams[i].name || teams[i].username)) {
-      teams[i].name = generateRandomName();
+      teams[i].name = `${generateRandomName()}_${smallid().slice(0, 3)}`;
     }
     let team = matchingTeams.get(teams[i].name || teams[i].teamName);
     if (team) {

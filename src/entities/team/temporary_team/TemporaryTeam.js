@@ -33,6 +33,54 @@ class TemporaryTeam extends Team {
     if (team.state) {
       this.setState(team.state);
     }
+
+    this.merge = (function () {
+      const schedule = new Scheduler();
+      const action = function () {
+        return this.state.merge(() => {
+          return schedule.run(() => {
+            return new Promise((resolve, reject) => {
+              if (!this.name) {
+                return reject(new aferrs.ERR_TEAM_MERGE_MISSING_NAME());
+              }
+
+              const paired = this.roster.find(function (player) {
+                return player.wristband.inState("paired");
+              });
+
+              if (!paired || paired.length < MIN_TEAM_SIZE) {
+                return reject(new aferrs.ERR_TEAM_MERGE_INSUFFICIENT_PLAYERS(this.name));
+              }
+
+              let duplicateColor = null;
+              if (
+                !areMembersUniqueCb(this.roster.get(), function (car, cdr) {
+                  if (
+                    car.wristband.getColorCode() ===
+                    cdr.wristband.getColorCode()
+                  ) {
+                    duplicateColor = car.wristband.getColor();
+                    return true;
+                  }
+                  return false;
+                })
+              ) {
+                return reject(
+                  new aferrs.ERR_TEAM_MERGE_DUPLICATE_COLORS(duplicateColor),
+                );
+              }
+              this.afmachine
+                .mergeGroupTeam(this)
+                .then(() => this.setState(this.getMergedState))
+                .then(resolve)
+                .catch(reject);
+            });
+          });
+        });
+      };
+      Object.setPrototypeOf(action, schedule);
+      return action;
+    })();
   }
 
   fill(...args) {
@@ -75,11 +123,10 @@ TemporaryTeam.prototype.addPlayer = function (player) {
   });
 };
 
-TemporaryTeam.prototype.merge = (function () {
-  const schedule = new Scheduler();
-  const action = function () {
-    return this.state.merge(() => {
-      return new Promise((resolve, reject) => {
+TemporaryTeam.prototype.mergeTeam = function () {
+  return this.state.merge(
+    () =>
+      new Promise((resolve, reject) => {
         if (!this.name) {
           return reject(new aferrs.ERR_TEAM_MERGE_MISSING_NAME());
         }
@@ -89,7 +136,9 @@ TemporaryTeam.prototype.merge = (function () {
         });
 
         if (!paired || paired.length < MIN_TEAM_SIZE) {
-          return reject(new aferrs.ERR_TEAM_MERGE_INSUFFICIENT_PLAYERS());
+          return reject(
+            new aferrs.ERR_TEAM_MERGE_INSUFFICIENT_PLAYERS(this.name),
+          );
         }
 
         let duplicateColor = null;
@@ -107,18 +156,14 @@ TemporaryTeam.prototype.merge = (function () {
           );
         }
 
-        schedule
-          .run(() => this.afmachine.mergeGroupTeam(this))
+        this.afmachine
+          .mergeGroupTeam(this)
           .then(() => this.setState(this.getMergedState))
           .then(resolve)
           .catch(reject);
-      });
-    });
-  };
-  Object.setPrototypeOf(action, schedule);
-  return action;
-})();
-
+      }),
+  );
+};
 // Stateful
 (() => {
   let extended = false;

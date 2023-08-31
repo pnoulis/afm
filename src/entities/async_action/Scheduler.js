@@ -16,6 +16,7 @@ class Scheduler {
     this.timeResolving = options.timeResolving || 0;
     this.timeRejecting = options.timeRejecting || 0;
     this.queue = [];
+    this.response = null;
   }
 
   next() {
@@ -34,14 +35,26 @@ class Scheduler {
         options,
         action: function () {
           action()
+            .then((res) => {
+              this.response = res;
+              return res;
+            })
             .then((res) => this.state.resolved(res))
             .then(resolve)
+            .catch((err) => {
+              this.response = err;
+              throw err;
+            })
             .catch((err) => this.state.rejected(err))
             .catch(reject);
         },
       });
       this.state.run();
     });
+  }
+
+  getResponse() {
+    return this.response;
   }
 }
 

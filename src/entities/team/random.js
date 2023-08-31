@@ -1,12 +1,12 @@
 import { generateRandomName, randomInteger } from "js_utils/misc";
 import { Roster } from "../roster/Roster.js";
 import { extractTeams } from "../../utils/extractTeams.js";
-import { MAX_TEAM_SIZE } from "agent_factory.shared/constants.js";
+import { smallid } from "js_utils/uuid";
 
 function random(source, { depth = 0, size = 0 } = {}) {
   const team = extractTeams(source).pop() || {};
   return {
-    name: team.name || generateRandomName(),
+    name: team.name || `${generateRandomName()}_${smallid().slice(0, 3)}`,
     points: team.points ?? randomInteger(0, 500),
     roster:
       depth > 0

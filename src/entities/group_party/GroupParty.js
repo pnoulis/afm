@@ -20,7 +20,7 @@ class GroupParty {
     // Eventful initialization
     eventful.construct.call(this);
     this.afmachine = afmachine;
-    this.teams = groupParty;
+    this.teams = groupParty || [];
     // this.teams = GroupParty.normalize(groupParty).map(
     //   (team) => new TemporaryTeam(this.afmachine, team),
     // );
@@ -78,7 +78,6 @@ GroupParty.prototype.distribute = function (ratio = 2) {
     if (oldTeams[i]) {
       this.teams[i].name = oldTeams[i];
     }
-    // this.teams[i].roster.rm();
     for (let y = 0; y < distributionMap[i].length; y++) {
       this.teams[i].roster.set(players.shift());
     }
@@ -106,21 +105,15 @@ GroupParty.prototype.forEachAsync = async function (cb) {
 };
 
 GroupParty.prototype.removeTeam = function (team) {
-  const newTeams = [];
   for (let i = 0; i < this.teams.length; i++) {
-    if (this.teams[i].name === team.name) {
-      continue;
-    } else {
-      newTeams.push(this.teams[i]);
+    if (this.teams[i].name === team.name || this.teams[i].name === team) {
+      this.teams.splice(i, 1);
     }
   }
-  this.teams = newTeams;
   this.size = 0;
   for (let i = 0; i < this.teams.length; i++) {
     this.size += this.teams[i].size;
   }
-  console.log(this.teams);
-  console.log('before emit change');
   this.emit("change");
 };
 
@@ -128,6 +121,13 @@ GroupParty.prototype.addTeam = function (team) {
   this.teams.push(
     new TemporaryTeam(this.afmachine, team).fill(null, { depth: 1 }),
   );
+
+  this.teams.at(-1).on("change", () => {
+    this.size = 0;
+    for (let i = 0; i < this.teams.length; i++) {
+      this.size += this.teams[i].size;
+    }
+  });
   this.size = 0;
   for (let i = 0; i < this.teams.length; i++) {
     this.size += this.teams[i].size;
