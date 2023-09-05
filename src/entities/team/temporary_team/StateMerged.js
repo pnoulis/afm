@@ -5,13 +5,23 @@ class Merged extends State {
     super(team);
   }
   merge(merge) {
-    return this.team.blockState("merge", true);
+    return this.team.blockState(
+      `${this.team.name} is already merged`,
+      "merge",
+      true,
+    );
   }
   addPlayer(add) {
-    return this.team.blockState("addPlayer");
+    return this.team.blockState(
+      `Team is already merged. Cannot add player`,
+      "add player",
+    );
   }
   removePlayer(remove) {
-    return this.team.blockState("removePlayer");
+    return this.team.blockState(
+      `Team is already merged. Cannot remove player`,
+      "remove player",
+    );
   }
 }
 

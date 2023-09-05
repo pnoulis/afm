@@ -140,6 +140,7 @@ GroupParty.prototype.register = async function () {
     return Promise.reject(new aferrs.ERR_GP_EMPTY());
   }
   for (let i = 0; i < this.teams.length; i++) {
+    if (this.teams[i].inState('merged')) continue;
     await this.teams[i].merge();
   }
 };

@@ -37,8 +37,8 @@ class TemporaryTeam extends Team {
     this.merge = (function () {
       const schedule = new Scheduler();
       const action = function () {
-        return this.state.merge(() => {
-          return schedule.run(() => {
+        return schedule.run(() =>
+          this.state.merge(() => {
             return new Promise((resolve, reject) => {
               if (!this.name) {
                 return reject(new aferrs.ERR_TEAM_MERGE_MISSING_NAME());
@@ -49,7 +49,9 @@ class TemporaryTeam extends Team {
               });
 
               if (!paired || paired.length < MIN_TEAM_SIZE) {
-                return reject(new aferrs.ERR_TEAM_MERGE_INSUFFICIENT_PLAYERS(this.name));
+                return reject(
+                  new aferrs.ERR_TEAM_MERGE_INSUFFICIENT_PLAYERS(this.name),
+                );
               }
 
               let duplicateColor = null;
@@ -66,7 +68,7 @@ class TemporaryTeam extends Team {
                 })
               ) {
                 return reject(
-                  new aferrs.ERR_TEAM_MERGE_DUPLICATE_COLORS(duplicateColor),
+                  new aferrs.ERR_TEAM_DUPLICATE_WCOLOR(duplicateColor),
                 );
               }
               this.afmachine
@@ -75,8 +77,50 @@ class TemporaryTeam extends Team {
                 .then(resolve)
                 .catch(reject);
             });
-          });
-        });
+          }),
+        );
+        // return this.state.merge(() => {
+        //   return schedule.run(() => {
+        //     return new Promise((resolve, reject) => {
+        //       if (!this.name) {
+        //         return reject(new aferrs.ERR_TEAM_MERGE_MISSING_NAME());
+        //       }
+
+        //       const paired = this.roster.find(function (player) {
+        //         return player.wristband.inState("paired");
+        //       });
+
+        //       if (!paired || paired.length < MIN_TEAM_SIZE) {
+        //         return reject(
+        //           new aferrs.ERR_TEAM_MERGE_INSUFFICIENT_PLAYERS(this.name),
+        //         );
+        //       }
+
+        //       let duplicateColor = null;
+        //       if (
+        //         !areMembersUniqueCb(this.roster.get(), function (car, cdr) {
+        //           if (
+        //             car.wristband.getColorCode() ===
+        //             cdr.wristband.getColorCode()
+        //           ) {
+        //             duplicateColor = car.wristband.getColor();
+        //             return true;
+        //           }
+        //           return false;
+        //         })
+        //       ) {
+        //         return reject(
+        //           new aferrs.ERR_TEAM_MERGE_DUPLICATE_COLORS(duplicateColor),
+        //         );
+        //       }
+        //       this.afmachine
+        //         .mergeGroupTeam(this)
+        //         .then(() => this.setState(this.getMergedState))
+        //         .then(resolve)
+        //         .catch(reject);
+        //     });
+        //   });
+        // });
       };
       Object.setPrototypeOf(action, schedule);
       return action;
@@ -93,21 +137,11 @@ class TemporaryTeam extends Team {
 TemporaryTeam.prototype.bootstrap = function () {
   this.setState(this.state);
 };
-TemporaryTeam.prototype.blockState = function (action, async = false) {
+TemporaryTeam.prototype.blockState = function (msg, action, async = false) {
   if (async) {
-    return Promise.reject(
-      new aferrs.ERR_STATE_ACTION_BLOCK(
-        this.state.name,
-        this.constructor.name,
-        action,
-      ),
-    );
+    return Promise.reject(new aferrs.ERR_STATE_ACTION_BLOCK(msg, action));
   } else {
-    throw new aferrs.ERR_STATE_ACTION_BLOCK(
-      this.state.name,
-      this.constructor.name,
-      action,
-    );
+    throw new aferrs.ERR_STATE_ACTION_BLOCK(msg, action);
   }
 };
 TemporaryTeam.prototype.removePlayer = function (player) {
