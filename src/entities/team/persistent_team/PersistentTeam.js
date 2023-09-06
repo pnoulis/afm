@@ -35,6 +35,74 @@ class PersistentTeam extends Team {
     if (team.state) {
       this.setState(team.state);
     }
+
+    this.merge = (function () {
+      const schedule = new Scheduler();
+      const action = function () {
+        return schedule.run(() =>
+          this.state.merge(
+            () =>
+              new Promise((resolve, reject) => {
+                if (!this.name) {
+                  return reject(new aferrs.ERR_TEAM_MERGE_MISSING_NAME());
+                }
+
+                const paired = this.roster.find(function (player) {
+                  return player.inState("registered");
+                });
+
+                if (!paired || paired.length < MIN_TEAM_SIZE) {
+                  return reject(
+                    new aferrs.ERR_TEAM_MERGE_INSUFFICIENT_PLAYERS(),
+                  );
+                }
+
+                const unpaired = this.roster.find(function (player) {
+                  return player.wristband.compareStates(
+                    (states, current) => current < states.paired,
+                  );
+                });
+
+                if (unpaired) {
+                  return reject(
+                    new aferrs.ERR_TEAM_MERGE_UNPAIRED_PLAYERS(
+                      unpaired.map((p) => p.username),
+                    ),
+                  );
+                }
+
+                let duplicateColor = null;
+                if (
+                  !areMembersUniqueCb(this.roster.get(), function (car, cdr) {
+                    if (
+                      car.wristband.getColorCode() ===
+                      cdr.wristband.getColorCode()
+                    ) {
+                      duplicateColor = car.wristband.getColor();
+                      return true;
+                    }
+                    return false;
+                  })
+                ) {
+                  return reject(
+                    new aferrs.ERR_TEAM_DUPLICATE_WCOLOR(duplicateColor),
+                  );
+                }
+
+                this.afmachine
+                  .mergeTeam(this)
+                  .then(() => {
+                    return this.setState(this.getMergedState);
+                  })
+                  .then(resolve)
+                  .catch(reject);
+              }),
+          ),
+        );
+      };
+      Object.setPrototypeOf(action, schedule);
+      return action;
+    })();
   }
 
   fill(...args) {
@@ -98,9 +166,7 @@ PersistentTeam.prototype.mergeTeam = function () {
             return false;
           })
         ) {
-          return reject(
-            new aferrs.ERR_TEAM_MERGE_DUPLICATE_COLORS(duplicateColor),
-          );
+          return reject(new aferrs.ERR_TEAM_DUPLICATE_WCOLOR(duplicateColor));
         }
 
         this.afmachine
@@ -113,63 +179,63 @@ PersistentTeam.prototype.mergeTeam = function () {
       }),
   );
 };
-PersistentTeam.prototype.merge = (function () {
-  const schedule = new Scheduler();
-  const action = function () {
-    return this.state.merge(() => {
-      return new Promise((resolve, reject) => {
-        if (!this.name) {
-          return reject(new aferrs.ERR_TEAM_MERGE_MISSING_NAME());
-        }
+// PersistentTeam.prototype.merge = (function () {
+//   const schedule = new Scheduler();
+//   const action = function () {
+//     return this.state.merge(() => {
+//       return new Promise((resolve, reject) => {
+//         if (!this.name) {
+//           return reject(new aferrs.ERR_TEAM_MERGE_MISSING_NAME());
+//         }
 
-        const paired = this.roster.find(function (player) {
-          return player.inState("registered");
-        });
+//         const paired = this.roster.find(function (player) {
+//           return player.inState("registered");
+//         });
 
-        if (!paired || paired.length < MIN_TEAM_SIZE) {
-          return reject(new aferrs.ERR_TEAM_MERGE_INSUFFICIENT_PLAYERS());
-        }
+//         if (!paired || paired.length < MIN_TEAM_SIZE) {
+//           return reject(new aferrs.ERR_TEAM_MERGE_INSUFFICIENT_PLAYERS());
+//         }
 
-        const unpaired = this.roster.find(function (player) {
-          return player.wristband.compareStates(function (states, current) {
-            return current < states.paired;
-          });
-        });
+//         const unpaired = this.roster.find(function (player) {
+//           return player.wristband.compareStates(function (states, current) {
+//             return current < states.paired;
+//           });
+//         });
 
-        if (unpaired) {
-          return reject(
-            new aferrs.ERR_TEAM_MERGE_UNPAIRED_PLAYERS(
-              unpaired.map((p) => p.username),
-            ),
-          );
-        }
+//         if (unpaired) {
+//           return reject(
+//             new aferrs.ERR_TEAM_MERGE_UNPAIRED_PLAYERS(
+//               unpaired.map((p) => p.username),
+//             ),
+//           );
+//         }
 
-        let duplicateColor = null;
-        if (
-          !areMembersUniqueCb(this.roster.get(), function (car, cdr) {
-            if (car.wristband.getColorCode() === cdr.wristband.getColorCode()) {
-              duplicateColor = car.wristband.getColor();
-              return true;
-            }
-            return false;
-          })
-        ) {
-          return reject(
-            new aferrs.ERR_TEAM_MERGE_DUPLICATE_COLORS(duplicateColor),
-          );
-        }
+//         let duplicateColor = null;
+//         if (
+//           !areMembersUniqueCb(this.roster.get(), function (car, cdr) {
+//             if (car.wristband.getColorCode() === cdr.wristband.getColorCode()) {
+//               duplicateColor = car.wristband.getColor();
+//               return true;
+//             }
+//             return false;
+//           })
+//         ) {
+//           return reject(
+//             new aferrs.ERR_TEAM_MERGE_DUPLICATE_COLORS(duplicateColor),
+//           );
+//         }
 
-        schedule
-          .run(() => this.afmachine.mergeTeam(this))
-          .then(() => this.setState(this.getMergedState))
-          .then(resolve)
-          .catch(reject);
-      });
-    });
-  };
-  Object.setPrototypeOf(action, schedule);
-  return action;
-})();
+//         schedule
+//           .run(() => this.afmachine.mergeTeam(this))
+//           .then(() => this.setState(this.getMergedState))
+//           .then(resolve)
+//           .catch(reject);
+//       });
+//     });
+//   };
+//   Object.setPrototypeOf(action, schedule);
+//   return action;
+// })();
 
 PersistentTeam.prototype.removePlayer = function (player) {
   this.state.removePlayer(() => {

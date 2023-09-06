@@ -64,6 +64,12 @@ GroupParty.prototype.distribute = function (ratio = 2) {
   if (this.size === 0) {
     throw new aferrs.ERR_GP_EMPTY("distribute players");
   }
+  for (let i = 0; i < this.teams.length; i++) {
+    if (this.teams[i].inState("merged")) {
+      throw new aferrs.ERR_GP_DISTRIBUTE_MERGED();
+    }
+  }
+
   const distributionMap = distributePlayersRatio(this.size, parseInt(ratio));
   const players = Roster.normalize(extractPlayers(this.teams));
   const oldTeams = this.teams.map((t) => t.name);
@@ -140,7 +146,7 @@ GroupParty.prototype.register = async function () {
     return Promise.reject(new aferrs.ERR_GP_EMPTY());
   }
   for (let i = 0; i < this.teams.length; i++) {
-    if (this.teams[i].inState('merged')) continue;
+    if (this.teams[i].inState("merged")) continue;
     await this.teams[i].merge();
   }
 };
