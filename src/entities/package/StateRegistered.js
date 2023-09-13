@@ -7,7 +7,9 @@ class Registered extends State {
   start(start) {}
   pause(pause) {}
   unregister(unregister) {}
-  register(register) {}
+  register(register) {
+    return this.team.blockState("register package", true);
+  }
   pay(pay) {}
 }
 

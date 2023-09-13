@@ -38,8 +38,8 @@ class Package {
 }
 Package.prototype.start = function () {};
 Package.prototype.pause = function () {};
-Package.prototype.unregister = function () {};
 Package.prototype.register = function () {};
+Package.prototype.unregister = function () {};
 Package.prototype.pay = function () {};
 
 Package.prototype.blockState = function (action, async = false) {

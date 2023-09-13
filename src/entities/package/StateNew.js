@@ -1,4 +1,4 @@
-import { State } from './State.js';
+import { State } from "./State.js";
 
 class New extends State {
   constructor(pkg) {
@@ -7,7 +7,9 @@ class New extends State {
   start(start) {}
   pause(pause) {}
   unregister(unregister) {}
-  register(register) {}
+  register(register) {
+    return register();
+  }
   pay(pay) {}
 }
 

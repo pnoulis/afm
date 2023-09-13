@@ -36,73 +36,73 @@ class PersistentTeam extends Team {
       this.setState(team.state);
     }
 
-    this.merge = (function () {
-      const schedule = new Scheduler();
-      const action = function () {
-        return schedule.run(() =>
-          this.state.merge(
-            () =>
-              new Promise((resolve, reject) => {
-                if (!this.name) {
-                  return reject(new aferrs.ERR_TEAM_MERGE_MISSING_NAME());
-                }
+    // this.merge = (function () {
+    //   const schedule = new Scheduler();
+    //   const action = function () {
+    //     return schedule.run(() =>
+    //       this.state.merge(
+    //         () =>
+    //           new Promise((resolve, reject) => {
+    //             if (!this.name) {
+    //               return reject(new aferrs.ERR_TEAM_MERGE_MISSING_NAME());
+    //             }
 
-                const paired = this.roster.find(function (player) {
-                  return player.inState("registered");
-                });
+    //             const paired = this.roster.find(function (player) {
+    //               return player.inState("registered");
+    //             });
 
-                if (!paired || paired.length < MIN_TEAM_SIZE) {
-                  return reject(
-                    new aferrs.ERR_TEAM_MERGE_INSUFFICIENT_PLAYERS(),
-                  );
-                }
+    //             if (!paired || paired.length < MIN_TEAM_SIZE) {
+    //               return reject(
+    //                 new aferrs.ERR_TEAM_MERGE_INSUFFICIENT_PLAYERS(),
+    //               );
+    //             }
 
-                const unpaired = this.roster.find(function (player) {
-                  return player.wristband.compareStates(
-                    (states, current) => current < states.paired,
-                  );
-                });
+    //             const unpaired = this.roster.find(function (player) {
+    //               return player.wristband.compareStates(
+    //                 (states, current) => current < states.paired,
+    //               );
+    //             });
 
-                if (unpaired) {
-                  return reject(
-                    new aferrs.ERR_TEAM_MERGE_UNPAIRED_PLAYERS(
-                      unpaired.map((p) => p.username),
-                    ),
-                  );
-                }
+    //             if (unpaired) {
+    //               return reject(
+    //                 new aferrs.ERR_TEAM_MERGE_UNPAIRED_PLAYERS(
+    //                   unpaired.map((p) => p.username),
+    //                 ),
+    //               );
+    //             }
 
-                let duplicateColor = null;
-                if (
-                  !areMembersUniqueCb(this.roster.get(), function (car, cdr) {
-                    if (
-                      car.wristband.getColorCode() ===
-                      cdr.wristband.getColorCode()
-                    ) {
-                      duplicateColor = car.wristband.getColor();
-                      return true;
-                    }
-                    return false;
-                  })
-                ) {
-                  return reject(
-                    new aferrs.ERR_TEAM_DUPLICATE_WCOLOR(duplicateColor),
-                  );
-                }
+    //             let duplicateColor = null;
+    //             if (
+    //               !areMembersUniqueCb(this.roster.get(), function (car, cdr) {
+    //                 if (
+    //                   car.wristband.getColorCode() ===
+    //                   cdr.wristband.getColorCode()
+    //                 ) {
+    //                   duplicateColor = car.wristband.getColor();
+    //                   return true;
+    //                 }
+    //                 return false;
+    //               })
+    //             ) {
+    //               return reject(
+    //                 new aferrs.ERR_TEAM_DUPLICATE_WCOLOR(duplicateColor),
+    //               );
+    //             }
 
-                this.afmachine
-                  .mergeTeam(this)
-                  .then(() => {
-                    return this.setState(this.getMergedState);
-                  })
-                  .then(resolve)
-                  .catch(reject);
-              }),
-          ),
-        );
-      };
-      Object.setPrototypeOf(action, schedule);
-      return action;
-    })();
+    //             this.afmachine
+    //               .mergeTeam(this)
+    //               .then(() => {
+    //                 return this.setState(this.getMergedState);
+    //               })
+    //               .then(resolve)
+    //               .catch(reject);
+    //           }),
+    //       ),
+    //     );
+    //   };
+    //   Object.setPrototypeOf(action, schedule);
+    //   return action;
+    // })();
   }
 
   fill(...args) {
@@ -176,6 +176,26 @@ PersistentTeam.prototype.mergeTeam = function () {
           })
           .then(resolve)
           .catch(reject);
+      }),
+  );
+};
+
+PersistentTeam.prototype.registerPackage = function (pkg) {
+  return this.state.registerPackage(
+    () =>
+      new Promise((resolve, reject) => {
+        // return reject(new aferrs.ERR_UNIQUE_ACTIVE_PKG());
+        this.afmachine
+          .addPackage({
+            team: this,
+            pkg,
+          })
+          .then((pkgs) => {
+            this.packages = [...pkgs];
+            resolve(pkg);
+          })
+          .catch(reject)
+          .finally(() => this.emit("change"));
       }),
   );
 };
@@ -261,45 +281,45 @@ PersistentTeam.prototype.addPlayer = function (player) {
 // * @param { Object } payload
 //  * @param { string } payload.teamName
 //    * @param { string } payload.name - The name of a registered package
-PersistentTeam.prototype.registerPackage = (function () {
-  const schedule = new Scheduler();
-  const action = function (pkg) {
-    return this.state.registerPackage(() => {
-      if (this.packages.length > 0) {
-        return Promise.reject(new aferrs.ERR_UNIQUE_ACTIVE_PKG());
-      } else if (pkg instanceof Package) {
-        if (
-          pkg.compareStates((states, current) => {
-            return current >= states.registered;
-          })
-        ) {
-          return Promise.reject(new aferrs.ERR_PKG_IS_REGISTERED(pkg, this));
-        }
-      } else if (pkg.state !== "new") {
-        return Promise.reject(new aferrs.ERR_PKG_IS_REGISTERED(pkg, this));
-      }
+// PersistentTeam.prototype.registerPackage = (function () {
+//   const schedule = new Scheduler();
+//   const action = function (pkg) {
+//     return this.state.registerPackage(() => {
+//       if (this.packages.length > 0) {
+//         return Promise.reject(new aferrs.ERR_UNIQUE_ACTIVE_PKG());
+//       } else if (pkg instanceof Package) {
+//         if (
+//           pkg.compareStates((states, current) => {
+//             return current >= states.registered;
+//           })
+//         ) {
+//           return Promise.reject(new aferrs.ERR_PKG_IS_REGISTERED(pkg, this));
+//         }
+//       } else if (pkg.state !== "new") {
+//         return Promise.reject(new aferrs.ERR_PKG_IS_REGISTERED(pkg, this));
+//       }
 
-      return new Promise((resolve, reject) => {
-        schedule
-          .run(() =>
-            this.afmachine.addPackage({
-              team: this,
-              pkg,
-            }),
-          )
-          .then((pkgs) => {
-            this.packages = [...pkgs];
-            return pkgs.at(-1);
-          })
-          .then(resolve)
-          .then(() => this.emit("change"))
-          .catch(reject);
-      });
-    });
-  };
-  Object.setPrototypeOf(action, schedule);
-  return action;
-})();
+//       return new Promise((resolve, reject) => {
+//         schedule
+//           .run(() =>
+//             this.afmachine.addPackage({
+//               team: this,
+//               pkg,
+//             }),
+//           )
+//           .then((pkgs) => {
+//             this.packages = [...pkgs];
+//             return pkgs.at(-1);
+//           })
+//           .then(resolve)
+//           .then(() => this.emit("change"))
+//           .catch(reject);
+//       });
+//     });
+//   };
+//   Object.setPrototypeOf(action, schedule);
+//   return action;
+// })();
 
 PersistentTeam.prototype.removePackage = (function () {
   const schedule = new Scheduler();
