@@ -45,7 +45,7 @@ function removePackage(afmachine) {
       }
       context.res.payload = {
         ok: true,
-        msg: `Successfuly remove package ${context.pkg.id} from ${context.team.name}`,
+        msg: `Successfuly removed package ${context.pkg.id} from ${context.team.name}`,
         data,
       };
       await next();

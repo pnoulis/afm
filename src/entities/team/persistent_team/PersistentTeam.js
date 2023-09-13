@@ -199,6 +199,35 @@ PersistentTeam.prototype.registerPackage = function (pkg) {
       }),
   );
 };
+
+PersistentTeam.prototype.removePackage = function (pkg) {
+  return this.state.removePackage(
+    () =>
+      new Promise((resolve, reject) => {
+        if (pkg.active) {
+          return Promise.reject(new aferrs.ERR_RM_ACTIVE_PKG(pkg));
+        } else if (
+          isObject(pkg.state) ? pkg.inState("new") : pkg.state === "new"
+        ) {
+          return this.blockState("removePackage", true);
+        }
+
+        this.afmachine
+          .removePackage({
+            team: this,
+            pkg,
+          })
+          .then((pkgs) => {
+            this.packages = pkgs.map(
+              (p) => new Package(this.afmachine, p, this),
+            );
+            resolve(pkg, pkgs);
+          })
+          .catch(reject)
+          .finally(() => this.emit("change"));
+      }),
+  );
+};
 // PersistentTeam.prototype.merge = (function () {
 //   const schedule = new Scheduler();
 //   const action = function () {
@@ -321,39 +350,39 @@ PersistentTeam.prototype.addPlayer = function (player) {
 //   return action;
 // })();
 
-PersistentTeam.prototype.removePackage = (function () {
-  const schedule = new Scheduler();
-  const action = function (pkg) {
-    return this.state.removePackage(() => {
-      if (pkg.active) {
-        return Promise.reject(new aferrs.ERR_RM_ACTIVE_PKG(pkg));
-      } else if (
-        isObject(pkg.state) ? pkg.inState("new") : pkg.state === "new"
-      ) {
-        return this.blockState("removePackage", true);
-      }
+// PersistentTeam.prototype.removePackage = (function () {
+//   const schedule = new Scheduler();
+//   const action = function (pkg) {
+//     return this.state.removePackage(() => {
+//       if (pkg.active) {
+//         return Promise.reject(new aferrs.ERR_RM_ACTIVE_PKG(pkg));
+//       } else if (
+//         isObject(pkg.state) ? pkg.inState("new") : pkg.state === "new"
+//       ) {
+//         return this.blockState("removePackage", true);
+//       }
 
-      return new Promise((resolve, reject) => {
-        schedule
-          .run(() =>
-            this.afmachine.removePackage({
-              team: this,
-              pkg,
-            }),
-          )
-          .then((pkgs) => {
-            this.packages = pkgs.map((p) => new Package(p));
-            return pkgs.at(-1);
-          })
-          .then(resolve)
-          .then(() => this.emit("change"))
-          .catch(reject);
-      });
-    });
-  };
-  Object.setPrototypeOf(action, schedule);
-  return action;
-})();
+//       return new Promise((resolve, reject) => {
+//         schedule
+//           .run(() =>
+//             this.afmachine.removePackage({
+//               team: this,
+//               pkg,
+//             }),
+//           )
+//           .then((pkgs) => {
+//             this.packages = pkgs.map((p) => new Package(p));
+//             return pkgs.at(-1);
+//           })
+//           .then(resolve)
+//           .then(() => this.emit("change"))
+//           .catch(reject);
+//       });
+//     });
+//   };
+//   Object.setPrototypeOf(action, schedule);
+//   return action;
+// })();
 
 PersistentTeam.prototype.activate = (function () {
   const schedule = new Scheduler();
