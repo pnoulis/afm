@@ -53,4 +53,39 @@ function removePackage(afmachine) {
   ];
 }
 
-export { removePackage };
+function onRemovePackage(afmachine) {
+  return [
+    "/team/package/delete",
+    // argument parsing and validation
+    async function (context, next) {
+      // listener
+      context.req = context.args.listener;
+      if (typeof context.req !== "function") {
+        throw new TypeError("onRemovePackage listener function missing");
+      }
+      await next();
+    },
+    async (context, next) => {
+      context.res = afmachine.services.backend.onRemovePackage(context.req);
+      await next();
+    },
+    async function (context, next, err) {
+      if (err) {
+        context.res.payload = {
+          ok: false,
+          msg: "Failed to subscribe to package remove topic",
+          reason: err.message,
+        };
+        throw err;
+      }
+      context.res.payload = {
+        ok: true,
+        // unsubscribe function
+        data: context.res,
+      };
+      await next();
+    },
+  ];
+}
+
+export { removePackage, onRemovePackage };

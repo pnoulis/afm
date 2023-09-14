@@ -109,6 +109,7 @@ function Afmachine() {
 
   // Routes
   this.addPackage = this.pipeline.route(...routes.addPackage(this));
+  this.onAddPackage = this.pipeline.route(...routes.onAddPackage(this));
   this.boot = this.pipeline.route(...routes.boot(this));
   this.getWristbandScan = this.pipeline.route(...routes.getWristbandScan(this));
   this.listPackages = this.pipeline.route(...routes.listPackages(this));
@@ -134,8 +135,10 @@ function Afmachine() {
     ...routes.onUnregisterWristband(this),
   );
   this.removePackage = this.pipeline.route(...routes.removePackage(this));
+  this.onRemovePackage = this.pipeline.route(...routes.onRemovePackage(this));
   this.searchPlayer = this.pipeline.route(...routes.searchPlayer(this));
   this.startTeam = this.pipeline.route(...routes.startTeam(this));
+  this.onStartTeam = this.pipeline.route(...routes.onStartTeam(this));
   this.verifyWristband = this.pipeline.route(...routes.verifyWristband(this));
   this.loginCashier = this.pipeline.route(...stubRoutes.loginCashier(this));
   this.logoutCashier = this.pipeline.route(...stubRoutes.logoutCashier(this));

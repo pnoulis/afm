@@ -185,6 +185,15 @@ PersistentTeam.prototype.registerPackage = function (pkg) {
     () =>
       new Promise((resolve, reject) => {
         // return reject(new aferrs.ERR_UNIQUE_ACTIVE_PKG());
+        for (let i = 0; i < this.packages.length; i++) {
+          if (
+            isObject(this.packages[i].state)
+              ? this.packages[i].inState("registered")
+              : this.packages[i].state === "registered"
+          ) {
+            return reject(new aferrs.ERR_UNIQUE_ACTIVE_PKG());
+          }
+        }
         this.afmachine
           .addPackage({
             team: this,
@@ -384,43 +393,74 @@ PersistentTeam.prototype.addPlayer = function (player) {
 //   return action;
 // })();
 
-PersistentTeam.prototype.activate = (function () {
-  const schedule = new Scheduler();
-  const action = function () {
-    return this.state.activate(() => {
-      if (!this.packages.length) {
-        return Promise.reject(
-          new aferrs.ERR_TEAM_ACTIVATE("Cannot activate team with no packages"),
-        );
-      } else if (this.packages.length > 1) {
-        return Promise.reject(
-          new aferrs.ERR_TEAM_ACTIVATE(
-            `Cannot activate team with more than 1 package.`,
-          ),
-        );
-      } else if (!this.packages.find((pkg) => pkg.state === "registered")) {
-        return Promise.reject(
-          new aferrs.ERR_TEAM_ACTIVATE(
-            "Cannot activate team with no registered packages",
-          ),
-        );
-      }
-      return new Promise((resolve, reject) => {
-        schedule
-          .run(() => this.afmachine.startTeam(this))
-          .then((team) => {
+PersistentTeam.prototype.activate = function (pkg) {
+  return this.state.activate(
+    () =>
+      new Promise((resolve, reject) => {
+        // Allow only one active package to exist
+        for (let i = 0; i < this.packages.length; i++) {
+          if (
+            isObject(this.packages[i].state)
+              ? this.packages[i].inState("playing")
+              : this.packages[i].state === "playing"
+          ) {
+            return reject(
+              new aferrs.ERR_TEAM_ACTIVATE(
+                `Cannot activate a second package. You must wait for completion.`,
+              ),
+            );
+          }
+        }
+        // activate package
+        this.afmachine
+          .startTeam(this)
+          .then((response) => {
+            this.packages = response.payload.data.team.packages;
             this.setState(this.getPlayingState);
-            return team;
+            resolve(pkg);
           })
-          .then(resolve)
-          .then(() => this.emit("change"))
           .catch(reject);
-      });
-    });
-  };
-  Object.setPrototypeOf(action, schedule);
-  return action;
-})();
+      }),
+  );
+};
+
+// PersistentTeam.prototype.activate = (function () {
+//   const schedule = new Scheduler();
+//   const action = function () {
+//     return this.state.activate(() => {
+//       if (!this.packages.length) {
+//         return Promise.reject(
+//           new aferrs.ERR_TEAM_ACTIVATE("Cannot activate team with no packages"),
+//         );
+//       } else if (this.packages.length > 1) {
+//         return Promise.reject(
+//           new aferrs.ERR_TEAM_ACTIVATE(
+//             `Cannot activate team with more than 1 package.`,
+//           ),
+//         );
+//       } else if (!this.packages.find((pkg) => pkg.state === "registered")) {
+//         return Promise.reject(
+//           new aferrs.ERR_TEAM_ACTIVATE(
+//             "Cannot activate team with no registered packages",
+//           ),
+//         );
+//       }
+//       return new Promise((resolve, reject) => {
+//         schedule
+//           .run(() => this.afmachine.startTeam(this))
+//           .then((team) => {
+//             this.setState(this.getPlayingState);
+//             return team;
+//           })
+//           .then(resolve)
+//           .then(() => this.emit("change"))
+//           .catch(reject);
+//       });
+//     });
+//   };
+//   Object.setPrototypeOf(action, schedule);
+//   return action;
+// })();
 
 PersistentTeam.prototype.pause = (function () {
   const schedule = new Scheduler();
