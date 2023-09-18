@@ -15,13 +15,11 @@ function cashout(afmachine) {
         userStats: context.userStats,
         globalStats: context.globalStats,
       };
-      console.log(context.req);
       await next();
     },
     // cashout
     async function (context, next) {
       context.res = await (async () => {
-        // do whatanever;
         return Promise.resolve({
           result: "OK",
           message: "Cashout out",

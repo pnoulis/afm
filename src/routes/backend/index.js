@@ -14,3 +14,6 @@ export * from "./searchPlayer.js";
 export * from "./startTeam.js";
 export * from "./unregisterWristband.js";
 export * from "./verifyWristband.js";
+export * from './loginAdmin.js';
+export * from './startSession.js';
+export * from './stopSession.js';

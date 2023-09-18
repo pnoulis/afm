@@ -140,6 +140,9 @@ function Afmachine() {
   this.startTeam = this.pipeline.route(...routes.startTeam(this));
   this.onStartTeam = this.pipeline.route(...routes.onStartTeam(this));
   this.verifyWristband = this.pipeline.route(...routes.verifyWristband(this));
+  this.loginAdmin = this.pipeline.route(...routes.loginAdmin(this));
+  this.startSession = this.pipeline.route(...routes.startSession(this));
+  this.stopSession = this.pipeline.route(...routes.stopSession(this));
   this.loginCashier = this.pipeline.route(...stubRoutes.loginCashier(this));
   this.logoutCashier = this.pipeline.route(...stubRoutes.logoutCashier(this));
   this.cashout = this.pipeline.route(...stubRoutes.cashout(this));
