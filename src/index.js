@@ -119,6 +119,7 @@ function Afmachine() {
   this.listTeams = this.pipeline.route(...routes.listTeams(this));
   this.loginPlayer = this.pipeline.route(...routes.loginPlayer(this));
   this.mergeGroupTeam = this.pipeline.route(...routes.mergeGroupTeam(this));
+  this.onMergeGroupTeam = this.pipeline.route(...routes.onMergeGroupTeam(this));
   this.mergeTeam = this.pipeline.route(...routes.mergeTeam(this));
   this.onMergeTeam = this.pipeline.route(...routes.onMergeTeam(this));
   this.registerPlayer = this.pipeline.route(...routes.registerPlayer(this));

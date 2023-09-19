@@ -7,7 +7,7 @@ function stopSession(afmachine) {
       context.report = context.args?.report ?? context.args.report;
       context.req = {
         jwt: context.admin.jwt,
-        comment: context.report.comment,
+        comment: context.report?.comment,
       };
       await next();
     },
