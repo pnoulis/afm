@@ -17,3 +17,7 @@ export * from "./verifyWristband.js";
 export * from './loginAdmin.js';
 export * from './startSession.js';
 export * from './stopSession.js';
+export * from './listScoreboardTeams.js';
+export * from './listScoreboardViews.js';
+export * from './listScoreboardDevices.js';
+export * from './setScoreboardViews.js';

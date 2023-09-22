@@ -145,28 +145,17 @@ function Afmachine() {
   this.loginAdmin = this.pipeline.route(...routes.loginAdmin(this));
   this.startSession = this.pipeline.route(...routes.startSession(this));
   this.stopSession = this.pipeline.route(...routes.stopSession(this));
-  this.loginCashier = this.pipeline.route(...stubRoutes.loginCashier(this));
-  this.logoutCashier = this.pipeline.route(...stubRoutes.logoutCashier(this));
-  this.cashout = this.pipeline.route(...stubRoutes.cashout(this));
-  this.test = this.pipeline.route(
-    ...[
-      async function (context, next) {
-        context.res = await (async () => {
-          setTimeout(() => {
-            Promise.reject(new Error("some error"));
-          }, 1000);
-        })();
-        await next();
-      },
-      async function (context, next) {
-        context.res.payload = {
-          ok: false,
-          msg: "something",
-        };
-        throw new Error("yolo");
-        await next();
-      },
-    ],
+  this.listScoreboardTeams = this.pipeline.route(
+    ...routes.listScoreboardTeams(this),
+  );
+  this.listScoreboardViews = this.pipeline.route(
+    ...routes.listScoreboardViews(this),
+  );
+  this.listScoreboardDevices = this.pipeline.route(
+    ...routes.listScoreboardDevices(this),
+  );
+  this.setScoreboardViews = this.pipeline.route(
+    ...routes.setScoreboardViews(this),
   );
 }
 
