@@ -11,7 +11,7 @@ import {
 import * as routes from "./routes/backend/index.js";
 import * as aferrs from "agent_factory.shared/errors.js";
 import { LoggerService } from "agent_factory.shared/services/logger/LoggerService.js";
-import { CreateBackendService } from "agent_factory.shared/services/backend/CreateBackendService.js";
+import { createRegistrationService } from "agent_factory.shared/services/backend/createRegistrationService.js";
 import { lockWristbandScan } from "./afmachine/lockWristbandScan.js";
 import * as creates from "./afmachine/creates.js";
 import { AsyncAction, Scheduler } from "./entities/async_action/index.js";
@@ -34,6 +34,7 @@ import { Package } from "./entities/package/index.js";
 import * as stubRoutes from "./routes/stubs/index.js";
 import { delay } from "js_utils/misc";
 
+const registrationService = await createRegistrationService();
 function Afmachine() {
   this.clientId = "001";
   this.clientName = "afclient";
@@ -49,7 +50,7 @@ function Afmachine() {
   // logging
   this.services.logger = new LoggerService(this.clientId, this.clientName);
   // backend api
-  this.services.backend = CreateBackendService(this.clientId);
+  this.services.backend = registrationService;
 
   // Middleware
   this.middleware = {
