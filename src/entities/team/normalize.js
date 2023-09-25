@@ -33,9 +33,15 @@ function normalize(sources, options) {
       target = {
         name: source.name || target.name,
         points: source.points ?? target.points,
+        created: source.created ?? target.created,
+        lastRegisterAttempt:
+          source.lastRegisterAttempt ?? target.lastRegisterAttempt,
         state: source.state || target.state,
         roster: source.roster || target.roster,
         packages: source.packages || target.packages,
+        played: source.played ?? target.played,
+        wins: source.wins ?? target.wins,
+        losses: source.losses ?? target.losses,
       };
     }
   }
@@ -47,6 +53,11 @@ function __normalize(source, { state = "", defaultState = "" }) {
   const target = {
     name: source.name || source.teamName || "",
     points: source.points ?? source.totalPoints ?? 0,
+    created: source.created ?? null,
+    lastRegisterAttempt: source.lastRegisterAttempt ?? null,
+    played: source.played ?? 0,
+    wins: source.wins ?? 0,
+    losses: source.losses ?? 0,
     roster: [],
     packages: source.packages?.map?.((p) => Package.normalize(p)) || [],
   };
