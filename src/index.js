@@ -124,6 +124,7 @@ function Afmachine() {
   this.mergeTeam = this.pipeline.route(...routes.mergeTeam(this));
   this.onMergeTeam = this.pipeline.route(...routes.onMergeTeam(this));
   this.registerPlayer = this.pipeline.route(...routes.registerPlayer(this));
+  this.onRegisterPlayer = this.pipeline.route(...routes.onRegisterPlayer(this));
   this.registerWristband = this.pipeline.route(
     ...routes.registerWristband(this),
   );
@@ -156,6 +157,13 @@ function Afmachine() {
   );
   this.setScoreboardViews = this.pipeline.route(
     ...routes.setScoreboardViews(this),
+  );
+  this.listAllPlayers = this.pipeline.route(...routes.listAllPlayers(this));
+  this.onScoreboardUpdate = this.pipeline.route(
+    ...routes.onScoreboardUpdate(this),
+  );
+  this.onScoreboardDevicesUpdate = this.pipeline.route(
+    ...routes.onScoreboardDevicesUpdate(this),
   );
 }
 

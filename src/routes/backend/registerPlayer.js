@@ -61,4 +61,40 @@ function registerPlayer(afmachine) {
   ];
 }
 
-export { registerPlayer };
+function onRegisterPlayer(afmachine) {
+  return [
+    "/player/register",
+    // argument parsing and validation
+    async function (context, next) {
+      // listener
+      context.req = context.args.listener;
+      if (typeof context.req !== "function") {
+        throw new TypeError("onRegisterPlayer listener function missing");
+      }
+      await next();
+    },
+    // subscribe register player message
+    async (context, next) => {
+      context.res = afmachine.services.backend.onRegisterPlayer(context.req);
+      await next();
+    },
+    async function (context, next, err) {
+      if (err) {
+        context.res.payload = {
+          ok: false,
+          msg: "Failed to subscribe to player register topic",
+          reason: err.message,
+        };
+        throw err;
+      }
+      context.res.payload = {
+        ok: true,
+        // unsubscribe function
+        data: context.res,
+      };
+      await next();
+    },
+  ];
+}
+
+export { registerPlayer, onRegisterPlayer };

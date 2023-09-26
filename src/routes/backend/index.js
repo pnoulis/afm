@@ -21,3 +21,6 @@ export * from './listScoreboardTeams.js';
 export * from './listScoreboardViews.js';
 export * from './listScoreboardDevices.js';
 export * from './setScoreboardViews.js';
+export * from './listAllPlayers.js';
+export * from './onScoreboardUpdate.js';
+export * from './onScoreboardDevicesUpdate.js';

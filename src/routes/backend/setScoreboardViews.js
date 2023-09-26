@@ -5,6 +5,7 @@ function setScoreboardViews(afmachine) {
     async function (context, next) {
       context.req = {
         deviceId: context.args.deviceId,
+        status: context.args.view,
       };
       await next();
     },
