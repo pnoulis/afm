@@ -130,7 +130,7 @@ PersistentTeam.prototype.mergeTeam = function () {
   return this.state.merge(
     () =>
       new Promise((resolve, reject) => {
-        if (!this.name) {
+        if (isObject(this.name) || !this.name) {
           return reject(new aferrs.ERR_TEAM_MERGE_MISSING_NAME());
         }
 
@@ -139,7 +139,9 @@ PersistentTeam.prototype.mergeTeam = function () {
         });
 
         if (!paired || paired.length < MIN_TEAM_SIZE) {
-          return reject(new aferrs.ERR_TEAM_MERGE_INSUFFICIENT_PLAYERS());
+          return reject(
+            new aferrs.ERR_TEAM_MERGE_INSUFFICIENT_PLAYERS(this.name),
+          );
         }
 
         const unpaired = this.roster.find(function (player) {

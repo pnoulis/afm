@@ -10,7 +10,7 @@ import { Playing } from "./StatePlaying.js";
 import * as aferrs from "agent_factory.shared/errors.js";
 import { Scheduler } from "../../async_action/index.js";
 import { MIN_TEAM_SIZE } from "agent_factory.shared/constants.js";
-import { areMembersUniqueCb } from "js_utils/misc";
+import { areMembersUniqueCb, isObject } from "js_utils/misc";
 
 class TemporaryTeam extends Team {
   // Redefined to ensure constructor.name does not get
@@ -40,7 +40,7 @@ class TemporaryTeam extends Team {
         return schedule.run(() =>
           this.state.merge(() => {
             return new Promise((resolve, reject) => {
-              if (!this.name) {
+              if (isObject(this.name) || !this.name) {
                 return reject(new aferrs.ERR_TEAM_MERGE_MISSING_NAME());
               }
 
