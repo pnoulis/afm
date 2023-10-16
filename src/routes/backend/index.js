@@ -24,3 +24,7 @@ export * from './setScoreboardViews.js';
 export * from './listAllPlayers.js';
 export * from './onScoreboardUpdate.js';
 export * from './onScoreboardDevicesUpdate.js';
+export * from './listDevices.js';
+export * from './wakeupDevice.js';
+export * from './shutdownDevice.js';
+export * from './restartDevice.js';

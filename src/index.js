@@ -165,6 +165,10 @@ function Afmachine() {
   this.onScoreboardDevicesUpdate = this.pipeline.route(
     ...routes.onScoreboardDevicesUpdate(this),
   );
+  this.listDevices = this.pipeline.route(...routes.listDevices(this));
+  this.wakeupDevice = this.pipeline.route(...routes.wakeupDevice(this));
+  this.shutdownDevice = this.pipeline.route(...routes.shutdownDevice(this));
+  this.restartDevice = this.pipeline.route(...routes.restartDevice(this));
 }
 
 Afmachine.prototype.lockWristbandScan = lockWristbandScan;
