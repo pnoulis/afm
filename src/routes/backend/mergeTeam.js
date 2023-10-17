@@ -37,7 +37,7 @@ function mergeTeam(afmachine) {
       context.team = context.args;
       context.req = {
         timestamp: Date.now(),
-        teamName: context.team.name,
+        teamName: context.team.name?.trim(),
         usernames:
           context.team.roster instanceof Roster
             ? context.team.roster.get().map((p) => p.username)

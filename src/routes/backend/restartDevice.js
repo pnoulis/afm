@@ -22,6 +22,7 @@ function restartDevice(afmachine) {
           ok: false,
           msg: `Failed to restart device: ${context.req.deviceId || "ALL"}`,
           reason: err.message,
+          data: { deviceId: context.req.deviceId },
         };
         throw err;
       }
@@ -29,6 +30,7 @@ function restartDevice(afmachine) {
       context.res.payload = {
         ok: true,
         msg: `Successfuly restarted device: ${context.req.deviceId || "ALL"}`,
+        data: { deviceId: context.req.deviceId },
       };
       await next();
     },

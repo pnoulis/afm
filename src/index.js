@@ -83,13 +83,13 @@ function Afmachine() {
     context.res = context.res.payload;
     await next();
   });
-  this.pipeline.setGlobalLast((context, next, err) => {
+  this.pipeline.setGlobalLast(async (context, next, err) => {
     if (err) {
       // this.services.logger.error(err);
       throw err;
     }
     // this.services.logger.debug(context);
-    next();
+    await next();
   });
 
   // entities

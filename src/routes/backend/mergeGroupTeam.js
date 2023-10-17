@@ -9,7 +9,7 @@ function mergeGroupTeam(afmachine) {
       context.team = context.args;
       context.req = {
         timestamp: Date.now(),
-        teamName: context.team.name,
+        teamName: context.team.name?.trim(),
         groupPlayers: context.team.roster.asObject().map((player) => ({
           username: player.username,
           wristbandNumber: player.wristband.id,
