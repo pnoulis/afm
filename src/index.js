@@ -83,13 +83,13 @@ function Afmachine() {
     context.res = context.res.payload;
     await next();
   });
-  this.pipeline.setGlobalLast(async (context, next, err) => {
+  this.pipeline.setGlobalLast((context, next, err) => {
     if (err) {
       // this.services.logger.error(err);
       throw err;
     }
     // this.services.logger.debug(context);
-    await next();
+    next();
   });
 
   // entities
@@ -169,6 +169,7 @@ function Afmachine() {
   this.wakeupDevice = this.pipeline.route(...routes.wakeupDevice(this));
   this.shutdownDevice = this.pipeline.route(...routes.shutdownDevice(this));
   this.restartDevice = this.pipeline.route(...routes.restartDevice(this));
+  this.registerCashier = this.pipeline.route(...routes.registerCashier(this));
 }
 
 Afmachine.prototype.lockWristbandScan = lockWristbandScan;

@@ -52,7 +52,7 @@ function registerPlayer(afmachine) {
       context.player.state = "registered";
       context.res.payload = {
         ok: true,
-        msg: `Registered player ${context.player.username}`,
+        msg: `Successfully registered player: ${context.player.username}`,
         data: context.player,
       };
       await next();
