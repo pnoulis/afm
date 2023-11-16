@@ -29,3 +29,5 @@ export * from './wakeupDevice.js';
 export * from './shutdownDevice.js';
 export * from './restartDevice.js';
 export * from './registerCashier.js';
+export * from './deleteCashier.js';
+export * from './listCashiers.js';

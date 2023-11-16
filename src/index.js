@@ -118,6 +118,7 @@ function Afmachine() {
     ...routes.listRegisteredWristbandPlayers(this),
   );
   this.listTeams = this.pipeline.route(...routes.listTeams(this));
+  this.onListTeams = this.pipeline.route(...routes.onListTeams(this));
   this.loginPlayer = this.pipeline.route(...routes.loginPlayer(this));
   this.mergeGroupTeam = this.pipeline.route(...routes.mergeGroupTeam(this));
   this.onMergeGroupTeam = this.pipeline.route(...routes.onMergeGroupTeam(this));
@@ -170,6 +171,8 @@ function Afmachine() {
   this.shutdownDevice = this.pipeline.route(...routes.shutdownDevice(this));
   this.restartDevice = this.pipeline.route(...routes.restartDevice(this));
   this.registerCashier = this.pipeline.route(...routes.registerCashier(this));
+  this.deleteCashier = this.pipeline.route(...routes.deleteCashier(this));
+  this.listCashiers = this.pipeline.route(...routes.listCashiers(this));
 }
 
 Afmachine.prototype.lockWristbandScan = lockWristbandScan;

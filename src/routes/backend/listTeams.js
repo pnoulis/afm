@@ -1,6 +1,4 @@
 import { Team } from "../../entities/team/index.js";
-import { AF_PACKAGES } from "agent_factory.shared/constants.js";
-import { extractTeams } from "../../utils/extractTeams.js";
 
 function listTeams(afmachine) {
   return [
@@ -39,4 +37,39 @@ function listTeams(afmachine) {
   ];
 }
 
-export { listTeams };
+function onListTeams(afmachine) {
+  return [
+    "/teams/all",
+    // argument parsing and validation
+    async function (context, next) {
+      // listener
+      context.req = context.args.listener;
+      if (typeof context.req !== "function") {
+        throw new TypeError("onListTeams listener function missing");
+      }
+      await next();
+    },
+    async (context, next) => {
+      context.res = afmachine.services.backend.onListTeams(context.req);
+      await next();
+    },
+    async function (context, next, err) {
+      if (err) {
+        context.res.payload = {
+          ok: false,
+          msg: "Failed to subscribe to all teams topic",
+          reason: err.message,
+        };
+        throw err;
+      }
+      context.res.payload = {
+        ok: true,
+        // unsubscribe function
+        data: context.res,
+      };
+      await next();
+    },
+  ];
+}
+
+export { listTeams, onListTeams };
