@@ -64,14 +64,14 @@ function __normalize(source, { state = "", defaultState = "", pkgs } = {}) {
     target.amount = source.missions ?? 0;
     target.remainder = target.amount - source.missionsPlayed;
     var __state;
-    if (!target.remainder) {
-      __state = "completed";
-      if (!target.t_end) {
-        target.t_end = Date.now();
-      }
-    } else {
-      __state = "registered";
-    }
+    // if (!target.remainder) {
+    //   __state = "completed";
+    //   if (!target.t_end) {
+    //     target.t_end = Date.now();
+    //   }
+    // } else {
+    //   __state = "registered";
+    // }
   } else if (Object.hasOwn(source, "duration")) {
     target.type = "time";
     const now = Date.now();
@@ -79,18 +79,25 @@ function __normalize(source, { state = "", defaultState = "", pkgs } = {}) {
     target.remainder = now - ((target.started || now) + target.amount);
     target.remainder = target.remainder < 0 ? Math.abs(target.remainder) : 0;
     var __state;
-    if (!target.remainder) {
-      __state = "completed";
-      if (!target.t_end) {
-        target.t_end = now;
-      }
-    } else {
-      __state = "registered";
-    }
+    // if (!target.remainder) {
+    //   __state = "completed";
+    //   if (!target.t_end) {
+    //     target.t_end = now;
+    //   }
+    // } else {
+    //   __state = "registered";
+    // }
   } else {
     target.type = source.type || "";
     target.amount = source.amount ?? null;
     target.remainder = source.remainder ?? null;
+  }
+
+  console.log("PACKAGE COMPLETE TEST");
+  if (target.ended || target.t_end) {
+    __state = 'completed';
+  } else {
+    __state = 'registered';
   }
 
   if (state) {

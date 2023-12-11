@@ -28,9 +28,18 @@ function listTeams(afmachine) {
         throw err;
       }
 
+      console.log("PACKAGE COMPLETE TEST");
+      // context.res.teams[2].packages[0].ended = Date.now() - 500000;
+      console.log(context.res.teams);
+      // const yolo = context.res.teams.find((t) => t.name === "yolo yolo");
+      // yolo.packages[0].ended = Date.now() - 50000;
+      console.dir(context.res.teams[0], {
+        depth: null,
+      });
+      const data = context.res.teams.map((t) => Team.normalize(t));
       context.res.payload = {
         ok: true,
-        data: context.res.teams.map((t) => Team.normalize(t)),
+        data,
       };
       await next();
     },

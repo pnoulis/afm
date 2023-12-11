@@ -27,9 +27,10 @@ function listPackages(afmachine) {
         };
         throw err;
       }
+      const data = context.res.packages.map((p) => Package.normalize(p));
       context.res.payload = {
         ok: true,
-        data: context.res.packages.map((p) => Package.normalize(p)),
+        data,
       };
       await next();
     },
